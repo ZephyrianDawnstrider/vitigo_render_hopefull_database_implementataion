@@ -12086,3 +12086,76 @@ smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepte
 2025-05-07 10:54:13 [WARNING] django.server: "GET /api/placeholder/128/128 HTTP/1.1" 404 12168
 2025-05-07 10:55:07 [INFO] django.server: "POST /accounts/create/ HTTP/1.1" 302 0
 2025-05-07 10:55:08 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193849
+2025-05-07 12:44:24 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 12:44:35 [INFO] django.server: "GET / HTTP/1.1" 200 25439
+2025-05-07 12:44:37 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 302 0
+2025-05-07 12:44:38 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24764
+2025-05-07 12:44:53 [INFO] django.server: "GET /patients/ HTTP/1.1" 200 84192
+2025-05-07 12:44:54 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 220256
+2025-05-07 12:44:56 [INFO] django.server: "GET /consultations/ HTTP/1.1" 200 91922
+2025-05-07 12:44:57 [INFO] django.server: "GET /queries/ HTTP/1.1" 200 318930
+2025-05-07 12:45:00 [ERROR] lab_management.views: Error in lab management view: Invalid field name(s) given in select_related: 'user'. Choices are: role, auth_token, patient_profile, virtual_waiting_room, employee_profile, subscription, doctor_profile
+2025-05-07 12:45:01 [ERROR] django.server: "GET /lab/ HTTP/1.1" 500 7223
+2025-05-07 12:45:05 [ERROR] lab_management.views: Error in lab management view: Invalid field name(s) given in select_related: 'user'. Choices are: role, auth_token, patient_profile, virtual_waiting_room, employee_profile, subscription, doctor_profile
+2025-05-07 12:45:05 [ERROR] django.server: "GET /lab/ HTTP/1.1" 500 7223
+2025-05-07 12:45:08 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193718
+2025-05-07 12:54:32 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 12:54:35 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 12:54:47 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 12:54:50 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 12:54:54 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 12:54:59 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 12:55:04 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 12:55:06 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 12:55:36 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 12:55:39 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 13:05:05 [ERROR] django.server: "GET /access-control/dashboard/ HTTP/1.1" 500 202257
+2025-05-07 13:05:21 [ERROR] django.server: "GET /access-control/dashboard/ HTTP/1.1" 500 202259
+2025-05-07 13:05:59 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 13:06:01 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 13:06:56 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 13:06:59 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 13:08:12 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 13:08:14 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 13:08:17 [INFO] django.server: "GET /access-control/dashboard/ HTTP/1.1" 200 125126
+2025-05-07 13:08:43 [INFO] django.server: "GET /access-control/roles/manage/ HTTP/1.1" 200 26779
+2025-05-07 13:08:47 [INFO] django.server: "GET /access-control/roles/6/permissions/ HTTP/1.1" 200 2750
+2025-05-07 13:09:38 [INFO] django.server: "POST /access-control/roles/6/permissions/ HTTP/1.1" 200 64
+2025-05-07 13:09:47 [INFO] user_management.authentication_views: User logged out: softtech@google.com (Role: Administrator)
+2025-05-07 13:09:47 [INFO] django.server: "GET /accounts/logout/ HTTP/1.1" 302 0
+2025-05-07 13:09:48 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 6691
+2025-05-07 13:10:02 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
+2025-05-07 13:10:03 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 21248
+2025-05-07 13:10:08 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 216728
+2025-05-07 13:10:10 [INFO] django.server: "GET /patients/ HTTP/1.1" 200 80664
+2025-05-07 13:10:11 [INFO] django.server: "GET /consultations/ HTTP/1.1" 200 88394
+2025-05-07 13:10:13 [INFO] django.server: "GET /pharmacy/ HTTP/1.1" 200 29327
+2025-05-07 13:10:15 [INFO] django.server: "GET /procedures/ HTTP/1.1" 200 30855
+2025-05-07 13:10:15 [INFO] django.server: "GET /consultations/ HTTP/1.1" 200 88394
+2025-05-07 13:10:17 [WARNING] consultation_management.views: Access denied to consultation creation for user 117
+2025-05-07 13:10:17 [WARNING] django.server: "GET /consultations/create/ HTTP/1.1" 403 7073
+2025-05-07 13:10:22 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 216728
+2025-05-07 13:10:24 [INFO] django.server: "GET /appointments/create/ HTTP/1.1" 200 35031
+2025-05-07 13:10:38 [INFO] user_management.authentication_views: User logged out: Medicalassistantant@123.com (Role: Medical Assistant)
+2025-05-07 13:10:38 [INFO] django.server: "GET /accounts/logout/ HTTP/1.1" 302 0
+2025-05-07 13:10:38 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 6695
+2025-05-07 13:10:44 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
+2025-05-07 13:10:44 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24768
+2025-05-07 13:10:48 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193735
+2025-05-07 13:10:54 [INFO] django.server: "GET /access-control/dashboard/ HTTP/1.1" 200 125127
+2025-05-07 13:10:56 [INFO] django.server: "GET /access-control/roles/manage/ HTTP/1.1" 200 26779
+2025-05-07 13:10:59 [INFO] django.server: "GET /access-control/roles/7/permissions/ HTTP/1.1" 200 2750
+2025-05-07 13:11:05 [INFO] django.server: "GET /access-control/roles/6/permissions/ HTTP/1.1" 200 2734
+2025-05-07 13:19:16 [ERROR] lab_management.views: Error in lab management view: Invalid field name(s) given in select_related: 'user'. Choices are: role, auth_token, patient_profile, virtual_waiting_room, employee_profile, subscription, doctor_profile
+2025-05-07 13:19:16 [ERROR] django.server: "GET /lab/ HTTP/1.1" 500 7223
+2025-05-07 13:22:23 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\lab_management\views.py changed, reloading.
+2025-05-07 13:22:26 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 13:22:33 [INFO] django.server: "GET /lab/ HTTP/1.1" 200 27076
+2025-05-07 13:22:52 [INFO] django.server: "GET /image/ HTTP/1.1" 200 28349
+2025-05-07 13:22:55 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193735
+2025-05-07 13:22:57 [INFO] django.server: "GET /stock/ HTTP/1.1" 200 27190
+2025-05-07 13:23:00 [INFO] django.server: "GET /asset/dashboard/ HTTP/1.1" 200 32622
+2025-05-07 13:23:03 [INFO] django.server: "GET /reporting-and-analytics/ HTTP/1.1" 200 30570
+2025-05-07 13:23:06 [INFO] django.server: "GET /research/ HTTP/1.1" 200 27008
+2025-05-07 13:23:09 [INFO] django.server: "GET /help-support/ HTTP/1.1" 200 27102
+2025-05-07 13:23:12 [INFO] django.server: "GET /settings/ HTTP/1.1" 200 43199

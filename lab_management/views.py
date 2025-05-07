@@ -81,7 +81,7 @@ class LabManagementView(LoginRequiredMixin, View):
     def get_context_data(self):
         try:
             lab_orders = LabOrder.objects.select_related(
-                'patient__user',
+                'patient',
                 'ordered_by'
             ).prefetch_related(
                 'items__lab_test',
