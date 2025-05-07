@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
     gnupg2 \
     apt-transport-https \
     unixodbc-dev \
+    build-essential \
+    pkg-config \
+    default-libmysqlclient-dev \
     && apt-get remove -y libodbc2 libodbcinst2 unixodbc-common \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
@@ -19,6 +22,14 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements and install Python dependencies
+
+# Install build dependencies for mysqlclient
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    pkg-config \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
