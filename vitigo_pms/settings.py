@@ -140,13 +140,19 @@ WSGI_APPLICATION = 'vitigo_pms.wsgi.application'
 # }
 
 
+DB_NAME = os.getenv('DB_NAME', 'vitigodatabase')
+DB_USER = os.getenv('DB_USER', 'vindigouser')
+DB_PASSWORD = os.getenv('DB_PASSWORD', 'vindigo@2345#')
+DB_HOST = os.getenv('DB_HOST', '103.205.64.106,2499')
+DB_PORT = os.getenv('DB_PORT', '5432')
+
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
-        'NAME': 'vitigodatabase',
-        'HOST': '103.205.64.106,2499',
-        'USER': 'vindigouser',
-        'PASSWORD': 'vindigo@2345#',
+        'NAME': DB_NAME,
+        'HOST': DB_HOST,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
             'TrustServerCertificate': 'yes',

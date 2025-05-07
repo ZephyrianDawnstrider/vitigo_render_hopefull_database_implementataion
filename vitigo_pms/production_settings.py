@@ -1,7 +1,7 @@
 from .settings import *
 
 DEBUG = False
-ALLOWED_HOSTS = ['vitigoapp.com', 'localhost', '127.0.0.1', '::1', 'yourserverip', 'vitigo-render-hopefull-database-v6z3.onrender.com']
+ALLOWED_HOSTS = ['vitigoapp.com', 'localhost', '127.0.0.1', '::1', 'yourserverip', 'vitigo-render-hopefull-database-v6z3.onrender.com','*']
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 DATABASES = {
