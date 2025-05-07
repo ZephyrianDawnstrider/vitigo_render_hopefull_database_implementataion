@@ -1,0 +1,197 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load clinic_filters %}  
+{% block title %}Completed Visits Report{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'clinic_management:clinic_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-clinic-medical mr-2"></i>Clinic Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Completed Visits Report</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Completed Visits Report</h1>
+                <p class="mt-1 text-sm text-gray-600">Analysis and statistics of completed clinic visits</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="printReport()" class="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    <i class="fas fa-print mr-2"></i>
+                    Print Report
+                </button>
+                <button onclick="exportReport()" class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-file-excel mr-2"></i>
+                    Export to Excel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                <input type="date" name="date" id="date" value="{{ selected_date|date:'Y-m-d' }}"
+                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+            </div>
+            <div>
+                <label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
+                <select name="priority" id="priority"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+                    <option value="">All Priorities</option>
+                    <option value="A" {% if selected_priority == 'A' %}selected{% endif %}>High Priority</option>
+                    <option value="B" {% if selected_priority == 'B' %}selected{% endif %}>Medium Priority</option>
+                    <option value="C" {% if selected_priority == 'C' %}selected{% endif %}>Low Priority</option>
+                </select>
+            </div>
+            <div class="md:col-span-2 flex justify-end space-x-2">
+                <button type="submit" class="bg-amber-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                    Apply Filters
+                </button>
+                {% if selected_priority %}
+                <a href="?date={{ selected_date|date:'Y-m-d' }}" class="bg-gray-100 text-gray-700 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Clear
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-amber-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Total Completed</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_completed }}</p>
+                </div>
+                <div class="bg-amber-100 rounded-full p-3">
+                    <i class="fas fa-check-circle text-amber-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Average Duration</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ avg_duration }}</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i class="fas fa-clock text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visits Table -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Completed Visits List
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registration Time</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completion Time</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for visit in visits %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ visit.patient.get_full_name }}</div>
+                            <div class="text-sm text-gray-500">{{ visit.visit_number }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ visit.registration_time|time:"H:i" }}</div>
+                            <div class="text-sm text-gray-500">{{ visit.registration_time|date:"d M Y" }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ visit.completion_time|time:"H:i" }}</div>
+                            <div class="text-sm text-gray-500">{{ visit.completion_time|date:"d M Y" }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if visit.priority == 'A' %}bg-red-100 text-red-800
+                                {% elif visit.priority == 'B' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ visit.get_priority_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="#" class="text-amber-600 hover:text-amber-900">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <div class="flex flex-col items-center justify-center py-8">
+                                <i class="fas fa-clipboard-check text-4xl mb-3"></i>
+                                <p class="text-lg font-medium">No completed visits found</p>
+                                <p class="text-sm">No visits have been completed for the selected filters.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+            <div class="flex-1 flex justify-between items-center">
+                <p class="text-sm text-gray-700">
+                    Showing <span class="font-medium">{{ page_obj.start_index }}</span> to
+                    <span class="font-medium">{{ page_obj.end_index }}</span> of
+                    <span class="font-medium">{{ paginator.count }}</span> results
+                </p>
+                <div>
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if selected_date %}&date={{ selected_date|date:'Y-m-d' }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}"
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if selected_date %}&date={{ selected_date|date:'Y-m-d' }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}"
+                       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function printReport() {
+    window.print();
+}
+
+function exportReport() {
+    const currentUrl = new URL(window.location.href);
+    const searchParams = currentUrl.searchParams;
+    window.location.href = `/clinic-management/reports/completed-visits/export/?${searchParams.toString()}`;
+}
+</script>
+{% endblock %}
+{% endblock %}

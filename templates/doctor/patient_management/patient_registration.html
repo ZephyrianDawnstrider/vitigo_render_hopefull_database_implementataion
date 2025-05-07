@@ -1,0 +1,221 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}New Patient Registration{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'patient_list' %}" class="hover:text-blue-600"><i class="fas fa-users mr-2"></i>Patient Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">New Patient Registration</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">New Patient Registration</h1>
+                <p class="mt-1 text-sm text-gray-600">Register a new patient with complete profile</p>
+            </div>
+            <a href="{% url 'patient_list' %}" 
+               class="flex items-center px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Patient List
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form Card -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm">
+            <div class="p-6">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-green-50 text-green-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- User Account Information -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Account Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                {{ form.email|as_crispy_field }}
+                                {% if form.email.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.profile_picture|as_crispy_field }}
+                            </div>
+                            <div>
+                                {{ form.password1|as_crispy_field }}
+                                {% if form.password1.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.password2|as_crispy_field }}
+                                {% if form.password2.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                {{ form.first_name|as_crispy_field }}
+                                {% if form.first_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.last_name|as_crispy_field }}
+                                {% if form.last_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.date_of_birth|as_crispy_field }}
+                                {% if form.date_of_birth.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.date_of_birth.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.gender|as_crispy_field }}
+                                {% if form.gender.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.gender.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                {{ form.country_code|as_crispy_field }}
+                            </div>
+                            <div>
+                                {{ form.phone_number|as_crispy_field }}
+                            </div>
+                            <div>
+                                {{ form.emergency_contact_name|as_crispy_field }}
+                            </div>
+                            <div>
+                                {{ form.emergency_contact_number|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Information -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Medical Information</h3>
+                        <div class="space-y-4">
+                            <div>
+                                {{ form.vitiligo_onset_date|as_crispy_field }}
+                                <p class="mt-1 text-sm text-gray-500">If known, please specify when symptoms first appeared</p>
+                            </div>
+                            <div>
+                                {{ form.allergies|as_crispy_field }}
+                                <p class="mt-1 text-sm text-gray-500">List any known allergies, if none write "None"</p>
+                            </div>
+                            <div>
+                                {{ form.chronic_conditions|as_crispy_field }}
+                            </div>
+                            <div>
+                                {{ form.past_surgeries|as_crispy_field }}
+                            </div>
+                            <div>
+                                {{ form.family_history|as_crispy_field }}
+                                <p class="mt-1 text-sm text-gray-500">Include any relevant family medical history</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end space-x-3 pt-4 border-t">
+                        <button type="button" 
+                                onclick="window.location.href='{% url 'patient_list' %}'"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Register Patient
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Helper Information Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Registration Guide -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Registration Guide</h3>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Required Fields</h4>
+                            <p class="text-sm text-gray-500">Fields marked with <span class="text-red-500">*</span> are mandatory</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shield-alt text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Password Requirements</h4>
+                            <p class="text-sm text-gray-500">Must be at least 8 characters long with numbers and special characters</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical History Tips -->
+            <div class="bg-blue-50 rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Medical History Tips</h3>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-notes-medical text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Complete Information</h4>
+                            <p class="text-sm text-gray-500">Provide as much detail as possible about the patient's medical history</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-md text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Consultation</h4>
+                            <p class="text-sm text-gray-500">Consult with the patient to ensure all information is accurate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

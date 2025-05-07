@@ -1,0 +1,102 @@
+{% extends 'patient/base.html' %}
+
+{% block title %}My Appointments{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Header and CTA -->
+    <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800 mb-2 sm:mb-0">My Appointments</h1>
+        <a href="{% url 'appointment_create' %}" class="bg-blue-500 text-white px-5 py-2 rounded-lg hover:bg-blue-600 shadow">
+            + Create New Appointment
+        </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+            <h2 class="text-base font-medium text-gray-600">Total Appointments Booked</h2>
+            <p class="text-4xl font-extrabold text-blue-600 mt-2">{{ total_appointments }}</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+            <h2 class="text-base font-medium text-gray-600">Appointments Attended</h2>
+            <p class="text-4xl font-extrabold text-green-600 mt-2">{{ appointments_attended }}</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+            <h2 class="text-base font-medium text-gray-600">Treatment Progress (%)</h2>
+            <p class="text-4xl font-extrabold text-purple-600 mt-2">{{ treatment_progress }}</p>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointment -->
+    <div class="bg-white rounded-xl shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Upcoming Appointment</h2>
+        {% if upcoming_appointment %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+            <div>
+                <p><strong>Date:</strong> {{ upcoming_appointment.date|date:"M d, Y" }}</p>
+                <p><strong>Time:</strong> {{ upcoming_appointment.time_slot.start_time|time:"g:i A" }}</p>
+                <p><strong>Type:</strong> {{ upcoming_appointment.get_appointment_type_display }}</p>
+                <p><strong>Doctor:</strong> Dr. {{ upcoming_appointment.doctor.get_full_name }}</p>
+                <p><strong>Status:</strong> {{ upcoming_appointment.get_status_display }}</p>
+            </div>
+            <div class="flex gap-4 sm:justify-end">
+                <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="openCancelModal()">Cancel</button>
+                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600" onclick="openRescheduleModal()">Reschedule</button>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-gray-500">No upcoming appointments.</p>
+        {% endif %}
+    </div>
+
+    <!-- Appointment History -->
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Appointment History - {{ user.get_full_name }}</h2>
+        {% if appointments %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Time</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Doctor</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ appointment.date|date:"M d, Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ appointment.time_slot.start_time|time:"g:i A" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ appointment.get_appointment_type_display }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ appointment.get_status_display }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">Dr. {{ appointment.doctor.get_full_name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500">You have no appointments scheduled.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Scripts remain unchanged -->
+<script>
+function openCancelModal() {
+    document.getElementById('cancelModal').classList.remove('hidden');
+}
+function closeCancelModal() {
+    document.getElementById('cancelModal').classList.add('hidden');
+}
+function openRescheduleModal() {
+    document.getElementById('rescheduleModal').classList.remove('hidden');
+}
+function closeRescheduleModal() {
+    document.getElementById('rescheduleModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

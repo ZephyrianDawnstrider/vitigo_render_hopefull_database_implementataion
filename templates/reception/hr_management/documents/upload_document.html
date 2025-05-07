@@ -1,0 +1,198 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Upload Document{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'document_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Documents</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Upload Document</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="min-h-screen bg-gray-50 p-4">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-semibold text-gray-900">Upload Document</h1>
+                    <p class="mt-1 text-sm text-gray-600">Add a new document to the system with complete details</p>
+                </div>
+                <a href="{% url 'document_list' %}" 
+                   class="flex items-center px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Documents
+                </a>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Form Card -->
+            <div class="lg:col-span-2 bg-white rounded-lg shadow-sm">
+                <div class="p-6">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="mb-6">
+                                <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            {% if message.tags == 'error' %}
+                                                <i class="fas fa-exclamation-circle text-red-400"></i>
+                                            {% else %}
+                                                <i class="fas fa-check-circle text-green-400"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium">{{ message }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <!-- Document Information -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Document Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {{ form.document_type|as_crispy_field }}
+                                {{ form.title|as_crispy_field }}
+                                <div class="md:col-span-2">
+                                    {{ form.description|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">File Upload</h3>
+                            <div class="space-y-4">
+                                {% if form.file.errors %}
+                                    <div class="p-4 rounded-lg bg-red-50 text-red-800 border border-red-200 mb-4">
+                                        {% for error in form.file.errors %}
+                                            <p class="text-sm">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                {{ form.file|as_crispy_field }}
+                                {{ form.expiry_date|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="pt-8 flex justify-end space-x-3">
+                            <a href="{% url 'document_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                                Cancel
+                            </a>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Upload Document
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Helper Information Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Upload Guidelines -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Upload Guidelines</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900">Required Fields</h4>
+                                <p class="text-sm text-gray-500">Fields marked with <span class="text-red-500">*</span> are mandatory</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-file text-blue-500 mt-1"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900">Supported Formats</h4>
+                                <p class="text-sm text-gray-500">PDF, JPG, JPEG, PNG files only</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Guidelines -->
+                <div class="bg-blue-50 rounded-lg p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Document Guidelines</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-file-upload text-blue-500 mt-1"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900">File Size Limit</h4>
+                                <p class="text-sm text-gray-500">Maximum file size: 5MB</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-shield-alt text-blue-500 mt-1"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900">Security</h4>
+                                <p class="text-sm text-gray-500">All documents are securely stored and access-controlled</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-tags text-blue-500 mt-1"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-900">Proper Naming</h4>
+                                <p class="text-sm text-gray-500">Use clear, descriptive titles for easy search and reference</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Reports{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'reporting_and_analytics:reports_analytics_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Reports & Analytics</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="#" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">{{ category.module.display_name }}</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ category.name }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-6 mt-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">{{ category.name }}</h1>
+                <p class="mt-1 text-sm text-gray-600">{{ category.description }}</p>
+            </div>
+        </div>
+
+        <!-- Reports Grid -->
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {% for report in reports %}
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3">
+                            <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                        </div>
+                        <!-- Flowbite Dropdown -->
+                        <div class="relative">
+                            <button id="reportDropdown-{{ report.id }}" 
+                                    data-dropdown-toggle="dropdown-{{ report.id }}" 
+                                    class="text-gray-400 hover:text-gray-500">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <!-- Dropdown menu -->
+                            <div id="dropdown-{{ report.id }}" 
+                                 class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-44">
+                                <ul class="py-2 text-sm text-gray-700">
+                                    <li>
+                                        <a href="{% url 'reporting_and_analytics:report_exports' report.id %}" 
+                                           class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                            <i class="fas fa-history mr-2"></i>
+                                            Previous Reports
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">{{ report.name }}</h3>
+                    <p class="text-sm text-gray-600 mb-4">{{ report.description }}</p>
+                    <div class="flex items-center justify-start">
+                        <button data-modal-target="generateReportModal-{{ report.id }}" 
+                                data-modal-toggle="generateReportModal-{{ report.id }}"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Generation Modal -->
+            <div id="generateReportModal-{{ report.id }}" tabindex="-1" aria-hidden="true" 
+                 class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-md max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow">
+                        <!-- Modal header -->
+                        <div class="flex items-start justify-between p-4 border-b rounded-t">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Generate Report: {{ report.name }}
+                            </h3>
+                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" 
+                                    data-modal-hide="generateReportModal-{{ report.id }}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <form method="post" action="{% url 'reporting_and_analytics:category_reports' category.id %}" class="p-6">
+                            {% csrf_token %}
+                            <input type="hidden" name="report_id" value="{{ report.id }}">
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="preset-range-{{ report.id }}" class="block mb-2 text-sm font-medium text-gray-900">Select Date Range</label>
+                                    <select name="preset_range" id="preset-range-{{ report.id }}" 
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                        {% for value, label in form.fields.preset_range.choices %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                {% if form.errors %}
+                                <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% for error in form.non_field_errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center space-x-2 mt-6">
+                                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                    Generate
+                                </button>
+                                <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" 
+                                        data-modal-hide="generateReportModal-{{ report.id }}">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-8">
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <i class="fas fa-file-alt text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500">No reports available in this category</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

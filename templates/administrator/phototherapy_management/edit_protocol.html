@@ -1,0 +1,245 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'protocol_management' %}" class="hover:text-blue-600">Protocol Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Edit Protocol</li>
+        </ol>
+    </nav>
+
+    <div class="w-full mx-auto">
+        <!-- Protocol Info Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-800">Edit Protocol</h1>
+                <a href="{% url 'protocol_management' %}" class="text-blue-500 hover:text-blue-600">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Protocols
+                </a>
+            </div>
+
+            <!-- Protocol Usage Warning -->
+            {% if is_in_use %}
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            This protocol is currently in use by active treatment plans. 
+                            Changes may affect ongoing treatments.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Protocol Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Created By</p>
+                    <p class="font-medium">{{ protocol.created_by.get_full_name }}</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Active Plans</p>
+                    <p class="font-medium">{{ protocol.active_plans }}</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Last Updated</p>
+                    <p class="font-medium">{{ protocol.updated_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            {% if messages %}
+            <div class="mb-6">
+                {% for message in messages %}
+                <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="mb-6 p-4 rounded-lg bg-red-100 text-red-700">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.name|as_crispy_field }}
+                        {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.phototherapy_type|as_crispy_field }}
+                        {% if form.phototherapy_type.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.phototherapy_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Dose Information -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        {{ form.initial_dose|as_crispy_field }}
+                        {% if form.initial_dose.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.initial_dose.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.max_dose|as_crispy_field }}
+                        {% if form.max_dose.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.max_dose.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.increment_percentage|as_crispy_field }}
+                        {% if form.increment_percentage.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.increment_percentage.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Schedule Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.frequency_per_week|as_crispy_field }}
+                        {% if form.frequency_per_week.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.frequency_per_week.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.duration_weeks|as_crispy_field }}
+                        {% if form.duration_weeks.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.duration_weeks.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    {{ form.description|as_crispy_field }}
+                    {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Safety Information -->
+                <div>
+                    {{ form.contraindications|as_crispy_field }}
+                    {% if form.contraindications.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.contraindications.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.safety_guidelines|as_crispy_field }}
+                    {% if form.safety_guidelines.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.safety_guidelines.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Status -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">Protocol Status</label>
+                            <p class="text-sm text-gray-500 mt-1">Enable or disable this protocol</p>
+                        </div>
+                        <div class="flex items-center">
+                            {{ form.is_active|as_crispy_field }}
+                            {% if form.is_active.errors %}
+                            <p class="ml-2 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="window.location='{% url 'protocol_management' %}'" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Update Protocol
+                    </button>
+                </div>
+            </form>
+        </div>
+
+            <!-- Change History -->
+            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Protocol History</h2>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="h-4 w-4 rounded-full bg-blue-500"></div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">
+                                Created on {{ protocol.created_at|date:"M d, Y" }} by {{ protocol.created_by.get_full_name }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="h-4 w-4 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">
+                                Last updated on {{ protocol.updated_at|date:"M d, Y" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Client-side validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const initialDose = parseFloat(document.querySelector('[name="initial_dose"]').value);
+        const maxDose = parseFloat(document.querySelector('[name="max_dose"]').value);
+        
+        if (initialDose > maxDose) {
+            e.preventDefault();
+            alert('Initial dose cannot exceed maximum dose');
+        }
+    });
+
+    // Confirm deactivation if protocol is in use
+    document.querySelector('[name="is_active"]').addEventListener('change', function(e) {
+        if (!this.checked && {{ is_in_use|yesno:"true,false" }}) {
+            if (!confirm('This protocol is currently in use. Deactivating it may affect active treatment plans. Are you sure you want to continue?')) {
+                e.preventDefault();
+                this.checked = true;
+            }
+        }
+    });
+</script>    
+{% endblock %}

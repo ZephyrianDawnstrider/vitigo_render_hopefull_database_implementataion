@@ -1,0 +1,289 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Protocol Management</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Protocol Management</h1>
+            <p class="text-sm text-gray-600">Manage and monitor treatment protocols</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'add_protocol' %}" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 flex items-center">
+                <i class="fas fa-plus-circle mr-2"></i>
+                Create Protocol
+            </a>
+            <div class="relative inline-block">
+                <button id="exportDropdown" data-dropdown-toggle="exportDropdownItems" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Protocols
+                </button>
+                <div id="exportDropdownItems" class="hidden absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl z-50">
+                    <a href="{% url 'export_protocols' %}?format=excel" class="block px-4 py-2 text-gray-800 hover:bg-green-100">
+                        <i class="fas fa-file-excel mr-2"></i>Export as Excel
+                    </a>
+                    <a href="{% url 'export_protocols' %}?format=pdf" class="block px-4 py-2 text-gray-800 hover:bg-green-100">
+                        <i class="fas fa-file-pdf mr-2"></i>Export as PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Total Protocols -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">Total Protocols</p>
+                    <h3 class="text-2xl font-bold text-gray-700">{{ stats.total }}</h3>
+                </div>
+                <div class="rounded-full bg-purple-100 p-3">
+                    <i class="fas fa-clipboard-list text-purple-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Protocols -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">Active Protocols</p>
+                    <h3 class="text-2xl font-bold text-gray-700">{{ stats.active }}</h3>
+                </div>
+                <div class="rounded-full bg-green-100 p-3">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Treatment Types -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">Treatment Types</p>
+                    <h3 class="text-2xl font-bold text-gray-700">{{ stats.types }}</h3>
+                </div>
+                <div class="rounded-full bg-blue-100 p-3">
+                    <i class="fas fa-sitemap text-blue-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Plans Using Protocols -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">Active Plans</p>
+                    <h3 class="text-2xl font-bold text-gray-700">{{ stats.plans_using_protocols }}</h3>
+                </div>
+                <div class="rounded-full bg-yellow-100 p-3">
+                    <i class="fas fa-users text-yellow-500"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Protocol Management Section -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Protocol Management</h2>
+                <div class="flex space-x-2">
+                    <input type="text" placeholder="Search protocols..." class="border rounded-lg px-4 py-2 text-sm">
+                    <select class="border rounded-lg px-4 py-2 text-sm">
+                        <option value="">All Types</option>
+                        {% for type in phototherapy_types %}
+                        <option value="{{ type.id }}">{{ type.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="border rounded-lg px-4 py-2 text-sm">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Protocol List -->
+        <div class="p-4">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Protocol Name
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Dosage Range
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Duration
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Performance
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for protocol in protocols %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ protocol.name }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            Created by: {{ protocol.created_by.get_full_name }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ protocol.phototherapy_type.name }}</div>
+                                <div class="text-sm text-gray-500">{{ protocol.phototherapy_type.get_therapy_type_display }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">
+                                    {{ protocol.initial_dose }} - {{ protocol.max_dose }} mJ/cm²
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    +{{ protocol.increment_percentage }}% increment
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ protocol.duration_weeks }} weeks</div>
+                                <div class="text-sm text-gray-500">{{ protocol.frequency_per_week }}x per week</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">
+                                    {% if protocol.avg_improvement %}
+                                    {{ protocol.avg_improvement|floatformat:1 }}% improvement
+                                    {% else %}
+                                    No data
+                                    {% endif %}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ protocol.active_plans }} active plans
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if protocol.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ protocol.is_active|yesno:"Active,Inactive" }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'edit_protocol' protocol.id %}" 
+                                       class="text-blue-500 hover:text-blue-700" 
+                                       title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'protocol_detail' protocol.id %}"
+                                       class="text-green-500 hover:text-green-700" 
+                                       title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if protocol.is_active %}
+                                    <a href="#"
+                                        data-modal-target="deactivateModal{{ protocol.id }}" data-modal-toggle="deactivateModal{{ protocol.id }}"
+                                        class="text-red-500 hover:text-red-700" 
+                                        title="Deactivate">
+                                        <i class="fas fa-ban"></i>
+                                    </a>
+                                    {% else %}
+                                    <a href="#"
+                                        data-modal-target="activateModal{{ protocol.id }}" data-modal-toggle="activateModal{{ protocol.id }}"
+                                        class="text-green-500 hover:text-green-700" 
+                                        title="Activate">
+                                        <i class="fas fa-check-circle"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% include './protocol/activate_modal.html' %}
+                        {% include './protocol/deactivate_modal.html' %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Safety Guidelines Section -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-800">Safety Guidelines</h2>
+        </div>
+        <div class="p-4 space-y-4">
+            {% for protocol in protocols %}
+            {% if protocol.safety_guidelines %}
+            <div class="border-l-4 border-yellow-400 bg-yellow-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            Safety Guidelines for {{ protocol.name }}
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            {{ protocol.safety_guidelines }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search and filter functionality
+        const searchInput = document.querySelector('input[type="text"]');
+        const typeFilter = document.querySelector('select');
+        
+        function filterProtocols() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedType = typeFilter.value;
+            
+            // Add your filtering logic here
+            console.log('Filtering protocols...', { searchTerm, selectedType });
+        }
+        
+        searchInput.addEventListener('input', filterProtocols);
+        typeFilter.addEventListener('change', filterProtocols);
+        
+        // Initialize any tooltips or popovers
+        // Add any additional JavaScript functionality here
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-gray-50">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'pharmacy_management' %}" class="inline-flex items-center text-gray-700 hover:text-blue-600">
+                    <i class="fas fa-clinic-medical mr-2"></i>
+                    Pharmacy Management
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-gray-900">Stock Adjustment</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8 bg-white p-6 rounded-xl shadow-md">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Stock Adjustment</h1>
+            <p class="mt-2 text-gray-600">Manage and update medication inventory levels</p>
+        </div>
+        <a href="{% url 'pharmacy_management' %}" 
+           class="bg-gray-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-gray-600 transition-all duration-300 flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">Stock Adjustment Form</h2>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-green-50 text-green-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>{{ form.medication|as_crispy_field }}</div>
+                        <div>{{ form.adjustment_type|as_crispy_field }}</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>{{ form.quantity|as_crispy_field }}</div>
+                        <div>{{ form.reference_number|as_crispy_field }}</div>
+                    </div>
+                    
+                    <div>{{ form.reason|as_crispy_field }}</div>
+
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <a href="{% url 'pharmacy_management' %}" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                            Submit Adjustment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Recent Adjustments -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Adjustments</h3>
+                <div class="space-y-4">
+                    {% for adjustment in recent_adjustments %}
+                    <div class="border-b pb-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-900">{{ adjustment.medication.name }}</span>
+                            <span class="text-xs text-gray-500">{{ adjustment.adjusted_at|date:"M d, H:i" }}</span>
+                        </div>
+                        <div class="mt-1 flex items-center justify-between">
+                            <span class="text-sm text-gray-600">{{ adjustment.get_adjustment_type_display }}</span>
+                            <span class="text-sm font-medium {% if adjustment.quantity > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                {{ adjustment.quantity }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-sm text-gray-500">No recent adjustments</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Guidelines -->
+            <div class="bg-blue-50 rounded-lg p-6">
+                <h3 class="text-sm font-medium text-blue-800 mb-3">Adjustment Guidelines</h3>
+                <ul class="space-y-2 text-sm text-blue-700">
+                    <li>Use positive numbers for adding stock</li>
+                    <li>Use negative numbers for removing stock</li>
+                    <li>Always provide a clear reason for adjustment</li>
+                    <li>Include reference numbers when available</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

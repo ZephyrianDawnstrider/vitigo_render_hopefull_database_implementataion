@@ -1,0 +1,319 @@
+{% extends '../base.html' %}
+{% load math_filters %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center space-x-2 mb-6 text-gray-600">
+        <a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600">
+            <i class="fas fa-laptop-medical mr-2"></i>Phototherapy
+        </a>
+        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+        <span class="text-gray-400">Schedule Management</span>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Schedule Management</h1>
+            <p class="text-sm text-gray-600">Manage phototherapy sessions and appointments</p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="window.location='{% url 'schedule_session' %}'" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                <i class="fas fa-plus-circle mr-2"></i>New Session
+            </button>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <i class="fas fa-calendar-alt mr-2"></i>Calendar
+            </button>
+            <a href="{% url 'session_list' %}" class="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded hover:bg-gray-50">
+                <i class="fas fa-list mr-2"></i>View All Sessions
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Today's Sessions -->
+        <div class="bg-white rounded-lg p-4 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Today's Sessions</p>
+                    <h3 class="text-2xl font-bold text-gray-700">{{ session_stats.today_total }}</h3>
+                    <p class="text-xs text-gray-500">{{ session_stats.today_completed }} completed</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-calendar-day text-blue-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Sessions -->
+        <div class="bg-white rounded-lg p-4 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Weekly Sessions</p>
+                    <h3 class="text-2xl font-bold text-gray-700">{{ session_stats.week_total }}</h3>
+                    <p class="text-xs text-gray-500">This week</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-calendar-week text-green-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending -->
+        <div class="bg-white rounded-lg p-4 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Pending</p>
+                    <h3 class="text-2xl font-bold text-gray-700">{{ session_stats.pending_confirmation }}</h3>
+                    <p class="text-xs text-gray-500">To be confirmed</p>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-full">
+                    <i class="fas fa-clock text-yellow-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utilization -->
+        <div class="bg-white rounded-lg p-4 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Today's Utilization</p>
+                    <h3 class="text-2xl font-bold text-gray-700">
+                        {% if session_stats.today_total %}
+                            {{ session_stats.today_completed|divideby:session_stats.today_total|multiply:100|floatformat:0 }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <i class="fas fa-chart-line text-purple-500"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Calendar Header -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="p-4 border-b">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-lg font-semibold">Weekly Schedule</h2>
+                    <span class="text-sm text-gray-500">
+                        {{ week_start|date:"M d" }} - {{ week_end|date:"M d, Y" }}
+                    </span>
+                </div>
+                <div class="flex gap-2">
+                    <a href="?date={{ prev_week }}" 
+                    class="p-2 hover:bg-gray-100 rounded transition-colors"
+                    id="prev-week">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a href="?date={{ next_week }}"
+                    class="p-2 hover:bg-gray-100 rounded transition-colors"
+                    id="next-week">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="grid grid-cols-7 divide-x divide-y" id="calendar-grid">
+            <!-- Day Headers -->
+            {% for day in "MTWTFSS"|make_list %}
+            <div class="p-2 bg-gray-50 text-center">
+                <span class="text-sm font-semibold">{{ day }}</span>
+            </div>
+            {% endfor %}
+
+            <!-- Calendar Days -->
+            {% for i in "0123456"|make_list %}
+            {% with current_date=week_start|date_offset:i %}
+            <div class="min-h-[120px] max-h-[200px] p-2 overflow-y-auto">
+                <div class="text-sm font-semibold mb-2 flex items-center justify-between">
+                    <span>{{ current_date|date:"d" }}</span>
+                    {% if current_date == today|date:"Y-m-d" %}
+                    <span class="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">Today</span>
+                    {% endif %}
+                </div>
+                
+                {% with date_sessions=time_slots|get_item:current_date %}
+                {% for session in date_sessions %}
+                <div class="mb-1 p-1.5 rounded text-xs {% if session.status == 'COMPLETED' %}bg-green-100 text-green-800{% elif session.status == 'CANCELLED' %}bg-red-100 text-red-800{% elif session.status == 'MISSED' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    <div class="font-medium">{{ session.scheduled_time|time:"H:i" }}</div>
+                    <div class="truncate">{{ session.plan.patient.get_full_name }}</div>
+                    <a href="{% url 'session_detail' session.id %}" 
+                       class="text-xs hover:underline mt-1 block">
+                        View Details
+                    </a>
+                </div>
+                {% endfor %}
+                {% endwith %}
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Today's Sessions Table -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 class="text-lg font-semibold">Today's Sessions</h2>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <input type="text" placeholder="Search..." class="border rounded px-3 py-1.5 text-sm flex-grow sm:flex-grow-0">
+                    <select class="border rounded px-3 py-1.5 text-sm">
+                        <option value="">All Status</option>
+                        <option value="SCHEDULED">Scheduled</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="MISSED">Missed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Protocol</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Device</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for session in weekly_sessions %}
+                    {% if session.scheduled_date == today %}
+                    <tr>
+                        <td class="px-4 py-3">{{ session.scheduled_time|time:"H:i" }}</td>
+                        <td class="px-4 py-3">
+                            <a href="{% url 'user_detail' session.plan.patient.id %}">
+                                <div class="text-sm font-medium">{{ session.plan.patient.get_full_name }}</div>
+                                <div class="text-xs text-gray-500">ID: {{ session.plan.patient.id }}</div>
+                            </a>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="text-sm">{{ session.plan.protocol.name }}</div>
+                            <div class="text-xs text-gray-500">Session {{ session.session_number }}</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">{{ session.device.name|default:"Not assigned" }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full {% if session.status == 'COMPLETED' %}bg-green-100 text-green-800{% elif session.status == 'CANCELLED' %}bg-red-100 text-red-800{% elif session.status == 'MISSED' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ session.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-2">
+                                <a href="{% url 'session_detail' session.id %}" 
+                                   class="text-blue-500 hover:text-blue-700">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to update URL parameters
+    function updateURLParameter(url, param, value) {
+        const regex = new RegExp(`([?&])${param}=.*?(&|$)`, 'i');
+        const separator = url.indexOf('?') !== -1 ? '&' : '?';
+        if (url.match(regex)) {
+            return url.replace(regex, `$1${param}=${value}$2`);
+        }
+        return `${url}${separator}${param}=${value}`;
+    }
+
+    // Function to show loading state
+    function showLoading() {
+        const calendar = document.getElementById('calendar-grid');
+        calendar.style.opacity = '0.5';
+        calendar.style.pointerEvents = 'none';
+    }
+
+    // Function to handle week navigation
+    async function navigateWeek(date) {
+        try {
+            showLoading();
+            
+            // Update URL without reloading page
+            const newUrl = updateURLParameter(window.location.href, 'date', date);
+            window.history.pushState({ date }, '', newUrl);
+            
+            // Fetch new data
+            const response = await fetch(newUrl);
+            const text = await response.text();
+            
+            // Parse the HTML and update the calendar
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const newCalendar = doc.getElementById('calendar-grid');
+            const oldCalendar = document.getElementById('calendar-grid');
+            
+            if (newCalendar && oldCalendar) {
+                oldCalendar.innerHTML = newCalendar.innerHTML;
+            }
+            
+            // Update stats cards
+            const statCards = doc.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                const currentCard = document.querySelectorAll('.stat-card')[index];
+                if (currentCard) {
+                    currentCard.innerHTML = card.innerHTML;
+                }
+            });
+            
+            // Update today's sessions table
+            const newTable = doc.querySelector('#today-sessions-table');
+            const currentTable = document.querySelector('#today-sessions-table');
+            if (newTable && currentTable) {
+                currentTable.innerHTML = newTable.innerHTML;
+            }
+            
+        } catch (error) {
+            console.error('Error navigating weeks:', error);
+            // Show error notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-red-100 text-red-800 p-4 rounded-lg shadow';
+            notification.textContent = 'Error loading calendar data. Please try again.';
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        } finally {
+            const calendar = document.getElementById('calendar-grid');
+            calendar.style.opacity = '1';
+            calendar.style.pointerEvents = 'auto';
+        }
+    }
+
+    // Add click handlers for navigation buttons
+    document.getElementById('prev-week').addEventListener('click', function(e) {
+        e.preventDefault();
+        const prevWeek = this.href.split('date=')[1];
+        navigateWeek(prevWeek);
+    });
+
+    document.getElementById('next-week').addEventListener('click', function(e) {
+        e.preventDefault();
+        const nextWeek = this.href.split('date=')[1];
+        navigateWeek(nextWeek);
+    });
+});
+</script>
+{% endblock %}

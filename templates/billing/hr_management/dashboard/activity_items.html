@@ -1,0 +1,53 @@
+{% comment %}Combined activity items template for HR dashboard{% endcomment %}
+
+{% for employee in activities.recent_employees %}
+<div class="flex items-center p-4 bg-gray-50 rounded-lg">
+    <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-green-100 text-green-600">
+        <i class="fas fa-user-plus"></i>
+    </span>
+    <div class="ml-4">
+        <p class="text-sm font-medium text-gray-900">New employee joined</p>
+        <p class="text-sm text-gray-500">{{ employee.user.get_full_name }} joined as {{ employee.position.title }}</p>
+        <p class="text-xs text-gray-400">{{ employee.created_at|timesince }} ago</p>
+    </div>
+</div>
+{% endfor %}
+
+{% for leave in activities.recent_leaves %}
+<div class="flex items-center p-4 bg-gray-50 rounded-lg">
+    <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600">
+        <i class="fas fa-calendar-alt"></i>
+    </span>
+    <div class="ml-4">
+        <p class="text-sm font-medium text-gray-900">Leave Request</p>
+        <p class="text-sm text-gray-500">{{ leave.employee.user.get_full_name }} requested {{ leave.leave_type }} leave</p>
+        <p class="text-xs text-gray-400">{{ leave.created_at|timesince }} ago</p>
+    </div>
+</div>
+{% endfor %}
+
+{% for training in activities.recent_trainings %}
+<div class="flex items-center p-4 bg-gray-50 rounded-lg">
+    <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
+        <i class="fas fa-chalkboard-teacher"></i>
+    </span>
+    <div class="ml-4">
+        <p class="text-sm font-medium text-gray-900">Training Update</p>
+        <p class="text-sm text-gray-500">{{ training.title }} - {{ training.get_status_display }}</p>
+        <p class="text-xs text-gray-400">{{ training.updated_at|timesince }} ago</p>
+    </div>
+</div>
+{% endfor %}
+
+{% for grievance in activities.recent_grievances %}
+<div class="flex items-center p-4 bg-gray-50 rounded-lg">
+    <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-600">
+        <i class="fas fa-exclamation-circle"></i>
+    </span>
+    <div class="ml-4">
+        <p class="text-sm font-medium text-gray-900">Grievance Filed</p>
+        <p class="text-sm text-gray-500">{{ grievance.subject }}</p>
+        <p class="text-xs text-gray-400">{{ grievance.filed_date|timesince }} ago</p>
+    </div>
+</div>
+{% endfor %}

@@ -1,0 +1,440 @@
+{% load static %}
+{% load math_filters %}
+
+<!-- Statistics Cards Row 1 -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Active Plans Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="rounded-full bg-blue-100 p-3 group-hover:bg-blue-200 transition-colors">
+                <i class="fas fa-file-medical text-blue-500 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <div class="dropdown relative">
+                <button id="activePlansDropdown" data-dropdown-toggle="activePlansDropdownItems" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div id="activePlansDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="{% url 'treatment_plan_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-eye mr-2 text-blue-500"></i>
+                        <span class="text-sm text-gray-700">View All Plans</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-download mr-2 text-blue-500"></i>
+                        <span class="text-sm text-gray-700">Export Plans Data</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-gray-700">{{ active_plans }}</h3>
+            <span class="text-base font-medium text-gray-500 mt-1">Active Plans</span>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="{% if active_plans_growth > 0 %}text-green-500{% else %}text-red-500{% endif %} flex items-center bg-gray-50 px-2 py-1 rounded-full">
+                    <i class="fas fa-{% if active_plans_growth > 0 %}arrow-up{% else %}arrow-down{% endif %} mr-1"></i>
+                    {{ active_plans_growth|abs_value }}%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sessions Today Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="rounded-full bg-green-100 p-3 group-hover:bg-green-200 transition-colors">
+                <i class="fas fa-calendar-check text-green-500 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <div class="dropdown relative">
+                <button id="sessionsTodayDropdown" data-dropdown-toggle="sessionsTodayDropdownItems" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div id="sessionsTodayDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="{% url 'schedule_management' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-calendar mr-2 text-green-500"></i>
+                        <span class="text-sm text-gray-700">View Today's Schedule</span>
+                    </a>
+                    <a href="{% url 'schedule_management' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-cog mr-2 text-green-500"></i>
+                        <span class="text-sm text-gray-700">Manage Sessions</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-gray-700">{{ sessions_today|default:0 }}</h3>
+            <span class="text-base font-medium text-gray-500 mt-1">Sessions Today</span>
+            <div class="mt-4 flex flex-col space-y-2">
+                <span class="flex items-center bg-green-50 px-2 py-1 rounded-lg text-sm w-fit">
+                    <i class="fas fa-check-circle mr-1 text-green-500"></i>
+                    <span class="text-gray-600">{{ completed_today|default:0 }} completed</span>
+                </span>
+                <span class="flex items-center bg-blue-50 px-2 py-1 rounded-lg text-sm w-fit">
+                    <i class="fas fa-clock mr-1 text-blue-500"></i>
+                    <span class="text-gray-600">{{ pending_today|default:0 }} pending</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Status Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="rounded-full bg-yellow-100 p-3 group-hover:bg-yellow-200 transition-colors">
+                <i class="fas fa-laptop-medical text-yellow-500 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <div class="dropdown relative">
+                <button id="deviceStatusDropdown" data-dropdown-toggle="deviceStatusDropdownItems"  class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div id="deviceStatusDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="{% url 'device_management' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-desktop mr-2 text-yellow-500"></i>
+                        <span class="text-sm text-gray-700">View All Devices</span>
+                    </a>
+                    <a href="{% url 'schedule_maintenance' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-wrench mr-2 text-yellow-500"></i>
+                        <span class="text-sm text-gray-700">Maintenance Schedule</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-gray-700">{{ active_devices }}</h3>
+            <span class="text-base font-medium text-gray-500 mt-1">Active Devices</span>
+            {% if maintenance_needed > 0 %}
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-red-500 flex items-center bg-red-50 px-2 py-1 rounded-full">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    {{ maintenance_needed }} need maintenance
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Treatment Distribution Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="rounded-full bg-indigo-100 p-3 group-hover:bg-indigo-200 transition-colors">
+                <i class="fas fa-chart-pie text-indigo-500 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <div class="dropdown relative">
+                <button id="treatmentDistributionDropdown" data-dropdown-toggle="treatmentDistributionDropdownItems" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div id="treatmentDistributionDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="{% url 'treatment_plan_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-list-ul mr-2 text-indigo-500"></i>
+                        <span class="text-sm text-gray-700">View Plans</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-gray-700">{{ active_treatments_count }}</h3>
+            <span class="text-base font-medium text-gray-500 mt-1">Active Treatments</span>
+            <div class="mt-4 space-y-2">
+                {% for type, count in treatment_distribution.items %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600">{{ type }}</span>
+                    <span class="font-medium">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Phototherapy Types Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="rounded-full bg-pink-100 p-3 group-hover:bg-pink-200 transition-colors">
+                <i class="fas fa-list-alt text-pink-500 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <div class="dropdown relative">
+                <button id="therapyTypesDropdown" data-dropdown-toggle="therapyTypesDropdownItems" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div id="therapyTypesDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="{% url 'add_therapy_type' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-plus mr-2 text-pink-500"></i>
+                        <span class="text-sm text-gray-700">Add New Type</span>
+                    </a>
+                    <a href="{% url 'therapy_types_dashboard' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-edit mr-2 text-pink-500"></i>
+                        <span class="text-sm text-gray-700">Manage Types</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-gray-700">{{ therapy_types_count|default:0 }}</h3>
+            <span class="text-base font-medium text-gray-500 mt-1">Therapy Types</span>
+            <div class="mt-4 flex flex-col space-y-2">
+                {% for type in therapy_types %}
+                <span class="flex items-center bg-pink-50 px-2 py-1 rounded-lg text-sm w-fit">
+                    <i class="fas fa-circle text-xs mr-1 text-pink-500"></i>
+                    <span class="text-gray-600">{{ type.name }}</span>
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Therapy Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="rounded-full bg-orange-100 p-3 group-hover:bg-orange-200 transition-colors">
+                <i class="fas fa-home text-orange-500 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <div class="dropdown relative">
+                <button id="homeTherapyDropdown" data-dropdown-toggle="homeTherapyDropdownItems" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div id="homeTherapyDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="{% url 'home_therapy_logs' %}" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chart-line mr-2 text-orange-500"></i>
+                        <span class="text-sm text-gray-700">View All Logs</span>
+                    </a>
+                    <a href="{% url 'home_therapy_logs' %}?export=excel" class="flex items-center px-4 py-2 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-download mr-2 text-orange-500"></i>
+                        <span class="text-sm text-gray-700">Export Logs</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-gray-700">{{ home_therapy_count|default:0 }}</h3>
+            <span class="text-base font-medium text-gray-500 mt-1">Home Therapy Patients</span>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-orange-500 flex items-center bg-orange-50 px-2 py-1 rounded-full">
+                    <i class="fas fa-chart-line mr-1"></i>
+                    {{ compliance_rate|default:"85" }}% compliance
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards Row 2 -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Compliance Rate Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 group">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                    <i class="fas fa-chart-pie mr-2 text-green-500"></i>
+                    Compliance Rate
+                </h3>
+                <p class="text-sm text-gray-500 mt-1">Overall patient compliance</p>
+            </div>
+            <span class="text-2xl font-bold {% if compliance_stats.overall_rate >= 80 %}text-green-500{% elif compliance_stats.overall_rate >= 60 %}text-yellow-500{% else %}text-red-500{% endif %} bg-gray-50 px-3 py-1 rounded-full group-hover:bg-gray-100 transition-colors">
+                {{ compliance_stats.overall_rate }}%
+            </span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-100 rounded-full h-3 mb-4 overflow-hidden">
+            <div class="h-3 rounded-full transition-all duration-500 relative 
+                {% if compliance_stats.overall_rate >= 80 %}bg-green-500
+                {% elif compliance_stats.overall_rate >= 60 %}bg-yellow-500
+                {% else %}bg-red-500{% endif %}"
+                style="width: {{ compliance_stats.overall_rate }}%">
+                <div class="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors"></div>
+            </div>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-gray-50 p-3 rounded-lg">
+                <div class="text-sm font-medium text-gray-600">Completed</div>
+                <div class="text-lg font-semibold text-gray-800">{{ compliance_stats.total_completed }}</div>
+                <div class="text-xs text-gray-500">sessions</div>
+            </div>
+            <div class="bg-gray-50 p-3 rounded-lg">
+                <div class="text-sm font-medium text-gray-600">Missed</div>
+                <div class="text-lg font-semibold text-gray-800">{{ compliance_stats.total_missed }}</div>
+                <div class="text-xs text-gray-500">sessions</div>
+            </div>
+        </div>
+
+        <!-- Monthly Change -->
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">vs last month</span>
+                {% if compliance_stats.monthly_change > 0 %}
+                    <span class="text-green-500 flex items-center">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        {{ compliance_stats.monthly_change }}%
+                    </span>
+                {% elif compliance_stats.monthly_change < 0 %}
+                    <span class="text-red-500 flex items-center">
+                        <i class="fas fa-arrow-down mr-1"></i>
+                        {{ compliance_stats.monthly_change|abs_value }}%
+                    </span>
+                {% else %}
+                    <span class="text-gray-500">
+                        <i class="fas fa-minus"></i>
+                    </span>
+                {% endif %}
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">Target</span>
+                <span class="text-sm font-medium text-gray-800">{{ compliance_stats.target_rate }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Distribution Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300">
+        <h3 class="text-lg font-semibold text-gray-700 flex items-center mb-6">
+            <i class="fas fa-chart-bar mr-2 text-blue-500"></i>
+            Session Distribution
+        </h3>
+        <div class="space-y-4">
+            <!-- Whole Body NB -->
+            <div class="group">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Whole Body NB</span>
+                    <span class="text-sm font-semibold text-blue-600">{{ session_distribution.WB_NB|default:0 }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-300 group-hover:bg-blue-600" 
+                         style="width: {{ session_distribution.WB_NB|default:0 }}%"></div>
+                </div>
+            </div>
+
+            <!-- Excimer -->
+            <div class="group">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Excimer</span>
+                    <span class="text-sm font-semibold text-purple-600">{{ session_distribution.EXCIMER }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-purple-500 h-2.5 rounded-full transition-all duration-300 group-hover:bg-purple-600" 
+                         style="width: {{ session_distribution.EXCIMER }}%"></div>
+                </div>
+            </div>
+
+            <!-- Home Based NB -->
+            <div class="group">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Home Based NB</span>
+                    <span class="text-sm font-semibold text-green-600">{{ session_distribution.HOME_NB }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-green-500 h-2.5 rounded-full transition-all duration-300 group-hover:bg-green-600" 
+                         style="width: {{ session_distribution.HOME_NB }}%"></div>
+                </div>
+            </div>
+
+            <!-- Sun Exposure -->
+            <div class="group">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Sun Exposure</span>
+                    <span class="text-sm font-semibold text-yellow-600">{{ session_distribution.SUN_EXP }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-yellow-500 h-2.5 rounded-full transition-all duration-300 group-hover:bg-yellow-600" 
+                         style="width: {{ session_distribution.SUN_EXP }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                <i class="fas fa-history mr-2 text-indigo-500"></i>
+                Recent Activities
+            </h3>
+            <a href="#" class="text-sm text-indigo-500 hover:text-indigo-600 font-medium">View All</a>
+        </div>
+        <div class="space-y-4">
+            <div class="flex items-center group p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="rounded-full bg-blue-100 p-2 group-hover:bg-blue-200 transition-colors">
+                    <i class="fas fa-user-plus text-blue-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <div class="ml-3 flex-grow">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-900">New patient enrolled</p>
+                        <span class="text-xs text-gray-400">5m ago</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">Patient ID: #12345</p>
+                </div>
+            </div>
+
+            <div class="flex items-center group p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="rounded-full bg-green-100 p-2 group-hover:bg-green-200 transition-colors">
+                    <i class="fas fa-check-circle text-green-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <div class="ml-3 flex-grow">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-900">Session completed</p>
+                        <span class="text-xs text-gray-400">20m ago</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">Device: NB-UVB #02</p>
+                </div>
+            </div>
+
+            <div class="flex items-center group p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="rounded-full bg-yellow-100 p-2 group-hover:bg-yellow-200 transition-colors">
+                    <i class="fas fa-wrench text-yellow-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <div class="ml-3 flex-grow">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-900">Device maintenance</p>
+                        <span class="text-xs text-gray-400">1h ago</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">Routine check completed</p>
+                </div>
+            </div>
+
+            <div class="flex items-center group p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="rounded-full bg-red-100 p-2 group-hover:bg-red-200 transition-colors">
+                    <i class="fas fa-bell text-red-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <div class="ml-3 flex-grow">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-900">Appointment reminder</p>
+                        <span class="text-xs text-gray-400">2h ago</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">Sent to 5 patients</p>
+                </div>
+            </div>
+        </div>
+        <a href="#" class="mt-4 block text-sm text-indigo-500 hover:text-indigo-600 text-center py-2 border-t border-gray-100">
+            View all activities
+            <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </div>
+
+    <!-- Problem Reports Card -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                <i class="fas fa-exclamation-circle mr-2 text-red-500"></i>
+                Problem Reports
+            </h3>
+            <a href="#" class="text-sm text-red-500 hover:text-red-600 font-medium">View All</a>
+        </div>
+        <div class="space-y-4">
+            {% for report in problem_reports|slice:":4" %}
+            <div class="flex items-center group p-2 rounded-lg hover:bg-red-50 transition-colors">
+                <div class="rounded-full bg-red-100 p-2 group-hover:bg-red-200 transition-colors">
+                    <i class="fas fa-exclamation-triangle text-red-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <div class="ml-3 flex-grow">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-900">{{ report.severity }}</p>
+                        <span class="text-xs text-gray-400">{{ report.reported_at|timesince }} ago</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ report.problem_description|truncatechars:50 }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-gray-500 text-sm">No problem reports</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

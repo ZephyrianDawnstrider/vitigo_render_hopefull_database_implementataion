@@ -1,0 +1,146 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Notices{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar with Breadcrumbs -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Notices</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="min-h-screen bg-gray-50 p-4">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-semibold text-gray-900">Important Notices</h1>
+                    <p class="mt-1 text-sm text-gray-600">View and manage HR announcements and notices</p>
+                </div>
+                {% if perms.hr_management.add_notice %}
+                <a href="{% url 'notice_create' %}" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+                    <i class="mr-2 fas fa-plus"></i> New Notice
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="mb-6 bg-white rounded-lg shadow-sm p-4">
+            <form method="GET" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Search Bar -->
+                    <div class="md:col-span-2">
+                        <label for="search" class="block text-sm font-medium text-gray-700">Search Notices</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <input type="text" name="search" id="search" value="{{ search_query }}"
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
+                                   placeholder="Search by title or content">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Priority Filter -->
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
+                        <select name="priority" id="priority" class="mt-1 block w-full rounded-md border-gray-300">
+                            <option value="">All Priorities</option>
+                            {% for priority, label in priority_choices %}
+                            <option value="{{ priority }}" {% if priority_filter == priority %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Filter Actions -->
+                <div class="flex justify-end space-x-3">
+                    <button type="reset" onclick="window.location.href='{% url 'notice_list' %}'"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                        Clear Filters
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Notices List -->
+        <div class="space-y-4">
+            {% for notice in notices %}
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 {% if notice.priority == 'HIGH' %}border-l-4 border-red-500{% endif %}">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">{{ notice.title }}</h3>
+                            <p class="mt-2 text-gray-600">{{ notice.content }}</p>
+                            <div class="mt-3 flex items-center text-sm text-gray-500">
+                                <span>Posted {{ notice.created_at|timesince }} ago</span>
+                                <span class="mx-2">•</span>
+                                <span>By {{ notice.created_by.get_full_name }}</span>
+                                {% if notice.expiry_date %}
+                                <span class="mx-2">•</span>
+                                <span>Expires: {{ notice.expiry_date|date:"M d, Y" }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <span class="ml-4 px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if notice.priority == 'HIGH' %}bg-red-100 text-red-800
+                            {% elif notice.priority == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ notice.get_priority_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-12 bg-white rounded-lg shadow-sm">
+                <i class="fas fa-bullhorn text-4xl text-gray-400 mb-3"></i>
+                <p class="text-gray-500">No notices found matching your criteria</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if notices.has_other_pages %}
+            <div class="mt-4">
+                {% include '../common/pagination.html' with page_obj=notices %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

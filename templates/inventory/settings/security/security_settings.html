@@ -1,0 +1,211 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Security Settings{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-white rounded-lg shadow-md">
+    <!-- Display messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-4 mb-2 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'settings:settings_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-cogs mr-2"></i>Settings</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Security Settings</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Security Settings</h1>
+        <p class="text-gray-600">Configure security policies and authentication providers</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-4 border-b border-gray-200">
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="securityTabs" data-tabs-toggle="#securityTabContent" role="tablist">
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                        id="policy-tab" 
+                        data-tabs-target="#policy" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="policy" 
+                        aria-selected="true">
+                    <i class="fas fa-shield-alt mr-2"></i>Security Policy
+                </button>
+            </li>
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                        id="auth-tab" 
+                        data-tabs-target="#auth" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="auth" 
+                        aria-selected="false">
+                    <i class="fas fa-key mr-2"></i>Authentication Providers
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="securityTabContent">
+        <!-- Security Policy Tab -->
+        <div class="hidden p-4 rounded-lg" 
+             id="policy" 
+             role="tabpanel" 
+             aria-labelledby="policy-tab">
+            <!-- Security Configuration Form -->
+            <form method="post" action="{% url 'settings:security_settings' %}" class="space-y-6">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_security_config">
+                {{ security_form|crispy }}
+                <div class="flex justify-end mt-6">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i>Save Security Configuration
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Authentication Providers Tab -->
+        <div class="hidden p-4 rounded-lg" 
+             id="auth" 
+             role="tabpanel" 
+             aria-labelledby="auth-tab">
+            <!-- Add New Provider Form -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-plus-circle mr-2"></i>Add New Authentication Provider
+                </h3>
+                <form method="post" action="{% url 'settings:security_settings' %}" class="bg-white p-6 rounded-lg shadow-sm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_auth_provider">
+                    {{ auth_provider_form|crispy }}
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-save mr-2"></i>Save Provider
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Providers -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-key mr-2"></i>Existing Authentication Providers
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for provider in auth_providers %}
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-lg font-medium text-gray-800">
+                                {{ provider.name }}
+                            </h4>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm px-2 py-1 rounded-full {% if provider.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ provider.is_active|yesno:"Active,Inactive" }}
+                                </span>
+                                {% if provider.is_default %}
+                                <span class="text-sm px-2 py-1 rounded-full bg-blue-100 text-blue-800">Default</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600">Type: {{ provider.get_provider_type_display }}</p>
+                        <div class="mt-2 text-sm text-gray-500">
+                            {% if provider.scope %}
+                            <p>Scope: {{ provider.scope }}</p>
+                            {% endif %}
+                            <p>Created: {{ provider.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full bg-gray-50 p-8 text-center rounded-lg">
+                        <p class="text-gray-600">No authentication providers found. Add your first provider above.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Initialize Flowbite tabs
+    const tabElements = [
+        {
+            id: 'policy-tab',
+            triggerEl: document.querySelector('#policy-tab'),
+            targetEl: document.querySelector('#policy')
+        },
+        {
+            id: 'auth-tab',
+            triggerEl: document.querySelector('#auth-tab'),
+            targetEl: document.querySelector('#auth')
+        }
+    ];
+
+    // Create array for the Tab instances
+    const tabs = [];
+
+    // Setup each tab
+    tabElements.forEach(tab => {
+        if (tab.triggerEl && tab.targetEl) {
+            tabs.push(new Tabs(tab.triggerEl.parentElement, [
+                {
+                    id: tab.id,
+                    triggerEl: tab.triggerEl,
+                    targetEl: tab.targetEl
+                }
+            ]));
+        }
+    });
+
+    // Set first tab as active
+    if (tabs.length > 0) {
+        tabs[0].show();
+    }
+
+    // Form validation helpers
+    function validateJSON(element) {
+        try {
+            JSON.parse(element.value);
+            element.classList.remove('border-red-500');
+            element.classList.add('border-green-500');
+            return true;
+        } catch (e) {
+            element.classList.remove('border-green-500');
+            element.classList.add('border-red-500');
+            return false;
+        }
+    }
+
+    // Add JSON validation to JSON fields
+    const jsonFields = document.querySelectorAll('textarea[data-type="json"]');
+    jsonFields.forEach(field => {
+        field.addEventListener('change', (e) => validateJSON(e.target));
+    });
+
+    // Show/Hide messages after 5 seconds
+    setTimeout(function() {
+        const messages = document.querySelectorAll('.alert');
+        messages.forEach(function(message) {
+            message.style.display = 'none';
+        });
+    }, 5000);
+</script>
+{% endblock %}
+{% endblock %}

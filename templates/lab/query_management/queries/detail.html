@@ -1,0 +1,572 @@
+{% extends '../../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Enhanced Breadcrumb -->
+    <nav class="mb-6 bg-white p-3 rounded-lg shadow-sm">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'query_management' %}" class="flex items-center hover:text-blue-600 transition-colors">
+                <i class="fas fa-home mr-2"></i>Dashboard</a>
+            </li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'query_management' %}" class="flex items-center hover:text-blue-600 transition-colors">
+                <i class="fas fa-ticket-alt mr-2"></i>Queries</a>
+            </li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-blue-600 font-medium">Query #{{ query.query_id }}</li>
+        </ol>
+    </nav>
+
+    <!-- Query Header Banner -->
+    <div class="mb-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg overflow-hidden">
+        <div class="p-6 text-white">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-2xl font-bold mb-2">Query #{{ query.query_id }}</h1>
+                    <h2 class="text-xl mb-4">{{ query.subject }}</h2>
+                    <div class="flex items-center space-x-4">
+                        <span class="flex items-center">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            {{ query.created_at|date:"F d, Y g:i A" }}
+                        </span>
+                        <span class="flex items-center">
+                            <i class="fas fa-user mr-2"></i>
+                            {{ user_details.name }}
+                        </span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end space-y-3">
+                    <!-- Status Badge -->
+                    <span class="px-4 py-2 rounded-full text-sm font-bold 
+                        {% if query.status == 'NEW' %}bg-blue-100 text-blue-800
+                        {% elif query.status == 'IN_PROGRESS' %}bg-yellow-100 text-yellow-800
+                        {% elif query.status == 'WAITING' %}bg-purple-100 text-purple-800
+                        {% elif query.status == 'RESOLVED' %}bg-green-100 text-green-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        <i class="fas fa-circle text-xs mr-2"></i>
+                        {{ query.get_status_display }}
+                    </span>
+                    <!-- Priority Badge -->
+                    <span class="px-4 py-2 rounded-full text-sm font-bold
+                        {% if query.priority == 'A' %}bg-red-100 text-red-800
+                        {% elif query.priority == 'B' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-green-100 text-green-800{% endif %}">
+                        Priority: {{ query.get_priority_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-3 gap-6">
+        <!-- Left Column - Main Query Info -->
+        <div class="col-span-2 space-y-6">
+            <!-- Query Description -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-align-left text-blue-500 mr-2"></i>Description
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="prose max-w-none">
+                        {{ query.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Query Details Card -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>Query Details
+                    </h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <!-- Query Type and Source -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-2">Query Type</h4>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <i class="fas fa-tag mr-2"></i>
+                                {{ query.get_query_type_display|default:"Not Specified" }}
+                            </span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-2">Source</h4>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                <i class="fas fa-globe mr-2"></i>
+                                {{ query.get_source_display }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    {% if tags %}
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Tags</h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% for tag in tags %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                <i class="fas fa-hashtag mr-1 text-gray-500"></i>
+                                {{ tag.name }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Resolution Information -->
+                    {% if query.status == 'RESOLVED' %}
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Resolution Details</h4>
+                        <div class="space-y-2">
+                            <p class="text-sm flex items-center text-gray-600">
+                                <i class="fas fa-clock w-5 text-gray-400"></i>
+                                Resolved at: {{ query.resolved_at|date:"F d, Y g:i A" }}
+                            </p>
+                            {% if query.resolution_summary %}
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-check-circle w-5 text-gray-400"></i>
+                                {{ query.resolution_summary }}
+                            </p>
+                            {% endif %}
+                            {% if query.satisfaction_rating %}
+                            <div class="flex items-center">
+                                <span class="text-sm text-gray-600 mr-2">Satisfaction:</span>
+                                {% for i in "12345"|make_list %}
+                                <i class="fas fa-star {% if forloop.counter <= query.satisfaction_rating %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Additional Metrics -->
+                    <div class="grid grid-cols-2 gap-4">
+                        {% if query.expected_response_date %}
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-2">Expected Response</h4>
+                            <p class="text-sm flex items-center text-gray-600">
+                                <i class="fas fa-clock w-5 text-gray-400"></i>
+                                {{ query.expected_response_date|date:"F d, Y" }}
+                            </p>
+                        </div>
+                        {% endif %}
+                        {% if query.follow_up_date %}
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-2">Follow-up Date</h4>
+                            <p class="text-sm flex items-center text-gray-600">
+                                <i class="fas fa-calendar-check w-5 text-gray-400"></i>
+                                {{ query.follow_up_date|date:"F d, Y" }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Update Card -->
+            {% if query.status != 'RESOLVED' and query.status != 'CLOSED' %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-plus-circle text-blue-500 mr-2"></i>Add Update
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <form action="{% url 'query_update_status' query.query_id %}" method="POST" class="space-y-4" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Status Update -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
+                            <select name="new_status" 
+                                    class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Keep current status</option>
+                                {% for status, label in query.STATUS_CHOICES %}
+                                <option value="{{ status }}" {% if status == query.status %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Current status: <span class="font-medium">{{ query.get_status_display }}</span>
+                            </p>
+                        </div>
+
+                        <!-- Update Content -->
+                        <div>
+                            <label for="update_content" class="block text-sm font-medium text-gray-700 mb-2">
+                                Update Details
+                            </label>
+                            <textarea id="update_content" 
+                                    name="update_content"
+                                    rows="4"
+                                    required
+                                    class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="Enter your update details here..."></textarea>
+                        </div>
+
+                        <!-- File Attachment -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-paperclip mr-2"></i>Attach Files
+                            </label>
+                            <input type="file" 
+                                   name="attachments" 
+                                   multiple
+                                   class="block w-full text-sm text-gray-500
+                                          file:mr-4 file:py-2 file:px-4
+                                          file:rounded-lg file:border-0
+                                          file:text-sm file:font-medium
+                                          file:bg-blue-50 file:text-blue-700
+                                          hover:file:bg-blue-100"
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            <p class="mt-1 text-sm text-gray-500">Upload one or multiple files (PDF, DOC, Images)</p>
+                        </div>
+
+                        <div class="flex justify-end space-x-3">
+                            <button type="submit" 
+                                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fas fa-plus-circle mr-2"></i>
+                                Add Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Technical Details -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-database text-blue-500 mr-2"></i>Technical Details
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Timestamps -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-3">Timestamps</h4>
+                            <div class="space-y-2">
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-plus-circle w-5 text-gray-400"></i>
+                                    Created: {{ query.created_at|date:"F d, Y g:i A" }}
+                                </p>
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-edit w-5 text-gray-400"></i>
+                                    Updated: {{ query.updated_at|date:"F d, Y g:i A" }}
+                                </p>
+                                {% if query.resolved_at %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-check-circle w-5 text-gray-400"></i>
+                                    Resolved: {{ query.resolved_at|date:"F d, Y g:i A" }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-3">Contact Information</h4>
+                            <div class="space-y-2">
+                                {% if query.contact_email %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-envelope w-5 text-gray-400"></i>
+                                    Alternative Email: {{ query.contact_email }}
+                                </p>
+                                {% endif %}
+                                {% if query.contact_phone %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-phone w-5 text-gray-400"></i>
+                                    Alternative Phone: {{ query.contact_phone }}
+                                </p>
+                                {% endif %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-user-secret w-5 text-gray-400"></i>
+                                    Anonymous: {{ query.is_anonymous|yesno:"Yes,No" }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Query Metrics -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-3">Query Metrics</h4>
+                            <div class="space-y-2">
+                                {% if query.response_time %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-clock w-5 text-gray-400"></i>
+                                    Response Time: {{ query.response_time }}
+                                </p>
+                                {% endif %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-user-injured w-5 text-gray-400"></i>
+                                    Is Patient: {{ query.is_patient|yesno:"Yes,No,Unknown" }}
+                                </p>
+                                {% if query.conversion_status is not None %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-exchange-alt w-5 text-gray-400"></i>
+                                    Converted: {{ query.conversion_status|yesno:"Yes,No" }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Additional Details -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900 mb-3">Additional Details</h4>
+                            <div class="space-y-2">
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-hashtag w-5 text-gray-400"></i>
+                                    Query ID: {{ query.query_id }}
+                                </p>
+                                {% if query.expected_response_date %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-calendar w-5 text-gray-400"></i>
+                                    Expected Response: {{ query.expected_response_date|date:"F d, Y" }}
+                                </p>
+                                {% endif %}
+                                {% if query.follow_up_date %}
+                                <p class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-calendar-check w-5 text-gray-400"></i>
+                                    Follow-up: {{ query.follow_up_date|date:"F d, Y" }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Updates Timeline -->
+            {% if updates %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-history text-blue-500 mr-2"></i>Updates Timeline
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="flow-root">
+                        <ul class="-mb-8">
+                            {% for update in updates %}
+                            <li>
+                                <div class="relative pb-8">
+                                    {% if not forloop.last %}
+                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                    {% endif %}
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-comment-dots text-white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-sm text-gray-500">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <span class="font-medium text-gray-900">{{ update.user.get_full_name }}</span>
+                                                    <span class="text-gray-500">{{ update.created_at|date:"M d, Y g:i A" }}</span>
+                                                </div>
+                                                <div class="flex flex-col text-xs text-gray-500 mb-2">
+                                                    {% if update.user.email %}
+                                                    <span class="flex items-center">
+                                                        <i class="fas fa-envelope w-4 text-gray-400"></i>
+                                                        {{ update.user.email }}
+                                                    </span>
+                                                    {% endif %}
+                                                    {% if update.user.phone_number %}
+                                                    <span class="flex items-center">
+                                                        <i class="fas fa-phone w-4 text-gray-400"></i>
+                                                        {{ update.user.country_code }}{{ update.user.phone_number }}
+                                                    </span>
+                                                    {% endif %}
+                                                    {% if update.user.role %}
+                                                    <span class="flex items-center">
+                                                        <i class="fas fa-user-tag w-4 text-gray-400"></i>
+                                                        {{ update.user.role }}
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-sm text-gray-700">
+                                                {{ update.content|linebreaks }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Attachments Grid -->
+            {% if attachments %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-paperclip text-blue-500 mr-2"></i>Attachments
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        {% for attachment in attachments %}
+                        <a href="{{ attachment.file.url }}" 
+                           class="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors group">
+                            <div class="rounded-lg bg-gray-100 p-3 group-hover:bg-blue-100">
+                                <i class="fas fa-file-alt text-xl text-blue-500"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">{{ attachment.file.name|truncatechars:20 }}</p>
+                                <p class="text-xs text-gray-500">{{ attachment.uploaded_at|date:"M d, Y" }}</p>
+                            </div>
+                            <i class="fas fa-download ml-auto text-gray-400 group-hover:text-blue-500"></i>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column - Details & Actions -->
+        <div class="space-y-6">
+            <!-- Action Buttons -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-4 space-y-3">
+                    <a href="{% url 'query_update' query.query_id %}" 
+                       class="flex items-center justify-center w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-edit mr-2"></i>Edit Query
+                    </a>
+                    <button data-modal-target="delete-modal{{ query.query_id }}" 
+                            data-modal-toggle="delete-modal{{ query.query_id }}"
+                            class="flex items-center justify-center w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        <i class="fas fa-trash-alt mr-2"></i>Delete Query
+                    </button>
+                </div>
+            </div>
+
+            <!-- Assignment Info -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-user-check text-blue-500 mr-2"></i>Assignment
+                    </h3>
+                </div>
+                <div class="p-6">
+                    {% if assigned_to_details.name != 'Unassigned' %}
+                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <span class="inline-block h-12 w-12 rounded-full bg-blue-500 text-white flex items-center justify-center">
+                                    <i class="fas fa-user-tie text-xl"></i>
+                                </span>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-medium text-gray-900">{{ assigned_to_details.name }}</h4>
+                                <p class="text-sm text-gray-600">{{ assigned_to_details.email }}</p>
+                                <p class="text-sm text-gray-600">Role: {{ assigned_to_details.role }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="bg-gray-50 border border-gray-100 rounded-lg p-4 text-center">
+                        <i class="fas fa-user-plus text-gray-400 text-3xl mb-2"></i>
+                        <p class="text-gray-600">This query is currently unassigned</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- User/Patient Information -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-user text-blue-500 mr-2"></i>User Information
+                    </h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Contact Details</h4>
+                        <div class="space-y-2">
+                            <p class="text-sm flex items-center text-gray-600">
+                                <i class="fas fa-envelope w-5 text-gray-400"></i>
+                                {{ user_details.email }}
+                            </p>
+                            {% if query.contact_phone %}
+                            <p class="text-sm flex items-center text-gray-600">
+                                <i class="fas fa-phone w-5 text-gray-400"></i>
+                                {{ query.contact_phone }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if patient_profile %}
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Patient Profile</h4>
+                        <div class="space-y-2">
+                            <p class="text-sm flex items-center text-gray-600">
+                                <i class="fas fa-id-card w-5 text-gray-400"></i>
+                                Patient ID: {{ patient_profile.patient_id }}
+                            </p>
+                            <p class="text-sm flex items-center text-gray-600">
+                                <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
+                                Age: {{ patient_profile.age }} years
+                            </p>
+                            <p class="text-sm flex items-center text-gray-600">
+                                <i class="fas fa-venus-mars w-5 text-gray-400"></i>
+                                Gender: {{ patient_profile.get_gender_display }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal{{ query.query_id }}" 
+     tabindex="-1" 
+     aria-hidden="true" 
+     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" 
+                    class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" 
+                    data-modal-hide="delete-modal{{ query.query_id }}">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="p-6 text-center">
+                <div class="mb-5">
+                    <i class="fas fa-exclamation-triangle text-5xl text-red-500"></i>
+                </div>
+                <h3 class="mb-5 text-lg font-normal text-gray-500">
+                    Are you sure you want to delete Query #{{ query.query_id }}?<br>
+                    This action cannot be undone.
+                </h3>
+                <form method="post" action="{% url 'query_delete' query.query_id %}" class="inline-flex">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                        <i class="fas fa-trash-alt mr-2"></i>Yes, delete it
+                    </button>
+                    <button data-modal-hide="delete-modal{{ query.query_id }}" 
+                            type="button" 
+                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

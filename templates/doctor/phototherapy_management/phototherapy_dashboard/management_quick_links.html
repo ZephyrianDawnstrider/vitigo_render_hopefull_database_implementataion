@@ -1,0 +1,65 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- Protocols Link -->
+    <a href="{% url 'protocol_management' %}" class="block bg-purple-100 p-4 rounded-xl hover:bg-purple-200 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg shadow-md cursor-pointer border-2 border-transparent hover:border-purple-300 group">
+        <div class="flex items-center">
+            <div class="rounded-full bg-purple-200 p-3 group-hover:bg-purple-300 transition-colors duration-300 shadow-inner">
+                <i class="fas fa-clipboard-list text-purple-600 text-xl group-hover:scale-110 transform transition-transform duration-300"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-purple-700 text-lg group-hover:text-purple-800">Protocols</h3>
+                <p class="text-sm text-purple-600">Manage treatment protocols</p>
+            </div>
+            <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <i class="fas fa-chevron-right text-purple-500"></i>
+            </div>
+        </div>
+    </a>
+
+    <!-- Devices Link -->
+    <a href="{% url 'device_management' %}" class="block bg-blue-100 p-4 rounded-xl hover:bg-blue-200 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg shadow-md cursor-pointer border-2 border-transparent hover:border-blue-300 group">
+        <div class="flex items-center">
+            <div class="rounded-full bg-blue-200 p-3 group-hover:bg-blue-300 transition-colors duration-300 shadow-inner">
+                <i class="fas fa-laptop-medical text-blue-600 text-xl group-hover:scale-110 transform transition-transform duration-300"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-blue-700 text-lg group-hover:text-blue-800">Devices</h3>
+                <p class="text-sm text-blue-600">Manage equipment & maintenance</p>
+            </div>
+            <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <i class="fas fa-chevron-right text-blue-500"></i>
+            </div>
+        </div>
+    </a>
+
+    <!-- Schedules Link -->
+    <a href="{% url 'schedule_management' %}" class="block bg-green-100 p-4 rounded-xl hover:bg-green-200 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg shadow-md cursor-pointer border-2 border-transparent hover:border-green-300 group">
+        <div class="flex items-center">
+            <div class="rounded-full bg-green-200 p-3 group-hover:bg-green-300 transition-colors duration-300 shadow-inner">
+                <i class="fas fa-clock text-green-600 text-xl group-hover:scale-110 transform transition-transform duration-300"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-green-700 text-lg group-hover:text-green-800">Schedules</h3>
+                <p class="text-sm text-green-600">View & manage sessions</p>
+            </div>
+            <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <i class="fas fa-chevron-right text-green-500"></i>
+            </div>
+        </div>
+    </a>
+
+    <!-- Reports Link -->
+    <a href="{% url 'report_management' %}" class="block bg-red-100 p-4 rounded-xl hover:bg-red-200 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg shadow-md cursor-pointer border-2 border-transparent hover:border-red-300 group">
+        <div class="flex items-center">
+            <div class="rounded-full bg-red-200 p-3 group-hover:bg-red-300 transition-colors duration-300 shadow-inner">
+                <i class="fas fa-exclamation-circle text-red-600 text-xl group-hover:scale-110 transform transition-transform duration-300"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="font-semibold text-red-700 text-lg group-hover:text-red-800">Reports</h3>
+                <p class="text-sm text-red-600">View incidents & reports</p>
+            </div>
+            <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <i class="fas fa-chevron-right text-red-500"></i>
+            </div>
+        </div>
+    </a>
+</div>

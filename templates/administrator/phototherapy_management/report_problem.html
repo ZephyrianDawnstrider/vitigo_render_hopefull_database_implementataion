@@ -1,0 +1,64 @@
+<!-- templates/phototherapy_management/report_problem.html -->
+{% extends "../base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="#" class="hover:text-blue-600">Report Problem Dashboard</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Report Problem</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">
+            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+            Report Problem
+        </h2>
+    </div>
+
+    <!-- Form -->
+    <div class="p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="space-y-2">
+                {{ form.reported_by|as_crispy_field }}
+            </div>
+        
+            <!-- Session Selection -->
+            <div class="space-y-2">
+                {{ form.session|as_crispy_field }}
+            </div>
+
+            <!-- Problem Description -->
+            <div class="space-y-2">
+                {{ form.problem_description|as_crispy_field }}
+            </div>
+
+            <!-- Severity -->
+            <div class="space-y-2">
+                {{ form.severity|as_crispy_field }}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'phototherapy_management' %}" 
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Submit Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

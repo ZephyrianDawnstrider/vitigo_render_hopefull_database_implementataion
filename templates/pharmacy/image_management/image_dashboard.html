@@ -1,0 +1,422 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Image Management</h1>
+            <p class="mt-1 text-sm text-gray-600">Monitor patient images, comparisons, and annotations</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'image_upload' %}" class="flex items-center bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-camera mr-2"></i>
+                New Image Upload
+            </a>
+            <a href="{% url 'comparison_list' %}" class="flex items-center bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors">
+                <i class="fas fa-images mr-2"></i>
+                Comparisons
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Total Images -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-blue-100 p-3">
+                    <i class="fas fa-image text-blue-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Total</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ total_images }}</h3>
+                <span class="text-base font-medium text-gray-500">Patient Images</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-blue-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>12%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+
+        <!-- Recent Uploads -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-green-100 p-3">
+                    <i class="fas fa-cloud-upload-alt text-green-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">This Week</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ recent_uploads }}</h3>
+                <span class="text-base font-medium text-gray-500">New Uploads</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-500">Active Growth</span>
+                <i class="fas fa-chart-line ml-2"></i>
+            </div>
+        </div>
+
+        <!-- Comparisons -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-purple-100 p-3">
+                    <i class="fas fa-clone text-purple-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Total</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ total_comparisons }}</h3>
+                <span class="text-base font-medium text-gray-500">Image Comparisons</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-purple-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>8%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+
+        <!-- Storage Used -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-yellow-100 p-3">
+                    <i class="fas fa-database text-yellow-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Total</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ storage_used }}GB</h3>
+                <span class="text-base font-medium text-gray-500">Storage Used</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-yellow-500">70% of limit</span>
+                <div class="w-20 h-2 bg-gray-200 rounded ml-2">
+                    <div class="w-3/4 h-full bg-yellow-500 rounded"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Export Data</h3>
+        <form method="GET" action="{% url 'export_images' %}" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                <div class="flex gap-2">
+                    <input type="date" name="date_from" class="w-full rounded-lg border-gray-300">
+                    <span class="text-gray-500 self-center">to</span>
+                    <input type="date" name="date_to" class="w-full rounded-lg border-gray-300">
+                </div>
+            </div>
+            
+            <div class="flex-1 min-w-[150px]">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Export Format</label>
+                <select name="format" class="w-full rounded-lg border-gray-300">
+                    <option value="csv">CSV</option>
+                    <option value="pdf">PDF</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                    <i class="fas fa-download mr-2"></i>Export Report
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <form method="GET" id="filterForm" class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Image Type Filter -->
+                <select name="image_type" 
+                        onchange="this.form.submit()"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Types</option>
+                    <option value="CLINIC" {% if current_filters.image_type == 'CLINIC' %}selected{% endif %}>Clinic Taken</option>
+                    <option value="PATIENT" {% if current_filters.image_type == 'PATIENT' %}selected{% endif %}>Patient Uploaded</option>
+                </select>
+
+                <!-- Body Part Filter -->
+                <select name="body_part" 
+                        onchange="this.form.submit()"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Body Parts</option>
+                    {% for body_part in body_parts %}
+                    <option value="{{ body_part.id }}" {% if current_filters.body_part == body_part.id|stringformat:"s" %}selected{% endif %}>
+                        {{ body_part.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- Date Range -->
+                <div class="flex items-center gap-2">
+                    <input type="date" 
+                           name="date_from" 
+                           value="{{ current_filters.date_from }}"
+                           onchange="this.form.submit()"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <span class="text-gray-500">to</span>
+                    <input type="date" 
+                           name="date_to" 
+                           value="{{ current_filters.date_to }}"
+                           onchange="this.form.submit()"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                </div>
+
+                {% if current_filters.image_type or current_filters.body_part or current_filters.date_from or current_filters.date_to or current_filters.search %}
+                <a href="{% url 'image_management' %}" 
+                   class="inline-flex items-center text-sm text-red-600 hover:text-red-800">
+                    <i class="fas fa-times-circle mr-1"></i>
+                    Clear Filters
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Search -->
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input type="text" 
+                       name="search" 
+                       value="{{ current_filters.search }}"
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" 
+                       placeholder="Search images or patients..."
+                       oninput="handleSearch(this)">
+            </div>
+        </form>
+    </div>
+
+    <!-- Image Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+        {% for image in patient_images %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="relative aspect-w-16 aspect-h-12">
+                <img 
+                    src="{{ image.image_file.url }}" 
+                    alt="Patient Image" 
+                    class="object-cover w-full h-full {% if image.is_private %}blur-lg hover:blur-none transition-all duration-300{% endif %}"
+                >
+                {% if image.is_private %}
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="bg-black bg-opacity-50 rounded-lg px-4 py-2 text-white flex items-center space-x-2 hover:opacity-0 transition-opacity duration-300">
+                        <i class="fas fa-lock"></i>
+                        <span class="text-sm font-medium">Private Image</span>
+                    </div>
+                </div>
+                <span class="absolute top-2 right-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                    <i class="fas fa-lock mr-1"></i>Private
+                </span>
+                {% endif %}
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">{{ image.patient.get_full_name }}</h3>
+                        <p class="text-xs text-gray-500">{{ image.body_part.name }}</p>
+                    </div>
+                    <span class="text-xs text-gray-500">{{ image.date_taken|date:"M d, Y" }}</span>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2 py-1 text-xs font-medium {{ image.image_type|yesno:'bg-blue-100 text-blue-800,bg-green-100 text-green-800' }} rounded">
+                            {{ image.get_image_type_display }}
+                        </span>
+                        {% if image.annotations.count > 0 %}
+                        <span class="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">
+                            {{ image.annotations.count }} annotations
+                        </span>
+                        {% endif %}
+                    </div>
+                    <button class="text-gray-500 hover:text-gray-700" id="dropdownImageButton{{ image.id }}" data-dropdown-toggle="dropdownImage{{ image.id }}">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dropdown Menu -->
+            <div id="dropdownImage{{ image.id }}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
+                <ul class="py-2 text-sm text-gray-700">
+                    <li>
+                        <a href="{% url 'image_detail' image.id %}" class="block px-4 py-2 hover:bg-gray-100">
+                            <i class="fas fa-info-circle mr-2 text-blue-500"></i>View Details
+                        </a>
+                    </li>
+                    <li>
+                        <button data-modal-target="imageModal{{ image.id }}" data-modal-toggle="imageModal{{ image.id }}" 
+                                class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                            <i class="fas fa-expand-arrows-alt mr-2 text-blue-500"></i>View Full Size
+                        </button>
+                    </li>
+                    <li>
+                        <button class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                            <i class="fas fa-pencil-alt mr-2 text-green-500"></i>Add Annotation
+                        </button>
+                    </li>
+                    <li>
+                        <a href="{% url 'download_image' image.id %}" class="block px-4 py-2 hover:bg-gray-100">
+                            <i class="fas fa-download mr-2 text-gray-500"></i>Download
+                        </a>
+                    </li>
+                    <li>
+                        <button data-modal-target="deleteModal{{ image.id }}" data-modal-toggle="deleteModal{{ image.id }}" 
+                                class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">
+                            <i class="fas fa-trash-alt mr-2"></i>Delete Image
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Flowbite Modal -->
+            <div id="imageModal{{ image.id }}" tabindex="-1" aria-hidden="true" 
+                 class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-7xl max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-4 border-b">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-user-circle text-3xl text-gray-400"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">
+                                        {{ image.patient.get_full_name }}
+                                    </h3>
+                                    <p class="text-sm text-gray-500">
+                                        {{ image.body_part.name }} - {{ image.date_taken|date:"M d, Y" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="px-3 py-1 text-sm font-medium rounded-full 
+                                    {% if image.image_type == 'CLINIC' %}
+                                        bg-blue-100 text-blue-800
+                                    {% else %}
+                                        bg-green-100 text-green-800
+                                    {% endif %}">
+                                    {{ image.get_image_type_display }}
+                                </span>
+                                {% if image.is_private %}
+                                <span class="px-3 py-1 text-sm font-medium bg-red-100 text-red-800 rounded-full">
+                                    <i class="fas fa-lock mr-1"></i>Private
+                                </span>
+                                {% endif %}
+                                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" data-modal-hide="imageModal{{ image.id }}">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="relative bg-gray-100 flex items-center justify-center min-h-[50vh]">
+                            <img src="{{ image.image_file.url }}" 
+                                 alt="Full size patient image" 
+                                 class="max-h-[70vh] object-contain p-4 {% if image.is_private %}blur-lg hover:blur-none transition-all duration-300{% endif %}">
+                        </div>
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-between p-4 border-t">
+                            <div class="flex items-center space-x-4">
+                                <a href="{% url 'download_image' image.id %}" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600">
+                                    <i class="fas fa-download"></i>
+                                    <span>Download</span>
+                                </a>
+                                <button data-modal-target="annotationModal{{ image.id }}" 
+                                        data-modal-toggle="annotationModal{{ image.id }}"
+                                        class="flex items-center space-x-2 text-gray-600 hover:text-green-600">
+                                    <i class="fas fa-pencil-alt"></i>
+                                    <span>Add Annotation</span>
+                                </button>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {{ image.width }}×{{ image.height }} • {{ image.file_size_formatted }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div id="deleteModal{{ image.id }}" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow">
+                        <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="deleteModal{{ image.id }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="p-6 text-center">
+                            <form method="POST" action="{% url 'delete_image' image.id %}">
+                                {% csrf_token %}
+                                <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+                                <h3 class="mb-5 text-lg font-normal text-gray-800">
+                                    Are you sure you want to delete this image?<br>
+                                    <span class="text-sm text-gray-500">This action cannot be undone.</span>
+                                </h3>
+                                <button type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                                    Yes, delete it
+                                </button>
+                                <button type="button" data-modal-hide="deleteModal{{ image.id }}" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow-md">
+        <div class="flex flex-1 justify-between sm:hidden">
+            <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+            <a href="#" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Showing
+                    <span class="font-medium">1</span>
+                    to
+                    <span class="font-medium">12</span>
+                    of
+                    <span class="font-medium">{{ paginator.count }}</span>
+                    results
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                        <span class="sr-only">Previous</span>
+                        <i class="fas fa-chevron-left h-5 w-5"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    <a href="?page={{ num }}" aria-current="page" class="relative inline-flex items-center {% if page_obj.number == num %}bg-blue-600 text-white{% else %}text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50{% endif %} px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">
+                        {{ num }}
+                    </a>
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                        <span class="sr-only">Next</span>
+                        <i class="fas fa-chevron-right h-5 w-5"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

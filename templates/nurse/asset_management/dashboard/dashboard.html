@@ -1,0 +1,321 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Asset Dashboard{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Asset Management</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'add_asset' %}" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+                        <i class="mr-2 fas fa-plus"></i> New Asset
+                    </a>
+                    <!-- Quick Actions Dropdown -->
+                    <div class="relative">
+                        <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-gray-700 bg-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 border inline-flex items-center" type="button">
+                            <i class="mr-2 fas fa-cog"></i> Quick Actions
+                            <svg class="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                            </svg>
+                        </button>
+                        <!-- Dropdown menu -->
+                        <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
+                            <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
+                                <li>
+                                    <a href="{% url 'create_maintenance_schedule' %}" class="block px-4 py-2 hover:bg-gray-100"><i class="mr-2 fas fa-calendar"></i> Schedule Maintenance</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'create_audit' %}" class="block px-4 py-2 hover:bg-gray-100"><i class="mr-2 fas fa-clipboard-check"></i> Start Audit</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'total_insurances' %}" class="block px-4 py-2 hover:bg-gray-100"><i class="mr-2 fas fa-file-invoice"></i> Insurance Renewal</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Export Dropdown -->
+                    <div class="dropdown relative">
+                        <button id="exportDropdown" data-dropdown-toggle="exportDropdownItems" class="text-gray-700 bg-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 border inline-flex items-center">
+                            <i class="mr-2 fas fa-download"></i>
+                            Export
+                            <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                        </button>
+                        <div id="exportDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                            <a href="{% url 'asset_dashboard_export' %}?format=excel" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-file-excel mr-3 text-green-600"></i>
+                                <span class="text-sm text-gray-700">Export to Excel</span>
+                            </a>
+                            <a href="{% url 'asset_dashboard_export' %}?format=pdf" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-file-pdf mr-3 text-red-600"></i>
+                                <span class="text-sm text-gray-700">Export to PDF</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="mb-8">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <h1 class="text-2xl font-bold text-gray-900">Asset Dashboard</h1>
+            <div class="mt-1 flex items-center justify-between">
+                <p class="text-sm text-gray-600">Overview of asset management activities and metrics</p>
+                <p class="text-sm text-gray-600">
+                    <span class="font-medium">{% now "l, F j, Y" %}</span>
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Quick Stats Cards Section -->
+    <section class="mb-8">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <!-- Total Assets Card -->
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-all">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-gray-500">Total Assets</h3>
+                        <i class="fas fa-boxes text-blue-500"></i>
+                    </div>
+                    <p class="mt-2 text-2xl font-semibold text-gray-900">{{ dashboard_stats.total_assets|default:"0" }}</p>
+                    <div class="mt-2">
+                        <a href="{% url 'total_assets' %}" class="text-sm text-gray-600 hover:text-blue-600 flex items-center">
+                            Active assets in system
+                            <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Assets in Use Card -->
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-all">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-gray-500">In Use</h3>
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                    <p class="mt-2 text-2xl font-semibold text-gray-900">{{ dashboard_stats.assets_in_use|default:"0" }}</p>
+                    <div class="mt-2">
+                        <a href="{% url 'total_assets' %}?status=IN_USE" class="text-sm text-gray-600 hover:text-blue-600 flex items-center">
+                            Currently deployed
+                            <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Maintenance Due Card -->
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-all">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-gray-500">Maintenance Due</h3>
+                        <i class="fas fa-tools text-yellow-500"></i>
+                    </div>
+                    <p class="mt-2 text-2xl font-semibold text-gray-900">{{ dashboard_stats.maintenance_due|default:"0" }}</p>
+                    <div class="mt-2">
+                        <a href="{% url 'maintenance_schedule' %}" class="text-sm text-gray-600 hover:text-blue-600 flex items-center">
+                            Next 30 days
+                            <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pending Audits Card -->
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-all">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-gray-500">Pending Audits</h3>
+                        <i class="fas fa-clipboard-check text-purple-500"></i>
+                    </div>
+                    <p class="mt-2 text-2xl font-semibold text-gray-900">{{ dashboard_stats.pending_audits|default:"0" }}</p>
+                    <div class="mt-2">
+                        <a href="{% url 'total_audits' %}" class="text-sm text-gray-600 hover:text-blue-600 flex items-center">
+                            Awaiting verification
+                            <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Expiring Insurance Card -->
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-all">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-gray-500">Expiring Insurance</h3>
+                        <i class="fas fa-shield-alt text-red-500"></i>
+                    </div>
+                    <p class="mt-2 text-2xl font-semibold text-gray-900">{{ dashboard_stats.expiring_insurance|default:"0" }}</p>
+                    <div class="mt-2">
+                        <a href="{% url 'total_insurances' %}" class="text-sm text-gray-600 hover:text-blue-600 flex items-center">
+                            Expiring soon
+                            <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <section class="mb-8">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 gap-4 mb-6 lg:grid-cols-2">
+                <!-- Asset Status Chart -->
+                <div class="p-4 bg-white rounded-lg shadow-sm h-[400px]">
+                    <h3 class="mb-4 text-lg font-medium text-gray-900">Asset Status Distribution</h3>
+                    <div class="h-[300px]">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Asset Categories Chart -->
+                <div class="p-4 bg-white rounded-lg shadow-sm h-[400px]">
+                    <h3 class="mb-4 text-lg font-medium text-gray-900">Assets by Category</h3>
+                    <div class="h-[300px]">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Assets Table -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Recent Assets</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for asset in recent_assets %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ asset.asset_id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ asset.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ asset.category.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if asset.status == 'AVAILABLE' %}bg-green-100 text-green-800
+                                        {% elif asset.status == 'IN_USE' %}bg-blue-100 text-blue-800
+                                        {% elif asset.status == 'UNDER_MAINTENANCE' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ asset.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ asset.location }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ status_labels|safe }},
+            datasets: [{
+                data: {{ status_data|safe }},
+                backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#6B7280']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15
+                    }
+                }
+            }
+        }
+    });
+
+    // Category Distribution Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ category_labels|safe }},
+            datasets: [{
+                label: 'Number of Assets',
+                data: {{ category_data|safe }},
+                backgroundColor: '#3B82F6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Handle export dropdown
+    document.addEventListener('DOMContentLoaded', function() {
+        const exportDropdown = document.getElementById('exportDropdown');
+        const exportMenu = document.getElementById('exportDropdownItems');
+        
+        if (exportDropdown && exportMenu) {
+            exportDropdown.addEventListener('click', function() {
+                exportMenu.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!exportDropdown.contains(event.target)) {
+                    exportMenu.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

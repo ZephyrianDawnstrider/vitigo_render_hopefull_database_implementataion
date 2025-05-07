@@ -1,0 +1,249 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-gray-50">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'pharmacy_management' %}" class="inline-flex items-center text-gray-700 hover:text-blue-600">
+                    <i class="fas fa-clinic-medical mr-2"></i>
+                    Pharmacy Management
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-gray-900">Add Stock</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8 bg-white p-6 rounded-xl shadow-md">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Add Stock</h1>
+            <p class="mt-2 text-gray-600">Add new inventory to your medication stock</p>
+        </div>
+        <a href="{% url 'pharmacy_management' %}" 
+           class="bg-gray-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-gray-600 transition-all duration-300 flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md">
+                <!-- Form Header -->
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-box-open text-blue-600 text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800">Stock Addition Form</h2>
+                            <p class="text-sm text-gray-500">Fill in the details to add new stock to your inventory</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alert Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="m-6 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-green-50 text-green-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Main Form -->
+                <form method="post" class="p-6 space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Medication and Quantity Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Medication <span class="text-red-500">*</span>
+                            </label>
+                            <select name="medication" required
+                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Select Medication</option>
+                                {% for med in medications %}
+                                <option value="{{ med.id }}">
+                                    {{ med.name }} (Current: {{ med.stock.quantity }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Select the medication you want to add stock for</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Quantity <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" name="quantity" required min="1"
+                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                            <p class="mt-1 text-xs text-gray-500">Enter the number of units being added</p>
+                        </div>
+                    </div>
+
+                    <!-- Supplier and Batch Info Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Supplier <span class="text-red-500">*</span>
+                            </label>
+                            <select name="supplier" required
+                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Select Supplier</option>
+                                {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Select the supplier providing this stock</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Batch Number <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="batch_number" required
+                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                            <p class="mt-1 text-xs text-gray-500">Enter the manufacturer's batch number</p>
+                        </div>
+                    </div>
+
+                    <!-- Expiry and Price Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Expiry Date <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" name="expiry_date" required
+                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                            <p class="mt-1 text-xs text-gray-500">Select the expiration date of the medication</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Purchase Price (per unit) <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">₹</span>
+                                <input type="number" name="purchase_price" step="0.01" required
+                                    class="w-full rounded-lg border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Enter the purchase price per unit</p>
+                        </div>
+                    </div>
+
+                    <!-- Reference Number Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Reference Number
+                        </label>
+                        <input type="text" name="reference_number"
+                            class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="e.g., Invoice number or PO number">
+                        <p class="mt-1 text-xs text-gray-500">Optional: Enter a reference number for tracking purposes</p>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+                        <a href="{% url 'pharmacy_management' %}" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-plus-circle mr-2"></i>
+                            Add Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Recent Additions -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-history text-blue-500 mr-2"></i>
+                        Recent Additions
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        {% for addition in recent_additions %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ addition.medication.name }}</p>
+                                <p class="text-xs text-gray-500">{{ addition.adjusted_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-semibold text-green-600">+{{ addition.quantity }}</p>
+                                <p class="text-xs text-gray-500">{{ addition.reference_number|default:"No ref" }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-500 text-sm text-center">No recent additions</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guidelines -->
+            <div class="bg-blue-50 rounded-lg p-6">
+                <h3 class="text-sm font-medium text-blue-800 mb-3 flex items-center">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Stock Addition Guidelines
+                </h3>
+                <ul class="space-y-2 text-sm text-blue-700">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle mt-1 mr-2"></i>
+                        <span>Verify the medication details before adding stock</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle mt-1 mr-2"></i>
+                        <span>Always check the expiry date on physical stock</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle mt-1 mr-2"></i>
+                        <span>Keep invoice or PO number handy for reference</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle mt-1 mr-2"></i>
+                        <span>Double-check quantities before submission</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-4">Quick Statistics</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Today's Additions</span>
+                        <span class="text-sm font-medium text-gray-900">
+                            {{ recent_additions|length }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Low Stock Items</span>
+                        <span class="text-sm font-medium text-red-600">
+                            {{ medications|length }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

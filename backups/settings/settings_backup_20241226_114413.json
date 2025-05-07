@@ -1,0 +1,73 @@
+{
+    "timestamp": "2024-12-26T11:44:13.842032",
+    "settings": [],
+    "categories": [
+        {
+            "model": "settings.settingcategory",
+            "pk": 1,
+            "fields": {
+                "name": "Email Settings",
+                "key": "email-settings",
+                "description": "Configuration for email notifications and communications",
+                "icon": "mail",
+                "order": 1,
+                "is_active": true,
+                "parent": null,
+                "created_at": "2024-12-24T07:06:45.086Z",
+                "updated_at": "2024-12-24T07:06:45.086Z"
+            }
+        }
+    ],
+    "definitions": [
+        {
+            "model": "settings.settingdefinition",
+            "pk": 1,
+            "fields": {
+                "category": 1,
+                "name": "Appointment Reminder Template",
+                "key": "appointment-reminder-template",
+                "setting_type": "STRING",
+                "description": "Email template for appointment reminders",
+                "default_value": "Dear {patient_name}, This is a reminder for your appointment with Dr. {doctor_name} on {appointment_date} at {appointment_time}.          Clinic Address: {clinic_address} Please arrive 10 minutes early.  Best regards, {clinic_name}",
+                "is_required": true,
+                "is_sensitive": false,
+                "validation_regex": "",
+                "validation_message": "",
+                "possible_values": null,
+                "order": 1,
+                "is_active": false,
+                "created_at": "2024-12-24T07:09:05.333Z",
+                "updated_at": "2024-12-24T07:09:05.333Z"
+            }
+        }
+    ],
+    "system_config": [
+        {
+            "model": "settings.systemconfiguration",
+            "pk": 3,
+            "fields": {
+                "site_name": "Vitigo",
+                "site_url": "https://vitigo.in",
+                "admin_email": "admin@test.com",
+                "session_timeout_minutes": 300,
+                "password_expiry_days": 90,
+                "max_login_attempts": 4,
+                "require_2fa": false,
+                "max_upload_size_mb": 500,
+                "allowed_file_extensions": [],
+                "default_timezone": "Asia/Kolkata",
+                "default_language": "en-us",
+                "date_format": "YYYY-MM-DD",
+                "time_format": "HH:mm:ss",
+                "business_hours": {},
+                "holiday_calendar": [],
+                "appointment_duration_minutes": 30
+            }
+        }
+    ],
+    "email_config": [],
+    "sms_config": [],
+    "notification_config": [],
+    "payment_config": [],
+    "api_config": []
+}

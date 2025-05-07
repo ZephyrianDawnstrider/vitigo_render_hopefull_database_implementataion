@@ -1,0 +1,334 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Employee Details - {{ employee.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'employee_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Employees</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ employee.user.get_full_name }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'employee_list' %}" class="text-gray-700 bg-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 border">
+                        <i class="mr-2 fas fa-arrow-left"></i> Back to List
+                    </a>
+                    <a href="{% url 'employee_edit' employee.id %}" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+                        <i class="mr-2 fas fa-edit"></i> Edit Employee
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <!-- Employee Profile Card -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6">
+                        <div class="text-center">
+                            <div class="inline-block p-2 rounded-full bg-gray-100">
+                                <i class="fas fa-user-circle text-6xl text-gray-500"></i>
+                            </div>
+                            <h2 class="mt-4 text-xl font-bold text-gray-900">{{ employee.user.get_full_name }}</h2>
+                            <p class="text-sm text-gray-500">{{ employee.position.title }}</p>
+                        </div>
+                        
+                        <div class="mt-6 space-y-4">
+                            <div class="flex items-center">
+                                <i class="w-5 fas fa-id-badge text-gray-400"></i>
+                                <span class="ml-3 text-sm text-gray-500">{{ employee.employee_id }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="w-5 fas fa-envelope text-gray-400"></i>
+                                <span class="ml-3 text-sm text-gray-500">{{ employee.user.email }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="w-5 fas fa-phone text-gray-400"></i>
+                                <span class="ml-3 text-sm text-gray-500">{{ employee.user.phone_number }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="w-5 fas fa-building text-gray-400"></i>
+                                <span class="ml-3 text-sm text-gray-500">{{ employee.department.name }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="w-5 fas fa-calendar text-gray-400"></i>
+                                <span class="ml-3 text-sm text-gray-500">Joined: {{ employee.join_date|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Information -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Employment Details -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium text-gray-900">Employment Details</h3>
+                        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ employee.get_employment_status_display }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Type</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ employee.get_employment_type_display }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Department</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ employee.department.name }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Position</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ employee.position.title }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Reports To</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {% if employee.reporting_to %}
+                                        {{ employee.reporting_to.user.get_full_name }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </dd>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Recent Activities</h3>
+                        </div>
+                        
+                        <!-- Leave Requests -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-500 mb-3">Recent Leave Requests</h4>
+                            {% if has_leaves %}
+                                <div class="space-y-3">
+                                    {% for leave in leaves %}
+                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">{{ leave.get_leave_type_display }}</p>
+                                                <p class="text-xs text-gray-500">{{ leave.start_date|date:"M d, Y" }} - {{ leave.end_date|date:"M d, Y" }}</p>
+                                            </div>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                {% if leave.status == 'APPROVED' %}bg-green-100 text-green-800
+                                                {% elif leave.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                                {{ leave.get_status_display }}
+                                            </span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-6 bg-gray-50 rounded-lg">
+                                    <div class="mx-auto h-12 w-12 text-gray-400">
+                                        <i class="fas fa-calendar-alt text-3xl"></i>
+                                    </div>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No leave requests</h3>
+                                    <p class="mt-1 text-sm text-gray-500">No leave requests have been submitted yet.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Training Participations -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-500 mb-3">Training Programs</h4>
+                            {% if has_trainings %}
+                                <div class="space-y-3">
+                                    {% for training in trainings %}
+                                        <div class="p-3 bg-gray-50 rounded-lg">
+                                            <div class="flex justify-between items-start">
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">{{ training.training.title }}</p>
+                                                    <p class="text-xs text-gray-500">Status: {{ training.get_status_display }}</p>
+                                                </div>
+                                                {% if training.score %}
+                                                    <span class="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full">
+                                                        Score: {{ training.score }}%
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-6 bg-gray-50 rounded-lg">
+                                    <div class="mx-auto h-12 w-12 text-gray-400">
+                                        <i class="fas fa-graduation-cap text-3xl"></i>
+                                    </div>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No trainings</h3>
+                                    <p class="mt-1 text-sm text-gray-500">No training programs have been assigned yet.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Performance Reviews -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-3">Recent Performance Reviews</h4>
+                            {% if has_performance_reviews %}
+                                <div class="space-y-3">
+                                    {% for review in performance_reviews %}
+                                        <div class="p-3 bg-gray-50 rounded-lg">
+                                            <div class="flex justify-between items-start">
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">
+                                                        Review Period: {{ review.review_period_start|date:"M Y" }} - {{ review.review_period_end|date:"M Y" }}
+                                                    </p>
+                                                    <p class="text-xs text-gray-500">Overall Rating: 
+                                                        {% with avg_rating=review.get_average_rating %}
+                                                            <span class="font-medium {% if avg_rating >= 4 %}text-green-600{% elif avg_rating >= 3 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                                                {{ avg_rating|floatformat:1 }}/5.0
+                                                            </span>
+                                                        {% endwith %}
+                                                    </p>
+                                                </div>
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                                    {% if review.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                                    {% elif review.status == 'DRAFT' %}bg-yellow-100 text-yellow-800
+                                                    {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                                    {{ review.get_status_display }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-6 bg-gray-50 rounded-lg">
+                                    <div class="mx-auto h-12 w-12 text-gray-400">
+                                        <i class="fas fa-chart-line text-3xl"></i>
+                                    </div>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No performance reviews</h3>
+                                    <p class="mt-1 text-sm text-gray-500">No performance reviews have been conducted yet.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Documents</h3>
+                            <button type="button" class="text-blue-600 hover:text-blue-700">
+                                <i class="fas fa-upload mr-1"></i> Upload New
+                            </button>
+                        </div>
+                        
+                        {% if has_documents %}
+                            <div class="space-y-3">
+                                {% for document in documents %}
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center">
+                                            <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                                                <i class="fas fa-file-alt"></i>
+                                            </span>
+                                            <div class="ml-3">
+                                                <p class="text-sm font-medium text-gray-900">{{ document.title }}</p>
+                                                <p class="text-xs text-gray-500">{{ document.get_document_type_display }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            {% if document.is_verified %}
+                                                <span class="px-2 py-1 text-xs font-medium text-green-600 bg-green-100 rounded-full">
+                                                    Verified
+                                                </span>
+                                            {% endif %}
+                                            {% if document.file %}
+                                                <a href="{{ document.file.url }}" class="text-gray-400 hover:text-gray-600">
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                            {% else %}
+                                                <span class="text-xs text-red-500">File missing</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-6">
+                                <div class="mx-auto h-12 w-12 text-gray-400">
+                                    <i class="fas fa-file-alt text-3xl"></i>
+                                </div>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">No documents</h3>
+                                <p class="mt-1 text-sm text-gray-500">Get started by uploading a new document.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <button type="button" class="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-envelope text-blue-600 mr-2"></i>
+                    <span class="text-sm font-medium text-blue-600">Send Email</span>
+                </div>
+            </button>
+            
+            <button type="button" class="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-calendar-plus text-green-600 mr-2"></i>
+                    <span class="text-sm font-medium text-green-600">New Leave Request</span>
+                </div>
+            </button>
+            
+            <button type="button" class="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-chart-line text-purple-600 mr-2"></i>
+                    <span class="text-sm font-medium text-purple-600">Performance Review</span>
+                </div>
+            </button>
+            
+            <button type="button" class="p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-graduation-cap text-yellow-600 mr-2"></i>
+                    <span class="text-sm font-medium text-yellow-600">Assign Training</span>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

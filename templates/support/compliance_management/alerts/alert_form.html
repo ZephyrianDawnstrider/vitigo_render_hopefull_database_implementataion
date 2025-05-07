@@ -1,0 +1,141 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if is_edit %}Edit Alert{% else %}Create New Alert{% endif %}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:alert_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Alerts
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">
+                                        {% if is_edit %}Edit Alert{% else %}New Alert{% endif %}
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <h1 class="text-2xl font-semibold text-gray-900">
+                    {% if is_edit %}
+                        Edit Alert
+                    {% else %}
+                        Create New Alert
+                    {% endif %}
+                </h1>
+            </div>
+        </div>
+
+        <!-- Alert Form -->
+        <div class="bg-white shadow-sm rounded-lg">
+            <div class="p-6">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                        <!-- Patient Field -->
+                        <div class="sm:col-span-2">
+                            {{ form.patient|as_crispy_field }}
+                        </div>
+
+                        <!-- Alert Type and Severity -->
+                        <div>
+                            {{ form.alert_type|as_crispy_field }}
+                        </div>
+                        <div>
+                            {{ form.severity|as_crispy_field }}
+                        </div>
+
+                        <!-- Message -->
+                        <div class="sm:col-span-2">
+                            {{ form.message|as_crispy_field }}
+                        </div>
+
+                        {% if is_edit %}
+                        <!-- Resolution Status and Notes (Only for Edit) -->
+                        <div class="sm:col-span-2">
+                            {{ form.is_resolved|as_crispy_field }}
+                        </div>
+                        <div class="sm:col-span-2">
+                            {{ form.resolution_notes|as_crispy_field }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-6 border-t">
+                        <a href="{% url 'compliance_management:alert_list' %}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            {% if is_edit %}
+                                Save Changes
+                            {% else %}
+                                Create Alert
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show/hide resolution notes based on is_resolved checkbox
+        const isResolvedCheckbox = document.getElementById('id_is_resolved');
+        const resolutionNotesDiv = document.getElementById('div_id_resolution_notes');
+
+        if (isResolvedCheckbox && resolutionNotesDiv) {
+            function toggleResolutionNotes() {
+                resolutionNotesDiv.style.display = isResolvedCheckbox.checked ? 'block' : 'none';
+            }
+
+            isResolvedCheckbox.addEventListener('change', toggleResolutionNotes);
+            toggleResolutionNotes(); // Initial state
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+
+{% block title %}Alert Details{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar with Breadcrumbs -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:alert_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Alerts
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Alert Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header with Actions -->
+        <div class="mb-6 flex justify-between items-center">
+            <h1 class="text-2xl font-semibold text-gray-900">Alert Details</h1>
+            <div class="flex space-x-3">
+                <a href="{% url 'compliance_management:alert_edit' alert.pk %}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-edit mr-2"></i> Edit Alert
+                </a>
+                <button type="button"
+                        data-modal-target="deleteModal-{{ alert.id }}" 
+                        data-modal-toggle="deleteModal-{{ alert.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-trash-alt mr-2"></i> Delete Alert
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert Information -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <!-- Alert Status Banner -->
+            <div class="px-4 py-5 border-b {% if alert.is_resolved %}bg-green-50{% else %}bg-yellow-50{% endif %}">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium {% if alert.is_resolved %}text-green-800{% else %}text-yellow-800{% endif %}">
+                            {{ alert.is_resolved|yesno:"Resolved Alert,Active Alert" }}
+                        </h3>
+                        <p class="mt-1 text-sm {% if alert.is_resolved %}text-green-600{% else %}text-yellow-600{% endif %}">
+                            Created on {{ alert.created_at|date:"M d, Y H:i" }}
+                        </p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm font-semibold
+                        {% if alert.severity == 'HIGH' %}bg-red-100 text-red-800
+                        {% elif alert.severity == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ alert.get_severity_display }} Priority
+                    </span>
+                </div>
+            </div>
+
+            <!-- Alert Details -->
+            <div class="px-4 py-5 sm:p-6">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Patient</dt>
+                        <dd class="mt-1">
+                            <div class="text-sm font-medium text-gray-900">{{ alert.patient.get_full_name }}</div>
+                            <div class="text-sm text-gray-500">ID: {{ alert.patient.id }}</div>
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Alert Type</dt>
+                        <dd class="mt-1">
+                            <span class="px-2 py-1 text-sm rounded-full bg-blue-100 text-blue-800">
+                                {{ alert.get_alert_type_display }}
+                            </span>
+                        </dd>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Message</dt>
+                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ alert.message }}</dd>
+                    </div>
+
+                    {% if alert.is_resolved %}
+                    <div class="sm:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Resolution Notes</dt>
+                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ alert.resolution_notes }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Resolved By</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ alert.resolved_by.get_full_name }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Resolved At</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ alert.resolved_at|date:"M d, Y H:i" }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+{% include './modals/alert_delete.html' %}
+{% endblock %}

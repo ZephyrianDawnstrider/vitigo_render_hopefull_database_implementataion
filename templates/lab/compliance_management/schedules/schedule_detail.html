@@ -1,0 +1,225 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+
+{% block title %}Schedule Details - {{ schedule.patient.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:schedule_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Schedules
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Schedule Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center space-x-3">
+                    <button type="button" onclick="window.location='{% url 'compliance_management:schedule_edit' schedule.pk %}'" class="text-blue-600 hover:text-blue-700">
+                        <i class="fas fa-edit mr-1"></i> Edit
+                    </button>
+                    <button type="button" data-modal-target="deleteModal-{{ schedule.id }}" data-modal-toggle="deleteModal-{{ schedule.id }}" class="text-red-600 hover:text-red-700">
+                        <i class="fas fa-trash-alt mr-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-6 flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Schedule Details</h1>
+                <p class="mt-1 text-sm text-gray-600">
+                    Patient: {{ schedule.patient.get_full_name }}
+                </p>
+            </div>
+            <div class="flex items-center space-x-2">
+                {{ schedule.get_status_display|format_schedule_status }}
+                {{ schedule.get_priority_display|format_priority }}
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Schedule Details Card -->
+            <div class="lg:col-span-2">
+                <div class="bg-white border rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Schedule Information</h2>
+                    </div>
+                    <div class="px-6 py-4 space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Scheduled Date</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ schedule.scheduled_date|date:"M d, Y" }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Scheduled Time</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ schedule.scheduled_time|time:"H:i" }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Assigned To</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ schedule.assigned_to.get_full_name }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Duration</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ schedule.duration_minutes }} minutes</p>
+                            </div>
+                        </div>
+                        {% if schedule.schedule_notes %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Notes</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ schedule.schedule_notes }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Compliance Notes -->
+                <div class="mt-6 bg-white border rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b flex justify-between items-center">
+                        <h2 class="text-lg font-medium text-gray-900">Compliance Notes</h2>
+                        <button onclick="window.location='{% url 'compliance_management:compliance_note_create' %}'" type="button" class="text-sm text-blue-600 hover:text-blue-700">
+                            <i class="fas fa-plus mr-1"></i> Add Note
+                        </button>
+                    </div>
+                    <div class="px-6 py-4">
+                        {% if notes %}
+                            <div class="space-y-4">
+                                {% for note in notes %}
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="text-sm text-gray-900">{{ note.content }}</p>
+                                            <p class="mt-1 text-xs text-gray-500">
+                                                Added by {{ note.created_by.get_full_name }} • {{ note.created_at|timesince }} ago
+                                            </p>
+                                        </div>
+                                        <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
+                                            {{ note.get_note_type_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-500 text-sm text-center py-4">No notes added yet</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Patient Information -->
+                <div class="bg-white border rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Patient Information</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Name</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ schedule.patient.get_full_name }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">ID</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ schedule.patient.id }}</p>
+                            </div>
+                            {% if compliance_metrics %}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Compliance Score</label>
+                                <p class="mt-1 text-sm font-semibold {% if compliance_metrics.compliance_score >= 80 %}text-green-600{% elif compliance_metrics.compliance_score >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                    {{ compliance_metrics.compliance_score }}%
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Related Schedules -->
+                <div class="bg-white border rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Related Schedules</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        {% if previous_schedules or upcoming_schedules %}
+                            <div class="space-y-4">
+                                {% for schedule in previous_schedules %}
+                                <div class="flex items-center justify-between">
+                                    <div class="text-sm">
+                                        <p class="font-medium text-gray-900">{{ schedule.scheduled_date|date:"M d, Y" }}</p>
+                                        <p class="text-gray-500">{{ schedule.get_status_display }}</p>
+                                    </div>
+                                    <a href="{% url 'compliance_management:schedule_detail' schedule.pk %}" 
+                                       class="text-blue-600 hover:text-blue-700">
+                                        View
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-500 text-sm text-center py-4">No related schedules found</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Related Issues -->
+                {% if related_issues %}
+                <div class="bg-white border rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Related Issues</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <div class="space-y-4">
+                            {% for issue in related_issues %}
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <p class="text-sm font-medium text-gray-900">{{ issue.title }}</p>
+                                <p class="mt-1 text-xs text-gray-500">{{ issue.get_status_display }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% include './modals/schedule_delete.html' %}
+{% endblock %}

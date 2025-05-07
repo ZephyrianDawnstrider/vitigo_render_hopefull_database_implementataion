@@ -1,0 +1,334 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Laboratory Management</h1>
+            <p class="mt-1 text-sm text-gray-600">Monitor lab tests, results, and reports</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="#" class="flex items-center bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-flask mr-2"></i>
+                New Lab Order
+            </a>
+            <a href="#" class="flex items-center bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors">
+                <i class="fas fa-file-export mr-2"></i>
+                Export Reports
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Pending Tests -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-yellow-100 p-3">
+                    <i class="fas fa-hourglass-half text-yellow-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Today</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ pending_tests }}</h3>
+                <span class="text-base font-medium text-gray-500">Pending Tests</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-yellow-500">Need Processing</span>
+                <i class="fas fa-arrow-right ml-2"></i>
+            </div>
+        </div>
+
+        <!-- Critical Results -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-red-100 p-3">
+                    <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Today</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ critical_results }}</h3>
+                <span class="text-base font-medium text-gray-500">Critical Results</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-red-500">Urgent Attention</span>
+                <i class="fas fa-exclamation-triangle ml-2"></i>
+            </div>
+        </div>
+
+        <!-- Completed Tests -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-green-100 p-3">
+                    <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">This Month</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ completed_tests }}</h3>
+                <span class="text-base font-medium text-gray-500">Completed Tests</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>15%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+
+        <!-- Monthly Revenue -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-blue-100 p-3">
+                    <i class="fas fa-dollar-sign text-blue-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">This Month</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">₹{{ monthly_revenue }}</h3>
+                <span class="text-base font-medium text-gray-500">Lab Revenue</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>10%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Test Status Filter -->
+                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Status</option>
+                    <option value="ORDERED">Ordered</option>
+                    <option value="COLLECTED">Sample Collected</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+
+                <!-- Result Status Filter -->
+                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Results</option>
+                    <option value="NORMAL">Normal</option>
+                    <option value="ABNORMAL">Abnormal</option>
+                    <option value="CRITICAL">Critical</option>
+                </select>
+
+                <!-- Date Range -->
+                <input type="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+            </div>
+
+            <!-- Search -->
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" placeholder="Search tests or patients...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Lab Orders Table -->
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="p-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">Patient Info</th>
+                        <th scope="col" class="px-6 py-3">Test Details</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
+                        <th scope="col" class="px-6 py-3">Result</th>
+                        <th scope="col" class="px-6 py-3">Ordered By</th>
+                        <th scope="col" class="px-6 py-3">Order Date</th>
+                        <th scope="col" class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in lab_orders %}
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="w-4 p-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">
+                                <div class="text-sm font-medium text-gray-900">{{ order.patient.get_full_name }}</div>
+                                <div class="text-xs text-gray-500">ID: {{ order.patient.id }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">
+                                {% for item in order.items.all %}
+                                <div class="text-sm text-gray-900">{{ item.lab_test.name }}</div>
+                                <div class="text-xs text-gray-500">{{ item.lab_test.code }}</div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if order.status == 'COMPLETED' %}
+                                    bg-green-100 text-green-800
+                                {% elif order.status == 'IN_PROGRESS' %}
+                                    bg-blue-100 text-blue-800
+                                {% elif order.status == 'ORDERED' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% elif order.status == 'CANCELLED' %}
+                                    bg-red-100 text-red-800
+                                {% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if order.items.first.result %}
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if order.items.first.result.status == 'NORMAL' %}
+                                    bg-green-100 text-green-800
+                                {% elif order.items.first.result.status == 'ABNORMAL' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% elif order.items.first.result.status == 'CRITICAL' %}
+                                    bg-red-100 text-red-800
+                                {% endif %}">
+                                {{ order.items.first.result.get_status_display }}
+                            </span>
+                            {% else %}
+                            <span class="text-gray-400">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ order.ordered_by.get_full_name }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">
+                                {{ order.order_date|date:"M d, Y" }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ order.order_date|time:"H:i" }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button id="dropdownMenuIconButton{{ order.id }}" data-dropdown-toggle="dropdownDots{{ order.id }}" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Dropdown Menu -->
+                    <div id="dropdownDots{{ order.id }}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-56">
+                        <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownMenuIconButton{{ order.id }}">
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-eye text-blue-500 mr-2"></i> View Details
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-vial text-purple-500 mr-2"></i> Update Status
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-file-medical text-green-500 mr-2"></i> Enter Results
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-print text-gray-500 mr-2"></i> Print Report
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+            <div class="flex flex-1 justify-between sm:hidden">
+                <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+                <a href="#" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
+            </div>
+            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">1</span>
+                        to
+                        <span class="font-medium">10</span>
+                        of
+                        <span class="font-medium">{{ paginator.count }}</span>
+                        results
+                    </p>
+                </div>
+                <div>
+                    <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                            <span class="sr-only">Previous</span>
+                            <i class="fas fa-chevron-left h-5 w-5"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                        <a href="?page={{ num }}" aria-current="page" class="relative inline-flex items-center {% if page_obj.number == num %}bg-blue-600 text-white{% else %}text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50{% endif %} px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">
+                            {{ num }}
+                        </a>
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                            <span class="sr-only">Next</span>
+                            <i class="fas fa-chevron-right h-5 w-5"></i>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize dropdowns
+        const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
+        dropdownButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-dropdown-toggle');
+                const dropdown = document.getElementById(targetId);
+                if (dropdown) {
+                    dropdown.classList.toggle('hidden');
+                }
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('[data-dropdown-toggle]')) {
+                document.querySelectorAll('[id^="dropdownDots"]').forEach(dropdown => {
+                    if (!dropdown.classList.contains('hidden')) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        // Initialize any other JavaScript functionality needed for the lab dashboard
+    });
+</script>
+{% endblock %}

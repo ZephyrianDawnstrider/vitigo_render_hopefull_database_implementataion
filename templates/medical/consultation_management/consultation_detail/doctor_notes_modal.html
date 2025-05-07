@@ -1,0 +1,47 @@
+<!-- Doctor Notes Modal -->
+<div id="doctorNotesModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-2xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <div class="flex items-start justify-between p-4 border-b">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    Update Doctor's Notes
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="doctorNotesModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form action="{% url 'update_doctor_notes' pk=consultation.id %}" method="POST">
+                {% csrf_token %}
+                <div class="p-6 space-y-6">
+                    <!-- Clinical Observations -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Clinical Observations</label>
+                        <textarea name="clinical_observations" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.private_notes.clinical_observations }}</textarea>
+                    </div>
+                    
+                    <!-- Differential Diagnosis -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Differential Diagnosis</label>
+                        <textarea name="differential_diagnosis" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.private_notes.differential_diagnosis }}</textarea>
+                    </div>
+                    
+                    <!-- Treatment Rationale -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Treatment Rationale</label>
+                        <textarea name="treatment_rationale" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.private_notes.treatment_rationale }}</textarea>
+                    </div>
+                    
+                    <!-- Private Remarks -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Private Remarks</label>
+                        <textarea name="private_remarks" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.private_notes.private_remarks }}</textarea>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end p-6 space-x-2 border-t border-gray-200">
+                    <button type="button" class="px-4 py-2 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200" data-modal-hide="doctorNotesModal">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">Save Notes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

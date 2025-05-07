@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <system.webServer>
+    <handlers>
+      <add name="Python FastCGI" path="*" verb="*" modules="FastCgiModule"
+           scriptProcessor="C:\Users\Ayush\AppData\Local\Programs\Python\Python313\python.exe|C:\Users\Ayush\AppData\Local\Programs\Python\Python313\Lib\site-packages\wfastcgi.py"
+           resourceType="Unspecified" requireAccess="Script" />
+    </handlers>
+    <defaultDocument>
+      <files>
+        <add value="index.py" />
+      </files>
+    </defaultDocument>
+    <rewrite>
+      <rules>
+        <rule name="DjangoApp" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions>
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="index.py" />
+        </rule>
+      </rules>
+    </rewrite>
+  </system.webServer>
+
+  <appSettings>
+    <add key="WSGI_HANDLER" value="vitigo_pms.wsgi.application" />
+    <add key="PYTHONPATH" value="C:\Users\Ayush\Downloads\VitiGoSoftwareorignal\VitiGoSoftwareCodebase" />
+    <add key="DJANGO_SETTINGS_MODULE" value="vitigo_pms.settings" />
+  </appSettings>
+</configuration>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DJANGO_SECRET_KEY=django-insecure-ls#yq@w!$)_^yj^a!+2ljhow_x%+=n=z0xsw2lz#+vz8v)qda^
+
+DJANGO_ENV=development
+
+ALLOWED_HOSTS=143.198.122.10,127.0.0.1,localhost
+
+FRONTEND_URL=http://127.0.0.1:8000
+BASE_URL=http://127.0.0.1:8000
+
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=cloudythought10@gmail.com
+EMAIL_HOST_PASSWORD=nxgj mysq ulyc glbm
+
+DEFAULT_FROM_EMAIL=cloudythought10@gmail.com
+
+FIELD_ENCRYPTION_KEY=your-32-character-random-string
+
+# Generated using Fernet.generate_key() - do not change once set
+FIELD_ENCRYPTION_KEY=UJ6AhVHARUSSdL2Su-33f_AbZ0RD8kpvhos_vHyIxb0=
+
+WHATSAPP_API_VERSION=v17.0
+WHATSAPP_PHONE_NUMBER_ID=494836983712847
+WHATSAPP_ACCESS_TOKEN=EAAFW9zMrSJMBOZCbhXTKRvFBaTFlFXTpZAad0HLmXKdJcJtAzJYCYxBY7ILFfhRZBLiUQiEd6Rp3wdAs8xbVFy0Fl6ZCNbhJVEL5ffzRjYJfRwZBYSb8uCsuH2MIZBv1hzvANPPZB54lT5pzYzhQ6KLP8xx8CR1Nt5GKOXITqair0NUhJqslziZBqyGCizRrGGZCF8yheY3C7r705on2tGzPTy5tEl1Yk6DSmFysZD
+WHATSAPP_VERIFY_TOKEN=q@w!$)_^yj^a!+2ljhow_x%+=n=z0xsw2lz#+vz8v)qda^
+
+FACEBOOK_API_VERSION=v21.0
+FACEBOOK_PAGE_ID=445951571944059
+FACEBOOK_PAGE_ACCESS_TOKEN=EAAFW9zMrSJMBOwgqVsuQeZBxY8HLLLgbpdFQ7hZBbw6JcDZAnbzF6pv1EfgmzGuMc8mZApfewN7kZCRoZCMZAK81ryZCuXsrA4LgZBqVDLu191BVRpA8gNnZCGce3A3yFjPn1A79x4NGUcxANSgeLvVNkL6ItwYlEeqxrwvV0BZAISZCqwSZCXtG4KZBSLq1hXZB9CfZAGMpM1ESPihY3wZDZD
+FACEBOOK_VERIFY_TOKEN=q@w!$)_^yj^a!+2ljhow_x%+=n=z0xsw2lz#+vz8v)qda^
+
+INSTAGRAM_BUSINESS_ACCOUNT_ID=17841470466065157
+INSTAGRAM_ACCESS_TOKEN=IGQWRQeXhrWm56dTRkQng5OFBNUlhQQmRyanJyTnpuLWJwOVdSZA1NJM21WbnhSTDNOaEVNRjRUTjNyVjNUUXFzakJadlZA3SDZAYd0w0Nkc2X2MwZA3ZABNnNpdWNiM3V4UDVpQ0p1LTd1Y2FWeEZArY2ljUklPZAmk4am8ZD
+INSTAGRAM_APP_SECRET=a70669803e6e3bae2787dc0eefff8900
+INSTAGRAM_VERIFY_TOKEN=q@w!$)_^yj^a!+2ljhow_x%+=n=z0xsw2lz#+vz8v)qda^
+
+GMAIL_CLIENT_ID=738105191175-v7r9b4bt3nqgm2sh4h3mvnh61jnrgdss.apps.googleusercontent.com
+GMAIL_CLIENT_SECRET=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
+GMAIL_REDIRECT_URI=http://localhost:8000/webhooks/oauth/callback/gmail/
+GMAIL_VERIFY_TOKEN=abc123

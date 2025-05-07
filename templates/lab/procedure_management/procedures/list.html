@@ -1,0 +1,288 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Procedures List{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Procedures List</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Procedures</h1>
+                <p class="mt-2 text-sm text-gray-700">
+                    Total: {{ total_procedures }} | Today: {{ today_procedures }}
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <a href="{% url 'procedure_management:procedure_create' %}" 
+                   class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-plus mr-2"></i>
+                    New Procedure
+                </a>
+            </div>
+        </div>
+
+        <!-- Management Toolbar -->
+        <div class="mt-6 bg-white rounded-lg shadow">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Procedure Management Tools</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    <!-- Categories -->
+                    <a href="{% url 'procedure_management:category_list' %}" 
+                       class="inline-flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-folder-tree mr-2"></i>
+                        Manage Categories
+                    </a>
+
+                    <!-- Types -->
+                    <a href="{% url 'procedure_management:type_list' %}" 
+                       class="inline-flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-layer-group mr-2"></i>
+                        Manage Types
+                    </a>
+
+                    <!-- Prerequisites -->
+                    <a href="{% url 'procedure_management:prerequisite_list' %}" 
+                       class="inline-flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-clipboard-check mr-2"></i>
+                        Prerequisites
+                    </a>
+
+                    <!-- Instructions -->
+                    <a href="{% url 'procedure_management:instruction_list' %}" 
+                       class="inline-flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
+                        <i class="fas fa-file-medical mr-2"></i>
+                        Instructions
+                    </a>
+
+                    <!-- Checklists -->
+                    <a href="#" 
+                       class="inline-flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 transition-colors">
+                        <i class="fas fa-tasks mr-2"></i>
+                        Checklists
+                    </a>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mt-4 flex justify-end space-x-3">
+                    <button type="button" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-download mr-2"></i>
+                        Export Data
+                    </button>
+                    <button type="button" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-cog mr-2"></i>
+                        Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <form method="get" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+                <input type="text" name="search" id="search" value="{{ current_filters.search }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                       placeholder="Search procedures...">
+            </div>
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                <select name="status" id="status"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">All Status</option>
+                    {% for status_code, status_label in status_choices %}
+                    <option value="{{ status_code }}" {% if current_filters.status == status_code %}selected{% endif %}>
+                        {{ status_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                <input type="date" name="start_date" id="start_date" value="{{ current_filters.start_date }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+            <div>
+                <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                <input type="date" name="end_date" id="end_date" value="{{ current_filters.end_date }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+            <div class="sm:col-span-4 flex justify-end space-x-4">
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-search mr-2"></i>
+                    Search
+                </button>
+                <a href="#"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-times mr-2"></i>
+                    Clear
+                </a>
+            </div>
+        </form>
+
+        <!-- Procedures List -->
+        <div class="mt-6 overflow-hidden bg-white shadow sm:rounded-md">
+            <ul role="list" class="divide-y divide-gray-200">
+                {% for procedure in procedures %}
+                <li>
+                    <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-10 w-10 rounded-full 
+                                        {% if procedure.status == 'COMPLETED' %}bg-green-100
+                                        {% elif procedure.status == 'IN_PROGRESS' %}bg-blue-100
+                                        {% elif procedure.status == 'CANCELLED' %}bg-red-100
+                                        {% else %}bg-gray-100{% endif %}">
+                                        <i class="fas fa-procedures text-lg 
+                                            {% if procedure.status == 'COMPLETED' %}text-green-600
+                                            {% elif procedure.status == 'IN_PROGRESS' %}text-blue-600
+                                            {% elif procedure.status == 'CANCELLED' %}text-red-600
+                                            {% else %}text-gray-600{% endif %}">
+                                        </i>
+                                    </span>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-900">
+                                        {{ procedure.procedure_type.name }}
+                                    </h3>
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Patient: {{ procedure.patient.get_full_name }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ procedure.scheduled_date|date:"M d, Y" }}
+                                    </p>
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        {{ procedure.scheduled_time|time:"H:i" }}
+                                    </p>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if procedure.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                    {% elif procedure.status == 'IN_PROGRESS' %}bg-blue-100 text-blue-800
+                                    {% elif procedure.status == 'CANCELLED' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ procedure.get_status_display }}
+                                </span>
+                                <div class="flex items-center space-x-2">
+                                    <a href="{% url 'procedure_management:procedure_detail' procedure.id %}"
+                                       class="text-indigo-600 hover:text-indigo-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'procedure_management:procedure_update' procedure.id %}"
+                                       class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button data-modal-target="deleteModal-{{ procedure.id }}" data-modal-toggle="deleteModal-{{ procedure.id }}"
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="px-4 py-8 text-center text-gray-500">
+                    <i class="fas fa-folder-open text-4xl mb-4"></i>
+                    <p>No procedures found</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Recent Media -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="px-4 py-5 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Media</h3>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-2 gap-4">
+                    {% for media in recent_media %}
+                    <div class="relative group">
+                        <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-100">
+                            {% if media.file_type == 'IMAGE' and media.file %}
+                                <img src="{{ media.file.url }}" alt="{{ media.title }}" class="object-cover">
+                            {% else %}
+                                <div class="flex items-center justify-center h-full">
+                                    {% if media.file_type == 'DOCUMENT' %}
+                                        <i class="fas fa-file-pdf text-4xl text-gray-400"></i>
+                                    {% elif media.file_type == 'VIDEO' %}
+                                        <i class="fas fa-file-video text-4xl text-gray-400"></i>
+                                    {% else %}
+                                        <i class="fas fa-file text-4xl text-gray-400"></i>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ media.title }}</p>
+                            <p class="text-xs text-gray-500">
+                                {% if media.file %}
+                                    {{ media.uploaded_at|timesince }} ago
+                                {% else %}
+                                    No file uploaded
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-2 text-center text-gray-500 py-4">
+                        <i class="fas fa-images text-4xl mb-2"></i>
+                        <p>No media files uploaded yet</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% include '../common/pagination.html' with page_obj=page_obj %}
+    </div>
+</div>
+
+{% for procedure in procedures %}
+    <!-- Delete Confirmation Modal -->
+    {% include './modals/delete.html' with procedure=procedure %}
+{% endfor %}
+
+
+{% endblock %}

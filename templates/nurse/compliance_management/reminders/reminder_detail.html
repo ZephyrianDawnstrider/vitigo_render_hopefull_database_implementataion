@@ -1,0 +1,197 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+
+{% block title %}Reminder Details{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:reminder_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Reminders
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Reminder Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold text-gray-900">Reminder Details</h1>
+            <div class="flex space-x-3">
+                {% if reminder.status != 'SENT' and reminder.status != 'CANCELLED' %}
+                    <a href="{% url 'compliance_management:reminder_edit' reminder.pk %}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Reminder
+                    </a>
+                {% endif %}
+                <button data-modal-target="deleteModal-{{ reminder.id }}" data-modal-toggle="deleteModal-{{ reminder.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-trash mr-2"></i>
+                    Delete Reminder
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Reminder Details Card -->
+            <div class="lg:col-span-2">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Reminder Information</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Patient Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ reminder.patient.get_full_name }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Reminder Type</dt>
+                                <dd class="mt-1">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        {{ reminder.get_reminder_type_display }}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Scheduled Date & Time</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {{ reminder.scheduled_datetime|date:"M d, Y" }} at {{ reminder.scheduled_datetime|time:"H:i" }}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd class="mt-1">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if reminder.status == 'SENT' %}bg-green-100 text-green-800
+                                        {% elif reminder.status == 'FAILED' %}bg-red-100 text-red-800
+                                        {% elif reminder.status == 'CANCELLED' %}bg-gray-100 text-gray-800
+                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {{ reminder.get_status_display }}
+                                    </span>
+                                </dd>
+                            </div>
+                            {% if reminder.sent_at %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Sent At</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {{ reminder.sent_at|date:"M d, Y H:i" }}
+                                </dd>
+                            </div>
+                            {% endif %}
+                            {% if reminder.delivery_status %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Delivery Status</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ reminder.delivery_status }}</dd>
+                            </div>
+                            {% endif %}
+                            <div class="md:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500">Message</dt>
+                                <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ reminder.message }}</dd>
+                            </div>
+                            {% if reminder.error_message %}
+                            <div class="md:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500">Error Message</dt>
+                                <dd class="mt-1 text-sm text-red-600">{{ reminder.error_message }}</dd>
+                            </div>
+                            {% endif %}
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Information -->
+            <div class="space-y-6">
+                <!-- Timestamps Card -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Timestamps</h3>
+                    </div>
+                    <div class="px-6 py-4">
+                        <dl class="space-y-4">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Created At</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ reminder.created_at|date:"M d, Y H:i" }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ reminder.updated_at|date:"M d, Y H:i" }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Related Information -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Related Information</h3>
+                    </div>
+                    <div class="px-6 py-4">
+                        <ul class="divide-y divide-gray-200">
+                            <li class="py-3">
+                                <a href="#" class="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-user-circle mr-2"></i>
+                                    View Patient Profile
+                                </a>
+                            </li>
+                            <li class="py-3">
+                                <a href="#" class="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-calendar mr-2"></i>
+                                    View Patient Schedule
+                                </a>
+                            </li>
+                            <li class="py-3">
+                                <a href="{% url 'compliance_management:reminder_history' reminder.patient.id %}" 
+                                   class="flex items-center text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-history mr-2"></i>
+                                    View Reminder History
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+{% include './modals/reminder_delete.html' %}
+{% endblock %}

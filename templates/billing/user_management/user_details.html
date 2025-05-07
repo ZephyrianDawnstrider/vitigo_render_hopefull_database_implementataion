@@ -1,0 +1,278 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-6 mt-14 sm:ml-64 bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">User Details</h1>
+                    <p class="mt-2 text-lg text-gray-600">Viewing profile details for {{ user.get_full_name }}</p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{% url 'user_management' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 shadow-sm">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Users
+                    </a>
+                    <a href="{% url 'user_edit' user.id %}" class="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-sm">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit User
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Left Column - User Profile Overview -->
+            <div class="col-span-12 lg:col-span-4">
+                <!-- Profile Card -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="relative h-32 bg-gradient-to-r from-blue-500 to-blue-600">
+                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
+                            <div class="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                                        <i class="fas fa-user text-4xl text-gray-400"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-20 pb-6 px-6 text-center">
+                        <h2 class="text-2xl font-bold text-gray-900">{{ user.get_full_name }}</h2>
+                        <p class="text-gray-500">{{ user.email }}</p>
+                        <div class="mt-4 flex items-center justify-center">
+                            <span class="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
+                                {{ user.role.display_name }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100">
+                        <dl>
+                            <div class="px-6 py-4">
+                                <dt class="text-sm font-medium text-gray-500">Account Status</dt>
+                                <dd class="mt-1 flex items-center">
+                                    {% if user.is_active %}
+                                        <span class="flex items-center text-green-600">
+                                            <i class="fas fa-check-circle mr-2"></i>
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="flex items-center text-red-600">
+                                            <i class="fas fa-times-circle mr-2"></i>
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+                                </dd>
+                            </div>
+                            <div class="px-6 py-4 bg-gray-50">
+                                <dt class="text-sm font-medium text-gray-500">Member Since</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {{ user.date_joined|date:"F j, Y" }}
+                                </dd>
+                            </div>
+                            <div class="px-6 py-4">
+                                <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {{ user.last_login|date:"F j, Y H:i" }}
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Contact Information Card -->
+                <div class="mt-6 bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-900">Contact Information</h3>
+                    </div>
+                    <div class="p-6">
+                        <dl class="space-y-4">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Email Address</dt>
+                                <dd class="mt-1 flex items-center">
+                                    <i class="fas fa-envelope text-gray-400 mr-2"></i>
+                                    <a href="mailto:{{ user.email }}" class="text-blue-600 hover:text-blue-700">
+                                        {{ user.email }}
+                                    </a>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Phone Number</dt>
+                                <dd class="mt-1 flex items-center">
+                                    <i class="fas fa-phone text-gray-400 mr-2"></i>
+                                    <span>
+                                        {% if user.phone_number %}
+                                            {{ user.country_code }} {{ user.phone_number }}
+                                        {% else %}
+                                            Not provided
+                                        {% endif %}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Gender</dt>
+                                <dd class="mt-1 flex items-center">
+                                    <i class="fas fa-venus-mars text-gray-400 mr-2"></i>
+                                    <span>{{ user.get_gender_display }}</span>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Role Specific Information -->
+            <div class="col-span-12 lg:col-span-8 space-y-6">
+                <!-- Activity Overview Card -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-900">Activity Overview</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Activity stats for Doctor -->
+                            {% if user.role.name == 'DOCTOR' %}
+                                <!-- Total Patients Card -->
+                                <div class="bg-blue-50 rounded-lg p-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-user-md text-blue-600 text-2xl"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-sm font-medium text-blue-600">Total Patients</p>
+                                            <p class="text-2xl font-semibold text-blue-900">{{ total_patients }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Activity Cards -->
+                                {% if recent_appointments or recent_consultations %}
+                                <div class="col-span-full mt-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Recent Appointments -->
+                                        <div class="bg-white rounded-lg shadow p-6">
+                                            <h4 class="text-lg font-semibold mb-4">Recent Appointments</h4>
+                                            <div class="space-y-4">
+                                                {% for appointment in recent_appointments %}
+                                                <div class="flex items-center justify-between border-b pb-2">
+                                                    <div>
+                                                        <p class="font-medium">{{ appointment.patient.get_full_name }}</p>
+                                                        <p class="text-sm text-gray-500">{{ appointment.date|date:"M d, Y" }}</p>
+                                                    </div>
+                                                    <span class="px-2 py-1 text-xs font-medium rounded-full
+                                                        {% if appointment.status == 'COMPLETED' %}
+                                                            bg-green-100 text-green-800
+                                                        {% elif appointment.status == 'CONFIRMED' %}
+                                                            bg-blue-100 text-blue-800
+                                                        {% endif %}">
+                                                        {{ appointment.status }}
+                                                    </span>
+                                                </div>
+                                                {% empty %}
+                                                <p class="text-gray-500">No recent appointments</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Recent Consultations -->
+                                        <div class="bg-white rounded-lg shadow p-6">
+                                            <h4 class="text-lg font-semibold mb-4">Recent Consultations</h4>
+                                            <div class="space-y-4">
+                                                {% for consultation in recent_consultations %}
+                                                <div class="flex items-center justify-between border-b pb-2">
+                                                    <div>
+                                                        <p class="font-medium">{{ consultation.patient.get_full_name }}</p>
+                                                        <p class="text-sm text-gray-500">{{ consultation.date_time|date:"M d, Y" }}</p>
+                                                    </div>
+                                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                                        {{ consultation.consultation_type }}
+                                                    </span>
+                                                </div>
+                                                {% empty %}
+                                                <p class="text-gray-500">No recent consultations</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                            {% elif user.role.name == 'PATIENT' %}
+                                <div class="bg-green-50 rounded-lg p-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-calendar-check text-green-600 text-2xl"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-sm font-medium text-green-600">Appointments</p>
+                                            <p class="text-2xl font-semibold text-green-900">{{ total_appointments }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% comment %} <!-- Role-Specific Details -->
+                {% if user.role.name == 'DOCTOR' %}
+                    {% include 'user_management/includes/doctor_details.html' %}
+                {% elif user.role.name == 'PATIENT' %}
+                    {% include 'user_management/includes/patient_details.html' %}
+                {% elif user.role.name == 'ADMIN' %}
+                    {% include 'user_management/includes/admin_details.html' %}
+                {% endif %} {% endcomment %}
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flow-root">
+                            <ul role="list" class="-mb-8">
+                                {% for activity in recent_activities %}
+                                <li>
+                                    <div class="relative pb-8">
+                                        {% if not forloop.last %}
+                                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                        {% endif %}
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                                                    <i class="fas fa-clock text-white"></i>
+                                                </span>
+                                            </div>
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm text-gray-500">{{ activity.description }}</p>
+                                                </div>
+                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                    <time datetime="{{ activity.timestamp }}">{{ activity.timestamp|timesince }} ago</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% empty %}
+                                <li class="text-center py-4 text-gray-500">
+                                    No recent activity
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

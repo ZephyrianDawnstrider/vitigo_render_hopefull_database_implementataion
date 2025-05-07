@@ -1,0 +1,210 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<!-- Previous header and structure remains the same until the profile picture section -->
+<div class="min-h-screen bg-gray-50 p-6 mt-14 sm:ml-64">
+    <div class="w-full">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Edit User Profile</h1>
+                    <p class="mt-2 text-lg text-gray-600">Manage user information and account settings</p>
+                </div>
+                <a href="{% url 'user_management' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Users
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Updated Profile Section with Fixed Preview -->
+                <div class="bg-gradient-to-b from-gray-50 to-white p-8 border-b border-gray-100">
+                    <div class="flex flex-col items-center">
+                        <div class="relative group">
+                            <div id="profile-image-container" class="w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-lg transition-transform hover:scale-105">
+                                <img id="preview-image" 
+                                     src="{% if edited_user.profile_picture %}{{ edited_user.profile_picture.url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" 
+                                     alt="Profile" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <label for="id_profile_picture" 
+                                   class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <!-- Hidden file input -->
+                            <input type="file" 
+                                   id="id_profile_picture" 
+                                   name="profile_picture" 
+                                   accept="image/*" 
+                                   class="hidden" 
+                                   onchange="previewImage(this);">
+                        </div>
+                        <h2 class="mt-4 text-xl font-semibold text-gray-900">{{ edited_user.get_full_name }}</h2>
+                        <p class="text-gray-500">{{ edited_user.email }}</p>
+                    </div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="p-8 space-y-8">
+                    <!-- Personal Information -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Personal Information</h3>
+                        
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                {{ form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="space-y-2">
+                                {{ form.last_name|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            {{ form.email|as_crispy_field }}
+                            {% if form.email.errors %}
+                                <p class="text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Additional Details</h3>
+                        
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                {{ form.gender|as_crispy_field }}
+                            </div>
+                            <div class="space-y-2">
+                                {{ form.role|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="space-y-2">
+                                {{ form.country_code|as_crispy_field }}
+                            </div>
+                            <div class="col-span-2 space-y-2">
+                                {{ form.phone_number|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Status -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Account Status</h3>
+                        
+                        <div class="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg">
+                            {{ form.is_active|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="bg-gray-50 px-8 py-4 border-t border-gray-100 flex justify-between items-center">
+                    <a href="{% url 'user_detail' edited_user.id %}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Profile
+                    </a>
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('preview-image');
+        const container = document.getElementById('profile-image-container');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // Add loading state
+                container.classList.add('opacity-50');
+                
+                // Create new image to check dimensions
+                const img = new Image();
+                img.src = e.target.result;
+                
+                img.onload = function() {
+                    // Update preview
+                    preview.src = e.target.result;
+                    
+                    // Remove loading state with a smooth transition
+                    setTimeout(() => {
+                        container.classList.remove('opacity-50');
+                        container.classList.add('opacity-100');
+                    }, 200);
+                };
+            };
+            
+            // Show loading state immediately
+            container.classList.add('opacity-50');
+            
+            // Read the image file
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Add drag and drop functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropZone = document.getElementById('profile-image-container');
+        const fileInput = document.getElementById('id_profile_picture');
+    
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+    
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+    
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+    
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+    
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    
+        function highlight(e) {
+            dropZone.classList.add('border-blue-500');
+        }
+    
+        function unhighlight(e) {
+            dropZone.classList.remove('border-blue-500');
+        }
+    
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+    
+            fileInput.files = files;
+            previewImage(fileInput);
+        }
+    });
+    </script>
+    {% endblock %}

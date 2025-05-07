@@ -1,0 +1,12 @@
+2025-04-11 10:36:39.838531: wfastcgi.py will restart when files in C:\inetpub\wwwroot\vitigo\ are changed: .*((\.py)|(\.config))$
+2025-04-11 10:36:39.866092: wfastcgi.py 3.0.0 initialized
+2025-04-11 10:39:41.884759: wfastcgi.py exiting because web.config has changed, matching .*((\.py)|(\.config))$
+2025-04-11 10:39:41.900857: Running on_exit tasks
+2025-04-11 10:47:22.960566: wfastcgi.py will restart when files in C:\inetpub\wwwroot\vitigo\ are changed: .*((\.py)|(\.config))$
+2025-04-11 10:47:22.975254: wfastcgi.py 3.0.0 initialized
+2025-04-11 10:56:11.769300: wfastcgi.py will restart when files in C:\inetpub\wwwroot\vitigo\ are changed: .*((\.py)|(\.config))$
+2025-04-11 10:56:11.789562: wfastcgi.py 3.0.0 initialized
+2025-04-11 10:56:31.984217: wfastcgi.py will restart when files in C:\inetpub\wwwroot\vitigo\ are changed: .*((\.py)|(\.config))$
+2025-04-11 10:56:32.001105: wfastcgi.py 3.0.0 initialized
+2025-04-11 12:19:47.947519: wfastcgi.py will restart when files in C:\inetpub\wwwroot\vitigo\ are changed: .*((\.py)|(\.config))$
+2025-04-11 12:19:47.956794: wfastcgi.py 3.0.0 initialized

@@ -1,0 +1,152 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if is_edit %}Edit{% else %}New{% endif %} Schedule{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:schedule_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Schedules
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{% if is_edit %}Edit{% else %}New{% endif %} Schedule</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-semibold text-gray-900">{% if is_edit %}Edit{% else %}New{% endif %} Schedule</h1>
+            <p class="mt-1 text-sm text-gray-600">{% if is_edit %}Update existing{% else %}Create a new{% endif %} compliance schedule</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white border rounded-lg shadow-sm">
+            <div class="p-6">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                            Please correct the errors below.
+                        </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <!-- Patient -->
+                        <div>
+                            {{ form.patient|as_crispy_field }}
+                            {% if form.patient.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.patient.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Assigned To -->
+                        <div>
+                            {{ form.assigned_to|as_crispy_field }}
+                            {% if form.assigned_to.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.assigned_to.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Scheduled Date -->
+                        <div>
+                            {{ form.scheduled_date|as_crispy_field }}
+                            {% if form.scheduled_date.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.scheduled_date.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Scheduled Time -->
+                        <div>
+                            {{ form.scheduled_time|as_crispy_field }}
+                            {% if form.scheduled_time.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.scheduled_time.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Duration -->
+                        <div>
+                            {{ form.duration_minutes|as_crispy_field }}
+                            {% if form.duration_minutes.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.duration_minutes.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Priority -->
+                        <div>
+                            {{ form.priority|as_crispy_field }}
+                            {% if form.priority.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.priority.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            {{ form.status|as_crispy_field }}
+                            {% if form.status.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        {{ form.schedule_notes|as_crispy_field }}
+                        {% if form.schedule_notes.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.schedule_notes.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3">
+                        <a href="{% if is_edit %}{% url 'compliance_management:schedule_detail' schedule.pk %}{% else %}{% url 'compliance_management:schedule_list' %}{% endif %}" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                            {% if is_edit %}Update{% else %}Create{% endif %} Schedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

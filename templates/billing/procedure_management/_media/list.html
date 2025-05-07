@@ -1,0 +1,184 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Media Files{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Media Files</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Media Files</h1>
+                <p class="mt-2 text-sm text-gray-700">
+                    Images: {{ media_counts.images }} | Videos: {{ media_counts.videos }} | 
+                    Documents: {{ media_counts.documents }} | Total: {{ media_counts.total }}
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <a href="{% url 'procedure_management:media_create' %}" 
+                   class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-upload mr-2"></i>
+                    Upload Files
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <form method="get" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+                <input type="text" name="search" id="search" value="{{ request.GET.search|default:'' }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                       placeholder="Search media files...">
+            </div>
+            <div>
+                <label for="file_type" class="block text-sm font-medium text-gray-700">File Type</label>
+                <select name="file_type" id="file_type"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">All Types</option>
+                    {% for code, label in file_types.items %}
+                    <option value="{{ code }}" {% if request.GET.file_type == code %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="procedure" class="block text-sm font-medium text-gray-700">Procedure</label>
+                <select name="procedure" id="procedure"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">All Procedures</option>
+                    {% for proc in procedures %}
+                    <option value="{{ proc.id }}" {% if request.GET.procedure == proc.id|stringformat:"i" %}selected{% endif %}>
+                        {{ proc.procedure_type.name }} - {{ proc.scheduled_date|date:"M d, Y" }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="sm:col-span-3 flex justify-end space-x-4">
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-search mr-2"></i>
+                    Search
+                </button>
+                <a href="{% url 'procedure_management:media_list' %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-times mr-2"></i>
+                    Clear
+                </a>
+            </div>
+        </form>
+
+        <!-- Media Grid -->
+        <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {% for media in media_files %}
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="aspect-w-16 aspect-h-9 bg-gray-100">
+                    {% if media.file_type == 'IMAGE' and media.file %}
+                        <img src="{{ media.file.url }}" alt="{{ media.title }}" 
+                             class="object-cover w-full h-full">
+                    {% else %}
+                        <div class="flex items-center justify-center h-full">
+                            <i class="fas {% if media.file_type == 'DOCUMENT' %}fa-file-pdf{% elif media.file_type == 'VIDEO' %}fa-file-video{% else %}fa-file{% endif %} text-4xl text-gray-400"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">{{ media.title }}</h3>
+                        {% if media.is_private %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                <i class="fas fa-lock text-xs mr-1"></i> Private
+                            </span>
+                        {% endif %}
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                        Uploaded {{ media.uploaded_at|timesince }} ago
+                        {% if media.uploaded_by %}
+                            by {{ media.uploaded_by.get_full_name }}
+                        {% endif %}
+                    </p>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'procedure_management:media_detail' media.id %}"
+                               class="text-indigo-600 hover:text-indigo-900" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'procedure_management:media_update' media.id %}"
+                               class="text-blue-600 hover:text-blue-900" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button"
+                                    data-modal-target="deleteModal-{{ media.id }}" 
+                                    data-modal-toggle="deleteModal-{{ media.id }}"
+                                    class="text-red-600 hover:text-red-900" title="Delete">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        {% if media.file %}
+                        <a href="{{ media.file.url }}" target="_blank"
+                           class="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-700 bg-indigo-100 rounded-md hover:bg-indigo-200">
+                            <i class="fas fa-download mr-1"></i>
+                            Download
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="sm:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-12">
+                <i class="fas fa-photo-video text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-500">No media files found</p>
+                <a href="{% url 'procedure_management:media_create' %}" 
+                   class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-upload mr-2"></i>
+                    Upload Files
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% include '../common/pagination.html' with page_obj=page_obj %}
+    </div>
+</div>
+
+{% for media in media_files %}
+    {% include './modals/delete.html' with media=media %}
+{% endfor %}
+
+{% endblock %}

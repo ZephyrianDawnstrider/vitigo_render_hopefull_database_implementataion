@@ -1,0 +1,195 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Checklist Reports{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'clinic_management:clinic_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-clinic-medical mr-2"></i>Clinic Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Checklist Reports</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Checklist Reports</h1>
+            <p class="mt-1 text-sm text-gray-600">Analytics and insights for checklist usage</p>
+        </div>
+        <div class="flex space-x-3">
+            <button onclick="exportReport()" class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                <i class="fas fa-download mr-2"></i>
+                Export Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <form method="get" class="flex items-end space-x-4">
+            <div>
+                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input type="date" name="start_date" id="start_date" value="{{ date_range.start }}" 
+                    class="rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
+            </div>
+            <button type="submit" class="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors">
+                Apply Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Total Checklists</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ summary.total_checklists }}</p>
+                </div>
+                <div class="bg-cyan-100 p-3 rounded-full">
+                    <i class="fas fa-clipboard-list text-cyan-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Completion Rate</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ summary.completion_rate }}%</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Completion Stats -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-4">Completion by Checklist Type</h3>
+            <canvas id="completionStatsChart"></canvas>
+        </div>
+
+        <!-- Daily Trends -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-4">Daily Completion Trends</h3>
+            <canvas id="dailyStatsChart"></canvas>
+        </div>
+
+        <!-- Incomplete Items -->
+        <div class="bg-white p-6 rounded-lg shadow-md col-span-2">
+            <h3 class="text-lg font-semibold mb-4">Most Common Incomplete Items</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Checklist</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Incomplete Count</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="incompleteItemsTable">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartsData = JSON.parse('{{ charts_data|safe }}');
+
+    // Completion Stats Chart
+    const completionCtx = document.getElementById('completionStatsChart').getContext('2d');
+    new Chart(completionCtx, {
+        type: 'bar',
+        data: {
+            labels: chartsData.completion_stats.map(item => item.checklist__name),
+            datasets: [{
+                label: 'Total',
+                data: chartsData.completion_stats.map(item => item.total),
+                backgroundColor: 'rgba(14, 165, 233, 0.5)',
+                borderColor: 'rgb(14, 165, 233)',
+                borderWidth: 1
+            }, {
+                label: 'Completed',
+                data: chartsData.completion_stats.map(item => item.completed),
+                backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                borderColor: 'rgb(34, 197, 94)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Daily Stats Chart
+    const dailyCtx = document.getElementById('dailyStatsChart').getContext('2d');
+    new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: chartsData.daily_stats.map(item => item.visit__visit_date),
+            datasets: [{
+                label: 'Completion Rate',
+                data: chartsData.daily_stats.map(item => 
+                    item.total > 0 ? (item.completed / item.total * 100).toFixed(1) : 0
+                ),
+                borderColor: 'rgb(14, 165, 233)',
+                backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Completion Rate (%)'
+                    }
+                }
+            }
+        }
+    });
+
+    // Populate Incomplete Items Table
+    const tableBody = document.getElementById('incompleteItemsTable');
+    chartsData.incomplete_items.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-normal text-sm text-gray-900">${item.checklist_item__description}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.checklist_item__checklist__name}</td>
+            <td class="px-6 py-4 text-center text-sm text-gray-900">${item.count}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+});
+
+function exportReport() {
+    // Implement export functionality
+    alert('Export functionality to be implemented');
+}
+</script>
+{% endblock %}
+{% endblock %}

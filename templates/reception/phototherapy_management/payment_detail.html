@@ -1,0 +1,180 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'payment_list' %}" class="hover:text-blue-600">Payments</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Receipt #{{ payment.receipt_number }}</li>
+        </ol>
+    </nav>
+
+    <!-- Payment Header -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Receipt #{{ payment.receipt_number }}</h1>
+                <p class="text-gray-600 mt-1">{{ payment.payment_date|date:"F d, Y" }} at {{ payment.payment_date|time:"h:i A" }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm font-medium
+                {% if payment.status == 'COMPLETED' %}bg-green-100 text-green-800
+                {% elif payment.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                {% elif payment.status == 'FAILED' %}bg-red-100 text-red-800
+                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ payment.get_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-3 gap-6">
+        <!-- Left Column - Payment Details -->
+        <div class="col-span-2 space-y-6">
+            <!-- Payment Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Payment Information</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Amount</label>
+                        <p class="text-lg font-medium text-gray-800">₹{{ payment.amount|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Payment Method</label>
+                        <span class="px-2 py-1 text-sm font-medium rounded-full
+                            {% if payment.payment_method == 'CASH' %}bg-green-100 text-green-800
+                            {% elif payment.payment_method == 'CARD' %}bg-blue-100 text-blue-800
+                            {% elif payment.payment_method == 'UPI' %}bg-purple-100 text-purple-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ payment.get_payment_method_display }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Payment Type</label>
+                        <p class="text-gray-800">{{ payment.get_payment_type_display }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Transaction ID</label>
+                        <p class="text-gray-800">{{ payment.transaction_id|default:"Not Available" }}</p>
+                    </div>
+                    {% if payment.is_installment %}
+                    <div class="col-span-2">
+                        <label class="text-sm text-gray-600 block mb-1">Installment Details</label>
+                        <p class="text-gray-800">Installment {{ payment.installment_number }} of {{ payment.total_installments }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            {% if payment.notes %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Payment Notes</h2>
+                <p class="text-gray-700">{{ payment.notes|linebreaks }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column - Related Information -->
+        <div class="space-y-6">
+            <!-- Patient Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Patient Information</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-user text-gray-500"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">{{ patient.get_full_name }}</p>
+                            <p class="text-xs text-gray-500">ID: {{ patient.id }}</p>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-gray-200">
+                        <a href="{% url 'user_detail' patient.id %}" class="text-blue-600 hover:text-blue-800 text-sm">
+                            <i class="fas fa-external-link-alt mr-1"></i>View Patient Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treatment Plan Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Treatment Plan</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Protocol</label>
+                        <p class="text-gray-800">{{ plan.protocol.name }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Total Cost</label>
+                        <p class="text-gray-800">₹{{ plan.total_cost|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Amount Paid</label>
+                        <p class="text-gray-800">₹{{ plan.amount_paid|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Payment Status</label>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full
+                            {% if plan.billing_status == 'PAID' %}bg-green-100 text-green-800
+                            {% elif plan.billing_status == 'PARTIAL' %}bg-yellow-100 text-yellow-800
+                            {% elif plan.billing_status == 'OVERDUE' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ plan.get_billing_status_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session Information (if per-session payment) -->
+            {% if payment.session %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Session Information</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Session Number</label>
+                        <p class="text-gray-800">#{{ payment.session.session_number }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Date</label>
+                        <p class="text-gray-800">{{ payment.session.scheduled_date|date:"F d, Y" }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Status</label>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full
+                            {% if payment.session.status == 'COMPLETED' %}bg-green-100 text-green-800
+                            {% elif payment.session.status == 'SCHEDULED' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ payment.session.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recorded By -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Recorded By</h2>
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-user-shield text-gray-500"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">{{ recorded_by.get_full_name }}</p>
+                        <p class="text-xs text-gray-500">{{ recorded_by.role.display_name }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

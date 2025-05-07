@@ -1,0 +1,158 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-800">Upload Patient Image</h1>
+                <p class="mt-1 text-sm text-gray-600">Add new images to patient medical records</p>
+            </div>
+            <a href="{% url 'image_management' %}" class="flex items-center text-gray-600 hover:text-gray-800">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Images
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="bg-white rounded-xl shadow-md">
+            <!-- Steps Indicator -->
+            <div class="border-b border-gray-200 px-8 py-4">
+                <div class="flex items-center space-x-4">
+                    <span class="flex items-center text-blue-600">
+                        <span class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <span class="ml-2 text-sm font-medium">Patient Details</span>
+                    </span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    <span class="flex items-center text-blue-600">
+                        <span class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100">
+                            <i class="fas fa-camera"></i>
+                        </span>
+                        <span class="ml-2 text-sm font-medium">Image Upload</span>
+                    </span>
+                    <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                    <span class="flex items-center text-gray-400">
+                        <span class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                            <i class="fas fa-check"></i>
+                        </span>
+                        <span class="ml-2 text-sm font-medium">Confirmation</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Form Content -->
+            <form method="post" enctype="multipart/form-data" class="p-8">
+                {% csrf_token %}
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="mb-6 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} mr-2"></i>
+                            {{ message }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-user-circle mr-2 text-blue-500"></i>Patient Information
+                            </h3>
+                            {{ form.patient|as_crispy_field }}
+                            {{ form.consultation|as_crispy_field }}
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-calendar-alt mr-2 text-green-500"></i>Image Details
+                            </h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                {{ form.date_taken|as_crispy_field }}
+                                {{ form.image_type|as_crispy_field }}
+                                {{ form.upload_type|as_crispy_field }}
+                            </div>
+                            {{ form.body_part|as_crispy_field }}
+                            
+                            <!-- Add this new section -->
+                            <div class="mt-4">
+                                {{ form.tagged_users|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-camera mr-2 text-purple-500"></i>Upload Image
+                            </h3>
+                            <div class="image-upload-container">
+                                <div class="image-preview mb-4 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                    <img id="preview" class="mx-auto max-h-48 hidden">
+                                    <div id="upload-placeholder" class="py-8">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                                        <p class="mt-2 text-sm text-gray-600">Click or drag image to upload</p>
+                                    </div>
+                                </div>
+                                {{ form.image_file|as_crispy_field }}
+                            </div>
+
+                            <div class="mt-4">
+                                {{ form.is_private|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-notes-medical mr-2 text-yellow-500"></i>Additional Notes
+                            </h3>
+                            {{ form.notes|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end space-x-4">
+                    <a href="{% url 'image_management' %}" class="px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i>Upload Image
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('{{ form.image_file.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('preview');
+    const placeholder = document.getElementById('upload-placeholder');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+    }
+});
+</script>
+{% endblock %}

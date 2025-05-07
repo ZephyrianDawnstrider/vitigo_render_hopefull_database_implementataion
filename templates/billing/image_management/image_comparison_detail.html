@@ -1,0 +1,109 @@
+{% extends "../base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Header Section -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold">{{ comparison.title }}</h1>
+            <div class="space-x-2">
+                <a href="{% url 'comparison_create' %}" 
+                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    New Comparison
+                </a>
+            </div>
+        </div>
+        {% if comparison.description %}
+            <p class="text-gray-600 mt-2">{{ comparison.description }}</p>
+        {% endif %}
+        <div class="text-sm text-gray-500 mt-1">
+            Created by {{ comparison.created_by.get_full_name }} on {{ comparison.created_at|date:"M d, Y" }}
+        </div>
+    </div>
+
+    <!-- Comparison Grid -->
+    <div class="mb-8">
+        {% for date, group in grouped_images.items %}
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">
+                    Consultation: {{ date|date:"M d, Y" }}
+                </h2>
+                
+                <!-- Consultation Details -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <span class="text-gray-600 font-medium">Doctor:</span>
+                            <p>{{ group.consultation.doctor.get_full_name }}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 font-medium">Type:</span>
+                            <p>{{ group.consultation.get_consultation_type_display }}</p>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="text-gray-600 font-medium">Diagnosis:</span>
+                            <p>{{ group.consultation.diagnosis|truncatechars:100 }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Images Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {% for image in group.images %}
+                        <div class="border rounded-lg p-2">
+                            <img src="{{ image.image_file.url }}" 
+                                 alt="Patient image"
+                                 class="w-full h-48 object-cover rounded mb-2">
+                            <div class="text-sm">
+                                <p class="font-medium">{{ image.body_part.name }}</p>
+                                {% if image.notes %}
+                                    <p class="text-gray-600">{{ image.notes|truncatechars:50 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-gray-600">No images found in this comparison.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Image Modal for Enlarged View -->
+<div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+    <div class="flex items-center justify-center h-full">
+        <div class="max-w-4xl w-full mx-4">
+            <img id="modalImage" src="" alt="Enlarged image" class="max-h-[80vh] w-auto mx-auto">
+            <button class="absolute top-4 right-4 text-white text-xl" onclick="closeModal()">&times;</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Make all images clickable for enlarged view
+    document.querySelectorAll('img').forEach(img => {
+        if (!img.id || img.id !== 'modalImage') {
+            img.addEventListener('click', function() {
+                openModal(this.src);
+            });
+            img.style.cursor = 'pointer';
+        }
+    });
+});
+
+function openModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.classList.remove('hidden');
+    modalImg.src = imageSrc;
+}
+
+function closeModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.add('hidden');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+<!-- Status Banner - Updated to match appointment style -->
+<div class="mb-6 p-4 rounded-lg {% if consultation.status == 'COMPLETED' %}bg-green-50 border-green-200{% elif consultation.status == 'IN_PROGRESS' %}bg-yellow-50 border-yellow-200{% elif consultation.status == 'CANCELLED' %}bg-red-50 border-red-200{% else %}bg-blue-50 border-blue-200{% endif %} border">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="{% if consultation.status == 'COMPLETED' %}bg-green-100{% elif consultation.status == 'IN_PROGRESS' %}bg-yellow-100{% elif consultation.status == 'CANCELLED' %}bg-red-100{% else %}bg-blue-100{% endif %} rounded-full p-2">
+                <i class="fas {% if consultation.status == 'COMPLETED' %}fa-check-circle text-green-600{% elif consultation.status == 'IN_PROGRESS' %}fa-clock text-yellow-600{% elif consultation.status == 'CANCELLED' %}fa-times-circle text-red-600{% else %}fa-calendar-check text-blue-600{% endif %} text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold {% if consultation.status == 'COMPLETED' %}text-green-800{% elif consultation.status == 'IN_PROGRESS' %}text-yellow-800{% elif consultation.status == 'CANCELLED' %}text-red-800{% else %}text-blue-800{% endif %}">
+                    {{ consultation.get_status_display }}
+                </h2>
+                <p class="text-sm text-gray-600">Scheduled for {{ consultation.scheduled_datetime|date:"F j, Y g:i A" }}</p>
+            </div>
+        </div>
+        
+        <!-- Action Buttons - Updated to match appointment style -->
+        <div class="flex space-x-2">
+            {% if consultation.status == 'SCHEDULED' %}
+            <button data-modal-target="startConsultationModal" 
+                    data-modal-toggle="startConsultationModal" 
+                    class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                <i class="fas fa-play-circle mr-2"></i>Start Consultation
+            </button>
+            {% endif %}
+
+            {% if consultation.status == 'IN_PROGRESS' %}
+            <button data-modal-target="completeConsultationModal" 
+                    data-modal-toggle="completeConsultationModal" 
+                    class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>Complete
+            </button>
+            {% endif %}
+
+            {% if consultation.status != 'CANCELLED' and consultation.status != 'COMPLETED' %}
+            <button data-modal-target="cancelConsultationModal" 
+                    data-modal-toggle="cancelConsultationModal" 
+                    class="px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors flex items-center">
+                <i class="fas fa-times-circle mr-2"></i>Cancel
+            </button>
+            {% endif %}
+            
+            <button data-modal-target="exportModal" 
+                    data-modal-toggle="exportModal"
+                    class="px-4 py-2 text-white bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors flex items-center">
+                <i class="fas fa-file-export mr-2"></i>Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div id="exportModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <div class="flex items-start justify-between p-4 border-b rounded-t">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    Export Consultation Details
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="exportModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <p class="text-gray-600">Choose your export format:</p>
+                <div class="flex flex-col space-y-4">
+                    <a href="{% url 'export_consultation_detail' pk=consultation.id %}?format=pdf" 
+                       class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
+                        <i class="fas fa-file-pdf mr-2"></i>Export as PDF
+                    </a>
+                    <a href="{% url 'export_consultation_detail' pk=consultation.id %}?format=csv" 
+                       class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
+                        <i class="fas fa-file-csv mr-2"></i>Export as CSV
+                    </a>
+                </div>
+            </div>
+            <div class="flex items-center justify-end p-6 space-x-2 border-t border-gray-200">
+                <button type="button" class="px-4 py-2 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50" data-modal-hide="exportModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

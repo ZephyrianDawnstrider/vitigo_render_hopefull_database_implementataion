@@ -1,0 +1,410 @@
+<!-- templates/phototherapy_management/phototherapy_types_dashboard.html -->
+{% extends "../../base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Phototherapy Types</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Phototherapy Types</h1>
+                <p class="mt-2 text-sm text-gray-600">Manage and monitor all phototherapy treatment types</p>
+            </div>
+            {% if can_add %}
+            <a href="{% url 'add_therapy_type' %}" 
+               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-plus mr-2"></i>Add New Type
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="text-sm font-medium text-gray-500">Total Types</div>
+            <div class="mt-2 text-3xl font-semibold text-gray-900">{{ total_types }}</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="text-sm font-medium text-gray-500">Active Types</div>
+            <div class="mt-2 text-3xl font-semibold text-green-600">{{ active_types }}</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="text-sm font-medium text-gray-500">RFID Required</div>
+            <div class="mt-2 text-3xl font-semibold text-blue-600">{{ rfid_required_types }}</div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Search</label>
+                <input type="text" name="search" value="{{ current_search }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                       placeholder="Search therapy types...">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Treatment Category</label>
+                <select name="therapy_type"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <option value="">All Categories</option>
+                    {% for value, label in therapy_type_choices %}
+                    <option value="{{ value }}" {% if value == current_therapy_type %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Priority</label>
+                <select name="priority"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <option value="">All Priorities</option>
+                    {% for value, label in priority_choices %}
+                    <option value="{{ value }}" {% if value == current_priority %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Sort By</label>
+                <select name="sort"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Newest First</option>
+                    <option value="created_at" {% if current_sort == 'created_at' %}selected{% endif %}>Oldest First</option>
+                    <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
+                    <option value="-name" {% if current_sort == '-name' %}selected{% endif %}>Name (Z-A)</option>
+                </select>
+            </div>
+            <div class="md:col-span-4 flex justify-end space-x-4">
+                <a href="{% url 'therapy_types_dashboard' %}" 
+                   class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors">
+                    Clear Filters
+                </a>
+                <button type="submit" 
+                        class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">
+                    Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Data Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Active Protocols</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RFID Required</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for type in therapy_types %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ type.name }}</div>
+                        <div class="text-sm text-gray-500">Created {{ type.created_at|date:"M d, Y" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ type.get_therapy_type_display }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if type.priority == 'A' %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            High Priority
+                        </span>
+                        {% elif type.priority == 'B' %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Medium Priority
+                        </span>
+                        {% else %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            Low Priority
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if type.is_active %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Active
+                        </span>
+                        {% else %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            Inactive
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ type.active_protocols_count }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {% if type.requires_rfid %}
+                        <i class="fas fa-check text-green-500"></i>
+                        {% else %}
+                        <i class="fas fa-times text-red-500"></i>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end space-x-2">
+                            {% if can_edit %}
+                            <button data-modal-target="editModal-{{ type.id }}" data-modal-toggle="editModal-{{ type.id }}"
+                                    class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% endif %}
+                            {% if can_delete %}
+                            <button data-modal-target="deleteModal-{{ type.id }}" data-modal-toggle="deleteModal-{{ type.id }}"
+                                    class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        <div class="flex flex-col items-center py-8">
+                            <i class="fas fa-folder-open text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-lg font-medium">No therapy types found</p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                {% if current_search or current_therapy_type or current_priority %}
+                                    Try adjusting your filters or create a new therapy type
+                                {% else %}
+                                    Get started by adding your first therapy type
+                                {% endif %}
+                            </p>
+                            {% if can_add %}
+                            <a href="{% url 'add_therapy_type' %}" 
+                               class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Add New Type
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4">
+        <div class="flex-1 flex justify-between items-center">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Showing page {{ page_obj.number }} of {{ paginator.num_pages }}
+                </p>
+            </div>
+            <div class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_therapy_type %}&therapy_type={{ current_therapy_type }}{% endif %}{% if current_priority %}&priority={{ current_priority }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                   class="bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 px-4 py-2 text-sm font-medium rounded-md">
+                    Previous
+                </a>
+                {% endif %}
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_therapy_type %}&therapy_type={{ current_therapy_type }}{% endif %}{% if current_priority %}&priority={{ current_priority }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                   class="bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 px-4 py-2 text-sm font-medium rounded-md">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% for type in therapy_types %}
+<!-- Delete Modal -->
+<div id="deleteModal-{{ type.id }}" tabindex="-1" aria-hidden="true" 
+     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    Delete Phototherapy Type
+                </h3>
+                <button type="button"
+                        class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                        data-modal-hide="deleteModal-{{ type.id }}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="p-4 md:p-5">
+                <form action="{% url 'delete_therapy_type' pk=type.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <div class="mb-2 text-sm text-gray-500">
+                            Are you sure you want to delete this phototherapy type? This action cannot be undone.
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <div class="text-sm font-medium text-gray-900">{{ type.name }}</div>
+                            <div class="text-sm text-gray-500">{{ type.get_therapy_type_display }}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button type="submit"
+                                class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                            Delete Phototherapy Type
+                        </button>
+                        <button type="button"
+                                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                data-modal-hide="deleteModal-{{ type.id }}">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Edit Modals -->
+{% for type in therapy_types %}
+<!-- Edit Modal -->
+<div id="editModal-{{ type.id }}" tabindex="-1" aria-hidden="true" 
+     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    Edit Phototherapy Type
+                </h3>
+                <button type="button" 
+                        class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                        data-modal-hide="editModal-{{ type.id }}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <form action="{% url 'edit_therapy_type' pk=type.id %}" method="POST" class="p-4 md:p-5">
+                {% csrf_token %}
+                <div class="grid gap-4 mb-4 grid-cols-2">
+                    <div class="col-span-2">
+                        <label for="name-{{ type.id }}" class="block mb-2 text-sm font-medium text-gray-900">Name</label>
+                        <input type="text" name="name" id="name-{{ type.id }}" value="{{ type.name }}"
+                               class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               required>
+                    </div>
+                    <div class="col-span-2">
+                        <label for="description-{{ type.id }}" class="block mb-2 text-sm font-medium text-gray-900">Description</label>
+                        <textarea name="description" id="description-{{ type.id }}" rows="4"
+                                  class="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                  required>{{ type.description }}</textarea>
+                    </div>
+                    <div>
+                        <label for="therapy_type-{{ type.id }}" class="block mb-2 text-sm font-medium text-gray-900">Treatment Category</label>
+                        <select name="therapy_type" id="therapy_type-{{ type.id }}"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            {% for value, label in therapy_type_choices %}
+                            <option value="{{ value }}" {% if value == type.therapy_type %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="priority-{{ type.id }}" class="block mb-2 text-sm font-medium text-gray-900">Priority Level</label>
+                        <select name="priority" id="priority-{{ type.id }}"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            {% for value, label in priority_choices %}
+                            <option value="{{ value }}" {% if value == type.priority %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <div class="flex items-center mb-4">
+                            <input type="checkbox" name="requires_rfid" id="requires_rfid-{{ type.id }}"
+                                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                   {% if type.requires_rfid %}checked{% endif %}>
+                            <label for="requires_rfid-{{ type.id }}" class="ms-2 text-sm font-medium text-gray-900">
+                                Requires RFID Access
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="is_active" id="is_active-{{ type.id }}"
+                                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                   {% if type.is_active %}checked{% endif %}>
+                            <label for="is_active-{{ type.id }}" class="ms-2 text-sm font-medium text-gray-900">
+                                Active Status
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button type="submit"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        Update Phototherapy Type
+                    </button>
+                    <button type="button"
+                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                            data-modal-hide="editModal-{{ type.id }}">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle filter form submission
+    document.querySelectorAll('select[name="therapy_type"], select[name="priority"], select[name="sort"]').forEach(select => {
+        select.addEventListener('change', () => {
+            document.querySelector('form').submit();
+        });
+    });
+
+    // Delete modal functionality
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteButtons = document.querySelectorAll('.delete-therapy-type');
+    const deleteConfirm = document.getElementById('deleteConfirm');
+    const deleteCancel = document.getElementById('deleteCancel');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            deleteModal.classList.remove('hidden');
+        });
+    });
+
+    deleteCancel.addEventListener('click', () => {
+        deleteModal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) {
+            deleteModal.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

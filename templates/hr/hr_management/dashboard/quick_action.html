@@ -1,0 +1,208 @@
+{% block quick_actions %}
+<section class="mb-8">
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">Quick Actions</h2>
+                <p class="mt-1 text-sm text-gray-500">Access frequently used HR functions and tools</p>
+            </div>
+        </div>
+
+        <!-- Quick Action Cards Grid -->
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Employee Actions Card -->
+            <div class="relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative p-6 bg-white rounded-lg ring-1 ring-gray-900/5">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <i class="text-xl text-blue-600 fas fa-users"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">Employee Actions</h3>
+                    </div>
+                    <div class="mt-4 space-y-4">
+                        <a href="{% url 'new_employee' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-blue-500 fas fa-user-plus"></i>
+                                <span class="ml-3">Add New Employee</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'employee_list' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-blue-500 fas fa-address-book"></i>
+                                <span class="ml-3">Employee Directory</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'employee_bulk_actions' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-blue-500 fas fa-tasks"></i>
+                                <span class="ml-3">Bulk Actions</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Management Card -->
+            <div class="relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative p-6 bg-white rounded-lg ring-1 ring-gray-900/5">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <i class="text-xl text-green-600 fas fa-calendar-alt"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">Leave Management</h3>
+                    </div>
+                    <div class="mt-4 space-y-4">
+                        <a href="{% url 'leave_list' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-green-500 fas fa-list"></i>
+                                <span class="ml-3">Leave Requests</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'leave_calendar' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-green-500 fas fa-calendar"></i>
+                                <span class="ml-3">Leave Calendar</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'leave_settings' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-green-500 fas fa-cog"></i>
+                                <span class="ml-3">Leave Settings</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training & Development Card -->
+            <div class="relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative p-6 bg-white rounded-lg ring-1 ring-gray-900/5">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 bg-purple-100 rounded-lg">
+                            <i class="text-xl text-purple-600 fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">Training & Development</h3>
+                    </div>
+                    <div class="mt-4 space-y-4">
+                        <a href="{% url 'training_list' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-purple-500 fas fa-chalkboard-teacher"></i>
+                                <span class="ml-3">Training Programs</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'skill_matrix' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-purple-500 fas fa-chart-bar"></i>
+                                <span class="ml-3">Skill Matrix</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Management Card -->
+            <div class="relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative p-6 bg-white rounded-lg ring-1 ring-gray-900/5">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 bg-yellow-100 rounded-lg">
+                            <i class="text-xl text-yellow-600 fas fa-star"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">Performance</h3>
+                    </div>
+                    <div class="mt-4 space-y-4">
+                        <a href="{% url 'performance_reviews' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-yellow-500 fas fa-clipboard-list"></i>
+                                <span class="ml-3">Performance Reviews</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Management Card -->
+            <div class="relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative p-6 bg-white rounded-lg ring-1 ring-gray-900/5">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 bg-red-100 rounded-lg">
+                            <i class="text-xl text-red-600 fas fa-file-alt"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">Documents</h3>
+                    </div>
+                    <div class="mt-4 space-y-4">
+                        <a href="{% url 'document_upload' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-red-500 fas fa-cloud-upload-alt"></i>
+                                <span class="ml-3">Upload Documents</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'document_list' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-red-500 fas fa-file-alt"></i>
+                                <span class="ml-3">View Documents</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grievance Management Card -->
+            <div class="relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative p-6 bg-white rounded-lg ring-1 ring-gray-900/5">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <i class="text-xl text-indigo-600 fas fa-exclamation-circle"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">Grievance Management</h3>
+                    </div>
+                    <div class="mt-4 space-y-4">
+                        <a href="{% url 'grievance_list' %}" class="flex items-center justify-between p-3 text-sm text-gray-600 rounded-md hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="w-5 text-indigo-500 fas fa-exclamation-circle"></i>
+                                <span class="ml-3">View Grievances</span>
+                            </div>
+                            <i class="text-gray-400 fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Optional JavaScript for card interactions -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add loading state to links
+    const actionLinks = document.querySelectorAll('a[href^="{% url "]');
+    actionLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const loadingSpinner = document.createElement('i');
+            loadingSpinner.className = 'fas fa-circle-notch fa-spin ml-2';
+            this.appendChild(loadingSpinner);
+        });
+    });
+
+    // Enable drag and drop reordering if needed
+    // Add any additional interactivity here
+});
+</script>
+{% endblock %}

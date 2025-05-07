@@ -1,0 +1,249 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load settings_tags %}
+
+{% block title %}Monitoring Settings{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-white rounded-lg shadow-md">
+    <!-- Display any messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-4 mb-2 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+            {% if message.tags == 'error' %}
+            <h4 class="font-medium mb-2">Error:</h4>
+            {% for error in message.message|split:"|" %}
+                <div class="ml-4 mb-1">• {{ error|safe }}</div>
+            {% endfor %}
+            {% else %}
+                {{ message }}
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'settings:settings_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-cogs mr-2"></i>Settings</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Monitoring Settings</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Monitoring Settings</h1>
+        <p class="text-gray-600">Configure monitoring and analytics services</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-4 border-b border-gray-200">
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="monitoringTabs" data-tabs-toggle="#monitoringTabContent" role="tablist">
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                        id="metrics-tab" 
+                        data-tabs-target="#metrics" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="metrics" 
+                        aria-selected="true">
+                    <i class="fas fa-chart-line mr-2"></i>Monitoring
+                </button>
+            </li>
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                        id="analytics-tab" 
+                        data-tabs-target="#analytics" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="analytics" 
+                        aria-selected="false">
+                    <i class="fas fa-chart-pie mr-2"></i>Analytics
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="monitoringTabContent">
+        <!-- Monitoring Tab -->
+        <div class="hidden p-4 rounded-lg" 
+             id="metrics" 
+             role="tabpanel" 
+             aria-labelledby="metrics-tab">
+            <!-- Add New Monitoring Configuration Form -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-plus-circle mr-2"></i>Add New Monitoring Configuration
+                </h3>
+                <form method="post" action="{% url 'settings:monitoring_settings' %}" class="bg-white p-6 rounded-lg shadow-sm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_monitoring_config">
+                    {{ monitoring_form|crispy }}
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-save mr-2"></i>Save Configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Monitoring Configurations -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-chart-line mr-2"></i>Existing Monitoring Configurations
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for config in monitoring_configs %}
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-lg font-medium text-gray-800">
+                                {{ config.name }}
+                            </h4>
+                            <span class="text-sm px-2 py-1 rounded-full {% if config.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ config.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Provider: {{ config.get_provider_display }}</p>
+                        <div class="text-sm text-gray-500">
+                            {% if config.endpoint_url %}
+                            <p>Endpoint: {{ config.endpoint_url }}</p>
+                            {% endif %}
+                            <p>Created: {{ config.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full bg-gray-50 p-8 text-center rounded-lg">
+                        <p class="text-gray-600">No monitoring configurations found. Add your first configuration above.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="hidden p-4 rounded-lg" 
+             id="analytics" 
+             role="tabpanel" 
+             aria-labelledby="analytics-tab">
+            <!-- Add New Analytics Configuration Form -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-plus-circle mr-2"></i>Add New Analytics Configuration
+                </h3>
+                <form method="post" action="{% url 'settings:monitoring_settings' %}" class="bg-white p-6 rounded-lg shadow-sm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_analytics_config">
+                    {{ analytics_form|crispy }}
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-save mr-2"></i>Save Configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Analytics Configurations -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-chart-pie mr-2"></i>Existing Analytics Configurations
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for config in analytics_configs %}
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-lg font-medium text-gray-800">
+                                {{ config.name }}
+                            </h4>
+                            <span class="text-sm px-2 py-1 rounded-full {% if config.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ config.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Provider: {{ config.get_provider_display }}</p>
+                        <div class="text-sm text-gray-500">
+                            <p>Tracking ID: {{ config.tracking_id }}</p>
+                            <p>Created: {{ config.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full bg-gray-50 p-8 text-center rounded-lg">
+                        <p class="text-gray-600">No analytics configurations found. Add your first configuration above.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Initialize Flowbite tabs
+    const tabElements = [
+        {
+            id: 'metrics-tab',
+            triggerEl: document.querySelector('#metrics-tab'),
+            targetEl: document.querySelector('#metrics')
+        },
+        {
+            id: 'analytics-tab',
+            triggerEl: document.querySelector('#analytics-tab'),
+            targetEl: document.querySelector('#analytics')
+        }
+    ];
+
+    // Create array for the Tab instances
+    const tabs = [];
+
+    // Setup each tab
+    tabElements.forEach(tab => {
+        if (tab.triggerEl && tab.targetEl) {
+            tabs.push(new Tabs(tab.triggerEl.parentElement, [
+                {
+                    id: tab.id,
+                    triggerEl: tab.triggerEl,
+                    targetEl: tab.targetEl
+                }
+            ]));
+        }
+    });
+
+    // Set first tab as active
+    if (tabs.length > 0) {
+        tabs[0].show();
+    }
+
+    // Add JSON validation
+    function validateJSON(element) {
+        try {
+            JSON.parse(element.value);
+            element.classList.remove('border-red-500');
+            element.classList.add('border-green-500');
+            return true;
+        } catch (e) {
+            element.classList.remove('border-green-500');
+            element.classList.add('border-red-500');
+            return false;
+        }
+    }
+
+    // Add validation to JSON fields
+    const jsonFields = document.querySelectorAll('textarea[data-type="json"]');
+    jsonFields.forEach(field => {
+        field.addEventListener('change', (e) => validateJSON(e.target));
+    });
+
+    // Auto-hide messages
+    setTimeout(function() {
+        const messages = document.querySelectorAll('.alert');
+        messages.forEach(function(message) {
+            message.style.display = 'none';
+        });
+    }, 5000);
+</script>
+{% endblock %}
+{% endblock %}

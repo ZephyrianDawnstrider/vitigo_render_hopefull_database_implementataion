@@ -1,0 +1,588 @@
+{% extends '../base.html' %}
+
+{% block title %}Settings Dashboard - VitiGo{% endblock %}
+
+{% block extra_head %}
+<style>
+    .settings-card {
+        transition: all 0.3s ease-in-out;
+    }
+    
+    .settings-card:hover {
+        transform: translateY(-4px);
+    }
+    
+    .icon-bounce {
+        animation: bounce 1s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    .gradient-bg {
+        background: linear-gradient(135deg, #f6f8fd 0%, #ffffff 100%);
+    }
+    
+    .breadcrumb-item {
+        transition: color 0.3s ease;
+    }
+    
+    .quick-action-btn {
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-btn:hover {
+        transform: scale(1.05);
+    }
+    
+    .status-card {
+        transition: all 0.3s ease;
+    }
+    
+    .status-card:hover {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-white p-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Settings Dashboard</h1>
+            <p class="mt-1 text-sm text-gray-600">Manage your system configurations and preferences with ease</p>
+        </div>
+    </div>
+
+    <!-- Enhanced Settings Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Core Settings Card -->
+        <a href="{% url 'settings:core_settings' %}" class="settings-card block p-6 bg-white border-2 border-blue-100 rounded-2xl shadow-sm hover:shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white">
+                        <i class="fas fa-cog text-2xl icon-bounce"></i>
+                    </div>
+                    <h3 class="ml-4 text-lg font-bold text-gray-800">Core Settings</h3>
+                </div>
+                <i class="fas fa-chevron-right text-blue-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Configure your system's fundamental settings</p>
+            <div class="border-t border-gray-100 pt-4">
+                <ul class="space-y-3">
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+                        System Configuration
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+                        General Settings
+                    </li>
+                </ul>
+            </div>
+        </a>
+
+        <!-- Infrastructure Settings Card -->
+        <a href="{% url 'settings:infrastructure_settings' %}" class="settings-card block p-6 bg-white border-2 border-emerald-100 rounded-2xl shadow-sm hover:shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white">
+                        <i class="fas fa-server text-2xl icon-bounce"></i>
+                    </div>
+                    <h3 class="ml-4 text-lg font-bold text-gray-800">Infrastructure</h3>
+                </div>
+                <i class="fas fa-chevron-right text-emerald-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Manage your infrastructure settings</p>
+            <div class="border-t border-gray-100 pt-4">
+                <ul class="space-y-3">
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full mr-2"></span>
+                        Server Management
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full mr-2"></span>
+                        Network Configuration
+                    </li>
+                </ul>
+            </div>
+        </a>
+
+        <!-- Storage Settings -->
+        <a href="{% url 'settings:storage_settings' %}" class="settings-card block p-6 bg-white border-2 border-purple-100 rounded-2xl shadow-sm hover:shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 text-white">
+                        <i class="fas fa-hdd text-2xl icon-bounce"></i>
+                    </div>
+                    <h3 class="ml-4 text-lg font-bold text-gray-800">Storage</h3>
+                </div>
+                <i class="fas fa-chevron-right text-purple-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Manage file storage and cloud providers</p>
+            <div class="border-t border-gray-100 pt-4">
+                <ul class="space-y-3">
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
+                        Cloud Storage
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
+                        File Management
+                    </li>
+                </ul>
+            </div>
+        </a>
+
+        <!-- Communication Settings -->
+        <a href="{% url 'settings:communication_settings' %}" class="settings-card block p-6 bg-white border-2 border-red-100 rounded-2xl shadow-sm hover:shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-red-400 to-red-600 text-white">
+                        <i class="fas fa-envelope text-2xl icon-bounce"></i>
+                    </div>
+                    <h3 class="ml-4 text-lg font-bold text-gray-800">Communication</h3>
+                </div>
+                <i class="fas fa-chevron-right text-red-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Configure email, SMS, and notifications</p>
+            <div class="border-t border-gray-100 pt-4">
+                <ul class="space-y-3">
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                        Email Settings
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                        SMS Configuration
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                        Push Notifications
+                    </li>
+                </ul>
+            </div>
+        </a>
+
+        <!-- Payment Settings -->
+        <a href="{% url 'settings:payment_settings' %}" class="settings-card block p-6 bg-white border-2 border-yellow-100 rounded-2xl shadow-sm hover:shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 text-white">
+                        <i class="fas fa-credit-card text-2xl icon-bounce"></i>
+                    </div>
+                    <h3 class="ml-4 text-lg font-bold text-gray-800">Payment</h3>
+                </div>
+                <i class="fas fa-chevron-right text-yellow-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Manage payment methods and transactions</p>
+            <div class="border-t border-gray-100 pt-4">
+                <ul class="space-y-3">
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
+                        Payment Methods
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
+                        Transaction History
+                    </li>
+                </ul>
+            </div>
+        </a>
+
+        <!-- Integration Settings -->
+        <a href="{% url 'settings:integration_settings' %}" class="settings-card block p-6 bg-white border-2 border-indigo-100 rounded-2xl shadow-sm hover:shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 text-white">
+                        <i class="fas fa-plug text-2xl icon-bounce"></i>
+                    </div>
+                    <h3 class="ml-4 text-lg font-bold text-gray-800">Integration</h3>
+                </div>
+                <i class="fas fa-chevron-right text-indigo-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Manage third-party integrations and APIs</p>
+            <div class="border-t border-gray-100 pt-4">
+                <ul class="space-y-3">
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-indigo-400 rounded-full mr-2"></span>
+                        API Management
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-indigo-400 rounded-full mr-2"></span>
+                        Webhooks
+                    </li>
+                </ul>
+            </div>
+        </a>
+
+        <!-- Security Settings -->
+        <a href="{% url 'settings:security_settings' %}" class="settings-card block p-6 bg-white border-2 border-orange-100 rounded-2xl shadow-sm hover:shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white">
+                        <i class="fas fa-shield-alt text-2xl icon-bounce"></i>
+                    </div>
+                    <h3 class="ml-4 text-lg font-bold text-gray-800">Security</h3>
+                </div>
+                <i class="fas fa-chevron-right text-orange-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Manage security settings and access control</p>
+            <div class="border-t border-gray-100 pt-4">
+                <ul class="space-y-3">
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
+                        User Authentication
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
+                        Access Control
+                    </li>
+                </ul>
+            </div>
+        </a>
+
+        <!-- Monitoring Settings -->
+        <a href="{% url 'settings:monitoring_settings' %}" class="settings-card block p-6 bg-white border-2 border-teal-100 rounded-2xl shadow-sm hover:shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 text-white">
+                        <i class="fas fa-chart-bar text-2xl icon-bounce"></i>
+                    </div>
+                    <h3 class="ml-4 text-lg font-bold text-gray-800">Monitoring</h3>
+                </div>
+                <i class="fas fa-chevron-right text-teal-400"></i>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Monitor system performance and logs</p>
+            <div class="border-t border-gray-100 pt-4">
+                <ul class="space-y-3">
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-teal-400 rounded-full mr-2"></span>
+                        Performance Metrics
+                    </li>
+                    <li class="text-sm text-gray-600 flex items-center">
+                        <span class="w-2 h-2 bg-teal-400 rounded-full mr-2"></span>
+                        Log Management
+                    </li>
+                </ul>
+            </div>
+        </a>
+    </div>
+
+    <!-- Quick Actions Section with Enhanced Design -->
+    <div class="mt-12 bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-bolt text-yellow-500 mr-3"></i>
+            Quick Actions
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Sync Settings Button -->
+            <button data-modal-target="syncSettingsModal" data-modal-toggle="syncSettingsModal" class="quick-action-btn flex items-center justify-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700">
+                <i class="fas fa-sync-alt mr-2"></i>
+                Sync Settings
+            </button>
+
+            <button data-modal-target="backupSettingsModal" data-modal-toggle="backupSettingsModal" 
+                    class="quick-action-btn flex items-center justify-center p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700">
+                <i class="fas fa-download mr-2"></i>
+                Backup Settings
+            </button>
+            <a href="{% url 'settings:settings_history' %}" 
+               class="quick-action-btn flex items-center justify-center p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700">
+                <i class="fas fa-history mr-2"></i>
+                View History
+            </a>
+            <button data-modal-target="exportSettingsModal" data-modal-toggle="exportSettingsModal" 
+                    class="quick-action-btn flex items-center justify-center p-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700">
+                <i class="fas fa-file-export mr-2"></i>
+                Export Config
+            </button>
+        </div>
+    </div>
+
+    <!-- Sync Settings Modal -->
+    <div id="syncSettingsModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Sync Settings
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="syncSettingsModal">
+                        <i class="fas fa-times"></i>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <form action="{% url 'settings:sync_settings' %}" method="POST" class="p-4 md:p-5">
+                    {% csrf_token %}
+                    <div class="mb-4 text-sm text-gray-600">
+                        <p>This will synchronize all settings across the system. This includes:</p>
+                        <ul class="list-disc ml-5 mt-2">
+                            <li>Validating all current settings</li>
+                            <li>Syncing settings to cache</li>
+                            <li>Ensuring database consistency</li>
+                        </ul>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="flex items-center space-x-3">
+                        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Confirm Sync
+                        </button>
+                        <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" data-modal-hide="syncSettingsModal">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Settings Modal -->
+    <div id="backupSettingsModal" tabindex="-1" aria-hidden="true" 
+         class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Backup Settings
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" 
+                            data-modal-hide="backupSettingsModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <form action="{% url 'settings:backup_settings' %}" method="POST" class="p-4 md:p-5">
+                    {% csrf_token %}
+                    <div class="mb-4 text-sm text-gray-600">
+                        <p>This will create a backup of all system settings including:</p>
+                        <ul class="list-disc ml-5 mt-2">
+                            <li>Core Settings</li>
+                            <li>System Configuration</li>
+                            <li>Email & SMS Settings</li>
+                            <li>Payment Gateway Settings</li>
+                            <li>API Configurations</li>
+                            <li>Other Custom Settings</li>
+                        </ul>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="flex items-center space-x-3">
+                        <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center">
+                            <i class="fas fa-download mr-2"></i>
+                            Download Backup
+                        </button>
+                        <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" 
+                                data-modal-hide="backupSettingsModal">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Settings Modal -->
+    <div id="exportSettingsModal" tabindex="-1" aria-hidden="true" 
+         class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Export Settings
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" 
+                            data-modal-hide="exportSettingsModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <form action="{% url 'settings:export_settings' %}" method="POST" class="p-4 md:p-5">
+                    {% csrf_token %}
+                    <div class="mb-4 text-sm text-gray-600">
+                        <p>Choose the export format for your settings:</p>
+                        <div class="mt-4 space-y-4">
+                            <div class="flex items-center">
+                                <input id="format-json" type="radio" name="format" value="json" checked
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
+                                <label for="format-json" class="ml-2 text-sm font-medium text-gray-900">
+                                    JSON (Complete configuration)
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="format-csv" type="radio" name="format" value="csv"
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
+                                <label for="format-csv" class="ml-2 text-sm font-medium text-gray-900">
+                                    CSV (Settings overview)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="flex items-center space-x-3">
+                        <button type="submit" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center">
+                            <i class="fas fa-file-export mr-2"></i>
+                            Export Settings
+                        </button>
+                        <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" 
+                                data-modal-hide="exportSettingsModal">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status Section with Enhanced Design -->
+    <div class="mt-8 bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-chart-line text-purple-500 mr-3"></i>
+            System Status
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="status-card bg-gradient-to-br from-green-50 to-white p-6 rounded-xl border border-green-100">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-green-400 to-green-600 text-white">
+                        <i class="fas fa-check text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">System Health</p>
+                        <p class="font-bold text-gray-800">Healthy</p>
+                    </div>
+                </div>
+            </div>
+            <div class="status-card bg-gradient-to-br from-blue-50 to-white p-6 rounded-xl border border-blue-100">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Last Updated</p>
+                        <p class="font-bold text-gray-800">2 hours ago</p>
+                    </div>
+                </div>
+            </div>
+            <div class="status-card bg-gradient-to-br from-purple-50 to-white p-6 rounded-xl border border-purple-100">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 text-white">
+                        <i class="fas fa-cogs text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Active Settings</p>
+                        <p class="font-bold text-gray-800">28 Configurations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced card hover effects
+    const cards = document.querySelectorAll('.settings-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            const icon = this.querySelector('i');
+            icon.classList.add('icon-bounce');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            const icon = this.querySelector('i');
+            icon.classList.remove('icon-bounce');
+        });
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const section = this.getAttribute('href').substring(1);
+            const target = document.getElementById(section);
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Initialize any Flowbite components
+    if (typeof flowbite !== 'undefined') {
+        flowbite.initComponents();
+    }
+
+    // Add this to your existing script
+    const syncButton = document.querySelector('[data-action="sync-settings"]');
+    
+    if (syncButton) {
+        syncButton.addEventListener('click', function() {
+            // Show loading state
+            this.disabled = true;
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Syncing...';
+
+            // Make AJAX request
+            fetch('{% url "settings:sync_settings" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Show success message
+                if (data.status === 'success') {
+                    showNotification('success', 'Settings synchronized successfully');
+                } else {
+                    showNotification('error', data.message || 'Sync failed');
+                }
+            })
+            .catch(error => {
+                showNotification('error', 'Error syncing settings');
+            })
+            .finally(() => {
+                // Restore button state
+                this.disabled = false;
+                this.innerHTML = originalText;
+            });
+        });
+    }
+
+    function showNotification(type, message) {
+        const notificationClass = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 ${notificationClass} text-white px-6 py-4 rounded-lg shadow-lg transform transition-all duration-500 translate-y-[-100%]`;
+        notification.innerHTML = message;
+        
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => {
+            notification.style.transform = 'translateY(0)';
+        }, 100);
+        
+        // Hide and remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateY(-100%)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 500);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,63 @@
+
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Role Management</h1>
+            <p class="mt-1 text-sm text-gray-600">Configure and manage system roles</p>
+        </div>
+        <a href="{% url 'create_role' %}" class="flex items-center bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+            <i class="fas fa-plus-circle mr-2"></i>
+            New Role
+        </a>
+    </div>
+
+    <!-- Role Management Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for role in roles %}
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="rounded-full bg-blue-100 p-3">
+                            <i class="fas fa-user-shield text-blue-500"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-800">{{ role.display_name }}</h3>
+                            <p class="text-sm text-gray-500">{{ role.name }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Users</span>
+                        <span class="font-medium">{{ role.users.count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Module Access</span>
+                        <span class="font-medium">{{ role.modulepermission_set.count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Template Path</span>
+                        <span class="font-medium text-gray-800">{{ role.template_folder }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex space-x-3">
+                    <a href="{% url 'role_detail' role.id %}" class="flex-1 text-center px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100">
+                        View Details
+                    </a>
+                    <a href="{% url 'edit_role' role.id %}" class="flex-1 text-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
+                        Edit Role
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load appointment_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'appointment_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-calendar-check mr-2"></i>Appointments</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'timeslot_dashboard' %}" class="hover:text-blue-600">Time Slot Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Dr. {{ doctor.get_full_name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">{{ page_title }}</h1>
+            <p class="mt-1 text-sm text-gray-600">Manage time slots and availability</p>
+        </div>
+        <a href="{% url 'timeslot_create' %}?doctor={{ doctor.id }}" 
+           class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+            <i class="fas fa-plus mr-2"></i>Add Time Slot
+        </a>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-indigo-100 rounded-full">
+                    <i class="fas fa-calendar text-indigo-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Slots</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_slots }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-full">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Available Slots</p>
+                    <p class="text-2xl font-semibold text-green-600">{{ available_slots }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-red-100 rounded-full">
+                    <i class="fas fa-clock text-red-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Booked Slots</p>
+                    <p class="text-2xl font-semibold text-red-600">{{ total_slots|subtract:available_slots }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label for="center" class="block text-sm font-medium text-gray-700">Center</label>
+                <select name="center" id="center" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">All Centers</option>
+                    {% for center in centers %}
+                        <option value="{{ center.id }}" {% if selected_center == center.id|stringformat:"s" %}selected{% endif %}>
+                            {{ center.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                <input type="date" name="date" id="date" value="{{ selected_date|date:'Y-m-d' }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            </div>
+
+            <div class="flex items-end">
+                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 w-full">
+                    Apply Filters
+                </button>
+            </div>
+
+            <div class="flex items-end">
+                <a href="{% url 'doctor_timeslots' doctor.id %}" 
+                   class="text-center bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 w-full border border-gray-300">
+                    Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Time Slots by Date -->
+    {% if error %}
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            Error loading time slots. Please try again.
+        </div>
+    {% else %}
+        {% for date, data in slots_by_date.items %}
+            <div class="bg-white rounded-lg shadow mb-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            {{ date|date:"l, F d, Y" }}
+                        </h3>
+                        <div class="text-sm text-gray-500">
+                            {{ data.available }} of {{ data.total }} slots available
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for slot in data.slots %}
+                            <div class="border rounded-lg p-4 {% if slot.is_available %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %}">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">{{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}</p>
+                                        <p class="text-sm text-gray-600">{{ slot.center.name }}</p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full {% if slot.is_available %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ slot.is_available|yesno:"Available,Booked" }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-end space-x-2 mt-4">
+                                    <a href="{% url 'timeslot_update' slot.id %}" 
+                                       class="text-indigo-600 hover:text-indigo-900 text-sm">
+                                        <i class="fas fa-edit mr-1"></i>Edit
+                                    </a>
+                                    <button data-modal-target="deleteModal{{ slot.id }}" 
+                                            data-modal-toggle="deleteModal{{ slot.id }}" 
+                                            class="text-red-600 hover:text-red-900 text-sm" 
+                                            type="button">
+                                        <i class="fas fa-trash mr-1"></i>Delete
+                                    </button>
+                                </div>
+                                <!-- Delete Modal - Add this for each time slot -->
+                                <div id="deleteModal{{ slot.id }}" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                    <div class="relative w-full max-w-md max-h-full">
+                                        <div class="relative bg-white rounded-lg shadow">
+                                            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="deleteModal{{ slot.id }}">
+                                                <i class="fas fa-times"></i>
+                                                <span class="sr-only">Close modal</span>
+                                            </button>
+                                            <div class="p-6 text-center">
+                                                <i class="fas fa-exclamation-circle text-5xl text-red-500 mb-4"></i>
+                                                <h3 class="mb-5 text-lg font-normal text-gray-500">
+                                                    Are you sure you want to delete this time slot?<br>
+                                                    <span class="font-medium text-gray-800">
+                                                        {{ slot.date|date:"l, F d, Y" }}<br>
+                                                        {{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}
+                                                    </span>
+                                                </h3>
+                                                <form action="{% url 'timeslot_delete' slot.id %}" method="post" class="inline-flex">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                                                        Yes, delete it
+                                                    </button>
+                                                    <button data-modal-hide="deleteModal{{ slot.id }}" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                                                        No, cancel
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="col-span-full text-center py-8 text-gray-500">
+                                No time slots found for this date
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+        {% if not slots_by_date %}
+            <div class="bg-white rounded-lg shadow p-8 text-center">
+                <div class="text-gray-500 mb-4">No time slots found matching your criteria</div>
+                <a href="{% url 'timeslot_create' %}?doctor={{ doctor.id }}" 
+                   class="inline-flex items-center text-indigo-600 hover:text-indigo-900">
+                    <i class="fas fa-plus mr-2"></i>Create new time slot
+                </a>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<script>
+    // Auto-submit form when filters change
+    document.querySelectorAll('select[name="center"], input[name="date"]').forEach(input => {
+        input.addEventListener('change', () => {
+            input.closest('form').submit();
+        });
+    });
+</script>
+{% endblock %}

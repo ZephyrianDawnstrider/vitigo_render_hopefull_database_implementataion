@@ -1,0 +1,298 @@
+{% extends "../base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600">
+                <i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a>
+            </li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Treatment Plans</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Treatment Plans</h1>
+            <p class="text-sm text-gray-600">Manage patient phototherapy treatment plans</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'new_treatment_plan' %}" 
+               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center">
+                <i class="fas fa-plus-circle mr-2"></i>
+                New Treatment Plan
+            </a>
+            <div class="relative">
+                <button id="exportDropdownButton" data-dropdown-toggle="exportDropdown" 
+                        class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Plans
+                </button>
+                <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg">
+                    <ul class="py-2">
+                        <li>
+                            <a href="{% url 'export_treatment_plans' %}?format=excel" 
+                               class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-file-excel mr-2"></i> Excel Export
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'export_treatment_plans' %}?format=pdf" 
+                               class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-file-pdf mr-2"></i> PDF Export
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Total Plans -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">Total Plans</p>
+                    <h3 class="text-2xl font-bold text-gray-700">{{ total_plans }}</h3>
+                </div>
+                <div class="rounded-full bg-blue-100 p-3">
+                    <i class="fas fa-clipboard-list text-blue-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Plans -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">Active Plans</p>
+                    <h3 class="text-2xl font-bold text-green-600">{{ active_plans }}</h3>
+                </div>
+                <div class="rounded-full bg-green-100 p-3">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Plans -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">Completed Plans</p>
+                    <h3 class="text-2xl font-bold text-blue-600">{{ completed_plans }}</h3>
+                </div>
+                <div class="rounded-full bg-blue-100 p-3">
+                    <i class="fas fa-flag-checkered text-blue-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Rate -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">Success Rate</p>
+                    <h3 class="text-2xl font-bold text-purple-600">{{ success_rate|default:"85" }}%</h3>
+                </div>
+                <div class="rounded-full bg-purple-100 p-3">
+                    <i class="fas fa-chart-line text-purple-500"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="p-4">
+            <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text" name="search" value="{{ search_query }}"
+                           placeholder="Search plans..."
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                    <button type="submit" class="absolute right-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <select name="status" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">All Status</option>
+                        <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Sort -->
+                <div>
+                    <select name="sort" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Newest First</option>
+                        <option value="created_at" {% if current_sort == 'created_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="-total_cost" {% if current_sort == '-total_cost' %}selected{% endif %}>Cost: High to Low</option>
+                        <option value="total_cost" {% if current_sort == 'total_cost' %}selected{% endif %}>Cost: Low to High</option>
+                    </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-filter mr-2"></i>Apply Filters
+                    </button>
+                    <a href="{% url 'treatment_plan_list' %}" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                        <i class="fas fa-sync-alt mr-2"></i>Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Treatment Plans List -->
+    <div class="bg-white rounded-lg shadow">
+        {% if treatment_plans %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Protocol</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for plan in treatment_plans %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div>
+                                    <a href="{% url 'user_detail' plan.patient.id %}">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ plan.patient.get_full_name }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            {{ plan.patient.email }}
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ plan.protocol.name }}</div>
+                            <div class="text-sm text-gray-500">Started: {{ plan.start_date|date:"d M Y" }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ plan.get_completion_percentage }}%"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                {{ plan.sessions_completed }}/{{ plan.total_sessions_planned }} sessions
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">₹{{ plan.total_cost }}</div>
+                            <div class="text-xs text-gray-500">
+                                Paid: ₹{{ plan.amount_paid }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                       {% if plan.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ plan.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-2">
+                                <a href="{% url 'treatment_plan_detail' plan.id %}" class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button data-modal-target="editPlanModal{{ plan.id }}" 
+                                        data-modal-toggle="editPlanModal{{ plan.id }}"
+                                        class="text-green-600 hover:text-green-900">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if plan.is_active %}
+                                <button data-modal-target="deactivatePlanModal{{ plan.id }}" data-modal-toggle="deactivatePlanModal{{ plan.id }}" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                                {% else %}
+                                <button data-modal-target="activatePlanModal{{ plan.id }}" data-modal-toggle="activatePlanModal{{ plan.id }}" class="text-green-600 hover:text-green-900">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    {% include './treatment_plan/edit_modal.html' %}
+                    {% include './treatment_plan/activate_plan.html' %}
+                    {% include './treatment_plan/deactivate_plan.html' %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </a>
+                {% endif %}
+                
+                <span class="text-sm text-gray-700">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}"
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-clipboard-list text-gray-400 text-5xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900">No Treatment Plans Found</h3>
+            <p class="text-gray-500">Try adjusting your search or filter criteria</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dropdown functionality
+        const exportDropdownButton = document.getElementById('exportDropdownButton');
+        const exportDropdown = document.getElementById('exportDropdown');
+
+        exportDropdownButton.addEventListener('click', function() {
+            exportDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!exportDropdownButton.contains(event.target) && !exportDropdown.contains(event.target)) {
+                exportDropdown.classList.add('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

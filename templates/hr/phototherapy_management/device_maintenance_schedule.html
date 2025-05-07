@@ -1,0 +1,193 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'device_management' %}" class="hover:text-blue-600">Device Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Schedule Maintenance</li>
+        </ol>
+    </nav>
+
+    <div class="w-full mx-auto bg-white rounded-lg shadow-md p-6">
+      <!-- Header -->
+      <div class="border-b pb-4 mb-6">
+        <h2 class="text-2xl font-semibold text-gray-800">Schedule Maintenance</h2>
+        <p class="text-sm text-gray-600 mt-1">Schedule maintenance for a phototherapy device</p>
+      </div>
+
+      <!-- Form -->
+      <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <!-- Device Selection -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ form.device.label }}*
+            </label>
+            {{ form.device }}
+            {% if form.device.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.device.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Maintenance Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ form.maintenance_type.label }}*
+            </label>
+            {{ form.maintenance_type }}
+            {% if form.maintenance_type.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.maintenance_type.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ form.maintenance_date.label }}*
+            </label>
+            {{ form.maintenance_date }}
+            {% if form.maintenance_date.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.maintenance_date.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Performer and Cost -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ form.performed_by.label }}*
+            </label>
+            {{ form.performed_by }}
+            {% if form.performed_by.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.performed_by.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ form.cost.label }}
+            </label>
+            {{ form.cost }}
+            {% if form.cost.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.cost.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ form.description.label }}*
+          </label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Next Maintenance -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ form.next_maintenance_due.label }}
+            </label>
+            {{ form.next_maintenance_due }}
+            {% if form.next_maintenance_due.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.next_maintenance_due.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Parts and Notes -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ form.parts_replaced.label }}
+            </label>
+            {{ form.parts_replaced }}
+            {% if form.parts_replaced.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.parts_replaced.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ form.notes.label }}
+            </label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="flex justify-end space-x-4 pt-4 border-t">
+          <button type="button" onclick="window.history.back()"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            Schedule Maintenance
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if messages %}
+  <div class="fixed bottom-4 right-4">
+    {% for message in messages %}
+      <div class="{% if message.tags == 'success' %}bg-green-100 border-green-400 text-green-700{% else %}bg-red-100 border-red-400 text-red-700{% endif %} border px-4 py-3 rounded relative mb-2" role="alert">
+        <span class="block sm:inline">{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const maintenanceTypeSelect = document.querySelector('[name="maintenance_type"]');
+    const nextMaintenanceDueInput = document.querySelector('[name="next_maintenance_due"]');
+    const maintenanceDateInput = document.querySelector('[name="maintenance_date"]');
+
+    maintenanceTypeSelect.addEventListener('change', function() {
+    const maintenanceDate = new Date(maintenanceDateInput.value);
+    if (maintenanceDate) {
+        let nextDate = new Date(maintenanceDate);
+        
+        // Set next maintenance date based on type
+        switch(this.value) {
+        case 'ROUTINE':
+            nextDate.setDate(nextDate.getDate() + 90); // 90 days
+            break;
+        case 'CALIBRATION':
+            nextDate.setDate(nextDate.getDate() + 180); // 180 days
+            break;
+        default:
+            nextDate.setDate(nextDate.getDate() + 30); // 30 days default
+        }
+        
+        nextMaintenanceDueInput.value = nextDate.toISOString().split('T')[0];
+    }
+    });
+});
+</script>
+{% endblock %}

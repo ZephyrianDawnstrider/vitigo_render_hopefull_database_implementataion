@@ -1,0 +1,68 @@
+
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Bulk Update Roles</h1>
+            <p class="mt-1 text-sm text-gray-600">Update multiple roles and permissions simultaneously</p>
+        </div>
+    </div>
+
+    <!-- Bulk Update Form -->
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Role Selection -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Select Roles</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for role in roles %}
+                <label class="flex items-center p-4 border rounded-lg hover:bg-gray-50">
+                    <input type="checkbox" name="selected_roles" value="{{ role.id }}" class="h-4 w-4 text-blue-600 rounded">
+                    <span class="ml-3">{{ role.display_name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Module Permissions -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Update Permissions</h3>
+            <div class="space-y-4">
+                {% for module in modules %}
+                <div class="p-4 border rounded-lg">
+                    <h4 class="font-medium mb-3">{{ module.display_name }}</h4>
+                    <div class="grid grid-cols-3 gap-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="permissions_{{ module.id }}_access" class="h-4 w-4 text-blue-600 rounded">
+                            <span class="ml-2 text-sm">Access</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="permissions_{{ module.id }}_modify" class="h-4 w-4 text-green-600 rounded">
+                            <span class="ml-2 text-sm">Modify</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="permissions_{{ module.id }}_delete" class="h-4 w-4 text-red-600 rounded">
+                            <span class="ml-2 text-sm">Delete</span>
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'access_control_dashboard' %}" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">
+                Cancel
+            </a>
+            <button type="submit" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                Update Selected Roles
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load settings_tags %}
+
+{% block title %}Storage Settings{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-white rounded-lg shadow-md">
+    <!-- Display any messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-4 mb-2 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+            {% if message.tags == 'error' %}
+            <h4 class="font-medium mb-2">Error:</h4>
+            {% for error in message.message|split:"|" %}
+                <div class="ml-4 mb-1">• {{ error|safe }}</div>
+            {% endfor %}
+            {% else %}
+                {{ message }}
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'settings:settings_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-cogs mr-2"></i>Settings</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Storage Settings</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">Storage Settings</h1>
+        <p class="text-gray-600">Configure cloud storage providers and file management settings</p>
+    </div>
+
+    <!-- Storage Configuration Form -->
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Provider Details Section -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Provider Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-6">
+                        {{ form.name|as_crispy_field  }}
+                        {{ form.provider_type|as_crispy_field  }}
+                        {{ form.bucket_name|as_crispy_field  }}
+                        {{ form.region|as_crispy_field  }}
+                    </div>
+                    <div class="space-y-6">
+                        {{ form.access_key|as_crispy_field  }}
+                        {{ form.secret_key|as_crispy_field  }}
+                        {{ form.base_url|as_crispy_field  }}
+                        {{ form.endpoint_url|as_crispy_field  }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Management Section -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">File Management</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.max_file_size|as_crispy_field  }}
+                        {{ form.allowed_file_types|as_crispy_field  }}
+                    </div>
+                    <div>
+                        {{ form.custom_headers|as_crispy_field  }}
+                        {{ form.cors_configuration|as_crispy_field  }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Provider Status</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex items-center space-x-4">
+                        {{ form.is_active|as_crispy_field  }}
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        {{ form.is_default|as_crispy_field  }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end">
+                <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <i class="fas fa-save mr-2"></i>Save Storage Configuration
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Form validation for JSON fields
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const jsonFields = ['allowed_file_types', 'custom_headers', 'cors_configuration'];
+        let hasError = false;
+
+        jsonFields.forEach(fieldName => {
+            const field = this.querySelector(`[name="${fieldName}"]`);
+            if (field && field.value) {
+                try {
+                    JSON.parse(field.value);
+                } catch (error) {
+                    e.preventDefault();
+                    hasError = true;
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'text-red-500 text-sm mt-1';
+                    errorDiv.textContent = `Invalid JSON format in ${fieldName}`;
+                    field.parentNode.appendChild(errorDiv);
+                }
+            }
+        });
+    });
+
+    // Auto-hide messages after 5 seconds
+    setTimeout(() => {
+        document.querySelectorAll('[role="alert"]').forEach(alert => {
+            alert.style.display = 'none';
+        });
+    }, 5000);
+</script>
+{% endblock %}
+{% endblock %}

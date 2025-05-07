@@ -1,0 +1,118 @@
+{% extends './base.html' %}
+
+{% block title %}VitiGo PMS - Login{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-[#1a365d] to-[#7dd3fc] min-h-screen flex items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-[#1a365d]">Login to VitiGo PMS</h2>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-6" id="email-section">
+            <label class="block text-[#4a5568] font-semibold mb-2">Login Method</label>
+            <div class="flex items-center mb-4">
+                <button type="button" id="toggle-email" class="px-4 py-2 rounded-l-md bg-[#1a365d] text-white">Email</button>
+                <button type="button" id="toggle-phone" class="px-4 py-2 rounded-r-md bg-gray-200">Phone</button>
+            </div>
+            <div id="email-input" class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <i class="fas fa-envelope text-[#a0aec0]"></i>
+                </span>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-red-500 text-xs italic mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div id="phone-input" class="relative hidden">
+                <div class="flex">
+                    {{ form.country_code }}
+                    {{ form.phone }}
+                </div>
+                {% if form.phone.errors %}
+                    <p class="text-red-500 text-xs italic mt-1">{{ form.phone.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mb-6">
+            <label for="{{ form.password.id_for_label }}" class="block text-[#4a5568] font-semibold mb-2">Password</label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <i class="fas fa-lock text-[#a0aec0]"></i>
+                </span>
+                {{ form.password }}
+                <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <i class="fas fa-eye text-[#a0aec0]"></i>
+                </button>
+            </div>
+            {% if form.password.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ form.password.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center">
+                <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-[#1a365d] focus:ring-[#1a365d] border-[#cbd5e0] rounded">
+                <label for="remember" class="ml-2 block text-sm text-[#4a5568]">Remember me</label>
+            </div>
+            <a href="#" class="text-sm text-[#1a365d] hover:text-[#2c5282]">Forgot password?</a>
+        </div>
+        <button type="submit" class="w-full bg-[#1a365d] text-white py-2 px-4 rounded-md hover:bg-[#2c5282] transition duration-300">Sign In</button>
+    </form>
+    <div class="mt-8 text-center">
+        <p class="text-[#4a5568]">Don't have an account?</p>
+        <p class="text-[#4a5568] text-sm mt-2">Please contact your administrator to request access.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    const toggleEmail = document.getElementById('toggle-email');
+    const togglePhone = document.getElementById('toggle-phone');
+    const emailInput = document.getElementById('email-input');
+    const phoneInput = document.getElementById('phone-input');
+
+    toggleEmail.addEventListener('click', () => {
+        emailInput.classList.remove('hidden');
+        phoneInput.classList.add('hidden');
+        toggleEmail.classList.add('bg-[#1a365d]', 'text-white');
+        toggleEmail.classList.remove('bg-gray-200', 'text-gray-700');
+        togglePhone.classList.remove('bg-[#1a365d]', 'text-white');
+        togglePhone.classList.add('bg-gray-200', 'text-gray-700');
+        document.getElementById('id_email').required = true;
+        document.getElementById('id_phone').required = false;
+        document.getElementById('id_country_code').required = false;
+    });
+
+    togglePhone.addEventListener('click', () => {
+        emailInput.classList.add('hidden');
+        phoneInput.classList.remove('hidden');
+        togglePhone.classList.add('bg-[#1a365d]', 'text-white');
+        togglePhone.classList.remove('bg-gray-200', 'text-gray-700');
+        toggleEmail.classList.remove('bg-[#1a365d]', 'text-white');
+        toggleEmail.classList.add('bg-gray-200', 'text-gray-700');
+        document.getElementById('id_email').required = false;
+        document.getElementById('id_phone').required = true;
+        document.getElementById('id_country_code').required = true;
+    });
+
+    // Password visibility toggle
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('id_password');
+    
+    togglePassword.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle eye icon
+        const eyeIcon = togglePassword.querySelector('i');
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
+    });
+});
+</script>
+{% endblock %}

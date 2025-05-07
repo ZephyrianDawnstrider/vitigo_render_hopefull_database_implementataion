@@ -1,0 +1,636 @@
+{% extends '../../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+/* Removed old select styles for patient and doctor */
+.searchable-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.searchable-dropdown input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db; /* Tailwind gray-300 */
+    border-radius: 0.375rem; /* rounded-md */
+    font-size: 1rem;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+.searchable-dropdown-list {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.searchable-dropdown-list div {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+}
+
+.searchable-dropdown-list div:hover,
+.searchable-dropdown-list .selected {
+    background-color: #3b82f6; /* Tailwind blue-500 */
+    color: white;
+}
+
+/* Calendar styles */
+#appointment-calendar {
+    margin-top: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background: white;
+    padding: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+}
+
+.calendar-day {
+    text-align: center;
+    font-weight: 600;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.calendar-date {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    user-select: none;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.calendar-date.available {
+    background-color: #d0f0fd; /* light blue */
+    box-shadow: 0 0 8px 2px #3b82f6; /* blue shadow */
+    color: #1e40af; /* dark blue text */
+}
+
+.calendar-date.disabled {
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.calendar-date.selected {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.slot-list {
+    margin-top: 1rem;
+    max-height: 150px;
+    overflow-y: auto;
+    border-top: 1px solid #d1d5db;
+    padding-top: 0.5rem;
+}
+
+.slot-item {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 0.25rem;
+    background-color: #d1fae5; /* green-100 */
+    color: #065f46; /* green-800 */
+}
+
+.slot-item.booked {
+    background-color: #fca5a5; /* red-300 */
+    color: #991b1b; /* red-800 */
+    cursor: not-allowed;
+}
+
+.slot-item.selected {
+    background-color: #2563eb; /* blue-600 */
+    color: white;
+}
+</style>
+
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'appointment_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-calendar-check mr-2"></i>Appointments</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Create Appointment</li>
+        </ol>
+    </nav>
+
+    <div class="w-full">
+        <!-- Header -->
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Create New Appointment</h1>
+            <p class="mt-1 text-sm text-gray-600">Schedule a new appointment for a patient</p>
+        </div>
+
+        <!-- Appointment Form -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form method="post" id="appointmentForm" class="space-y-6">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                Please correct the errors below.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display specific errors -->
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-2">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    {{ field.label }}: {{ error }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <!-- Non-field errors -->
+                {% for error in form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-2">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                {{ error }}
+                            </p>
+                        </div>
+                    </div>
+                    </div>
+                {% endfor %}
+                {% endif %}
+
+                <!-- Two Column Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Patient Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Patient
+                        </label>
+                        <p class="mt-2 p-2 bg-gray-100 rounded-md text-gray-700 font-semibold">
+                            {{ request.user.get_full_name }}
+                        </p>
+                        <input type="hidden" name="{{ form.patient.html_name }}" value="{{ request.user.pk }}">
+                        {% if form.patient.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.patient.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Doctor Selection -->
+                    <div>
+                        <label for="doctor-search" class="block text-sm font-medium text-gray-700">
+                            Doctor
+                        </label>
+                        <div class="searchable-dropdown" id="doctor-dropdown">
+                            <input type="text" id="doctor-search" placeholder="Search and select a doctor" autocomplete="off" aria-label="Search for a doctor" />
+                            <div class="searchable-dropdown-list hidden" id="doctor-list">
+                                {% for choice in form.doctor.field.queryset %}
+                                <div data-value="{{ choice.pk }}">{{ choice }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <input type="hidden" name="{{ form.doctor.html_name }}" id="doctor-hidden" value="{{ form.doctor.value|default_if_none:'' }}">
+                        {% if form.doctor.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.doctor.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Center Selection -->
+                    <div>
+                        <label for="{{ form.center.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Medical Center
+                        </label>
+                        <div class="relative">
+                            <select name="{{ form.center.html_name }}" 
+                                    id="{{ form.center.auto_id }}"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                                <option value="">Select a center</option>
+                                {% for choice in form.center %}
+                                    {{ choice }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if form.center.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.center.help_text }}</p>
+                        {% endif %}
+                        {% if form.center.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.center.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Appointment Type -->
+                    <div>
+                        {{ form.appointment_type|as_crispy_field }}
+                        {% if form.appointment_type.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.appointment_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Priority -->
+                    <div>
+                        {{ form.priority|as_crispy_field }}
+                        {% if form.priority.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.priority.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        {{ form.notes|as_crispy_field }}
+                        {% if form.notes.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Calendar UI -->
+                <div id="appointment-calendar">
+                    <div class="calendar-header">
+                        <button type="button" id="prev-month" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"><</button>
+                        <div id="calendar-month-year" class="font-semibold"></div>
+                        <button type="button" id="next-month" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">></button>
+                    </div>
+                    <div class="calendar-grid" id="calendar-grid">
+                        <!-- Days of week and dates will be rendered here -->
+                    </div>
+                    <div class="slot-list" id="slot-list">
+                        <!-- Available slots for selected date will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Selected Slot -->
+                <input type="hidden" id="id_timeslot_id" name="timeslot_id">
+                <input type="hidden" id="id_date" name="date">
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 mt-6">
+                    <a href="{% url 'appointment_dashboard' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none">
+                        Cancel
+                    </a>
+                    <button type="submit" id="submitAppointment" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none">
+                        Create Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    function setupSearchableDropdown(dropdownId, inputId, listId, hiddenInputId) {
+        const dropdown = document.getElementById(dropdownId);
+        const input = document.getElementById(inputId);
+        const list = document.getElementById(listId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+
+        // Show dropdown list
+        input.addEventListener('focus', () => {
+            list.classList.remove('hidden');
+        });
+
+        // Hide dropdown list when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target)) {
+                list.classList.add('hidden');
+            }
+        });
+
+        // Filter list items based on input
+        input.addEventListener('input', () => {
+            const filter = input.value.toLowerCase();
+            let visibleCount = 0;
+            Array.from(list.children).forEach(item => {
+                if (item.textContent.toLowerCase().includes(filter)) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            if (visibleCount === 0) {
+                list.innerHTML = '<div class="text-gray-500 cursor-default px-3 py-2">No results found</div>';
+            }
+        });
+
+        // Handle item selection
+        list.addEventListener('click', (e) => {
+            if (e.target && e.target.matches('div[data-value]')) {
+                input.value = e.target.textContent;
+                hiddenInput.value = e.target.getAttribute('data-value');
+                list.classList.add('hidden');
+                // Trigger doctor change event to update centers and calendar
+                input.dispatchEvent(new Event('doctorchange'));
+            }
+        });
+
+        // Initialize input value from hidden input if present
+        if (hiddenInput.value) {
+            const selectedItem = Array.from(list.children).find(item => item.getAttribute('data-value') === hiddenInput.value);
+            if (selectedItem) {
+                input.value = selectedItem.textContent;
+            }
+        }
+    }
+
+    setupSearchableDropdown('doctor-dropdown', 'doctor-search', 'doctor-list', 'doctor-hidden');
+
+    const doctorSearchInput = document.getElementById('doctor-search');
+    const doctorHiddenInput = document.getElementById('doctor-hidden');
+    const centerSelect = document.getElementById('{{ form.center.auto_id }}');
+    const timeslotIdInput = document.getElementById('id_timeslot_id');
+
+    // Calendar elements
+    const calendarGrid = document.getElementById('calendar-grid');
+    const calendarMonthYear = document.getElementById('calendar-month-year');
+    const prevMonthBtn = document.getElementById('prev-month');
+    const nextMonthBtn = document.getElementById('next-month');
+    const slotList = document.getElementById('slot-list');
+
+    // State variables
+    let currentYear, currentMonth;
+    let availableDates = [];
+    let selectedDate = null;
+    let slotsForSelectedDate = [];
+
+    // Utility functions
+    function daysInMonth(year, month) {
+        return new Date(year, month + 1, 0).getDate();
+    }
+
+    function getFirstDayOfMonth(year, month) {
+        return new Date(year, month, 1).getDay(); // 0=Sunday, 6=Saturday
+    }
+
+    function formatDate(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    function isDateAvailable(dateStr) {
+        return availableDates.includes(dateStr);
+    }
+
+    function clearCalendar() {
+        calendarGrid.innerHTML = '';
+        slotList.innerHTML = '';
+        timeslotIdInput.value = '';
+        selectedDate = null;
+        slotsForSelectedDate = [];
+    }
+
+    function renderCalendar(year, month) {
+        calendarGrid.innerHTML = '';
+
+        // Days of week header
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        daysOfWeek.forEach(day => {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'calendar-day';
+            dayDiv.textContent = day;
+            calendarGrid.appendChild(dayDiv);
+        });
+
+        // Calculate padding for first day (Sunday=0)
+        const firstDay = getFirstDayOfMonth(year, month);
+        for (let i = 0; i < firstDay; i++) {
+            const emptyDiv = document.createElement('div');
+            calendarGrid.appendChild(emptyDiv);
+        }
+
+        const totalDays = daysInMonth(year, month);
+        for (let day = 1; day <= totalDays; day++) {
+            const date = new Date(year, month, day);
+            const dateStr = formatDate(date);
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'calendar-date';
+            dateDiv.textContent = day;
+
+        if (!isDateAvailable(dateStr)) {
+            dateDiv.classList.add('disabled');
+        } else {
+            dateDiv.classList.add('available');
+            dateDiv.addEventListener('click', () => {
+                selectDate(dateStr);
+            });
+        }
+
+            if (selectedDate === dateStr) {
+                dateDiv.classList.add('selected');
+            }
+
+            calendarGrid.appendChild(dateDiv);
+        }
+
+        calendarMonthYear.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+    }
+
+    function selectDate(dateStr) {
+        selectedDate = dateStr;
+        timeslotIdInput.value = '';
+        document.getElementById('id_date').value = dateStr;
+        renderCalendar(currentYear, currentMonth);
+        fetchSlotsForDate(dateStr);
+    }
+
+    async function fetchAvailableDates(doctorId, centerId) {
+        if (!doctorId || !centerId) {
+            availableDates = [];
+            clearCalendar();
+            return;
+        }
+        try {
+            const response = await fetch(`/appointments/doctor-available-dates/?user_id=${doctorId}&center_id=${centerId}`);
+            if (!response.ok) throw new Error('Failed to fetch available dates');
+            const data = await response.json();
+            availableDates = data.available_dates || [];
+            selectedDate = null;
+            renderCalendar(currentYear, currentMonth);
+            slotList.innerHTML = '';
+            timeslotIdInput.value = '';
+        } catch (error) {
+            console.error('Error fetching available dates:', error);
+            availableDates = [];
+            clearCalendar();
+        }
+    }
+
+    async function fetchSlotsForDate(dateStr) {
+        const doctorId = doctorHiddenInput.value;
+        const centerId = centerSelect.value;
+        if (!doctorId || !centerId || !dateStr) {
+            slotList.innerHTML = '';
+            return;
+        }
+    try {
+        const response = await fetch(`/appointments/doctor-timeslots/?user_id=${doctorId}&center_id=${centerId}&date=${dateStr}`);
+        if (!response.ok) throw new Error('Failed to fetch time slots');
+        const data = await response.json();
+        slotsForSelectedDate = data.timeslots || [];
+        renderSlots();
+    } catch (error) {
+        console.error('Error fetching time slots:', error);
+        slotList.innerHTML = '<p class="text-red-500">Error loading time slots.</p>';
+    }
+    }
+
+    function renderSlots() {
+        slotList.innerHTML = '';
+        timeslotIdInput.value = '';
+
+        if (slotsForSelectedDate.length === 0) {
+            slotList.innerHTML = '<p class="text-gray-500">No available time slots for the selected date.</p>';
+            return;
+        }
+
+        slotsForSelectedDate.forEach(slot => {
+            const slotDiv = document.createElement('div');
+            slotDiv.className = 'slot-item';
+            if (!slot.is_available) {
+                slotDiv.classList.add('booked');
+            }
+            slotDiv.textContent = `${slot.start_time} - ${slot.end_time}`;
+            if (slot.is_available) {
+                slotDiv.addEventListener('click', () => {
+                    // Deselect all slots
+                    Array.from(slotList.children).forEach(child => {
+                        child.classList.remove('selected');
+                    });
+                    // Select clicked slot
+                    slotDiv.classList.add('selected');
+                    timeslotIdInput.value = slot.id;
+                });
+            }
+            slotList.appendChild(slotDiv);
+        });
+    }
+
+    function initCalendar() {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+        renderCalendar(currentYear, currentMonth);
+    }
+
+    prevMonthBtn.addEventListener('click', () => {
+        if (currentMonth === 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else {
+            currentMonth--;
+        }
+        renderCalendar(currentYear, currentMonth);
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+        if (currentMonth === 11) {
+            currentMonth = 0;
+            currentYear++;
+        } else {
+            currentMonth++;
+        }
+        renderCalendar(currentYear, currentMonth);
+    });
+
+    // Fetch centers for selected doctor and update center dropdown
+    async function fetchCentersForDoctor(doctorId) {
+        // Clear center options except the first placeholder
+        while (centerSelect.options.length > 1) {
+            centerSelect.remove(1);
+        }
+        if (!doctorId) {
+            centerSelect.disabled = true;
+            clearCalendar();
+            return;
+        }
+
+        try {
+            const response = await fetch("{% url 'get_doctor_centers' %}?user_id=" + doctorId);
+            if (!response.ok) throw new Error('Failed to fetch centers');
+            const data = await response.json();
+
+            if (data.centers && data.centers.length > 0) {
+                data.centers.forEach(center => {
+                    const option = document.createElement('option');
+                    option.value = center.id;
+                    option.textContent = center.name;
+                    centerSelect.appendChild(option);
+                });
+                centerSelect.disabled = false;
+            } else {
+                centerSelect.disabled = true;
+                clearCalendar();
+            }
+        } catch (error) {
+            console.error('Error fetching centers:', error);
+            centerSelect.disabled = true;
+            clearCalendar();
+        }
+    }
+
+    // Event listeners
+    doctorSearchInput.addEventListener('input', () => {
+        // Clear center options and calendar when doctor input changes
+        while (centerSelect.options.length > 1) {
+            centerSelect.remove(1);
+        }
+        centerSelect.disabled = true;
+        clearCalendar();
+    });
+
+    doctorSearchInput.addEventListener('change', () => {
+        const doctorId = doctorHiddenInput.value;
+        fetchCentersForDoctor(doctorId);
+        clearCalendar();
+    });
+
+    centerSelect.addEventListener('change', () => {
+        const doctorId = doctorHiddenInput.value;
+        const centerId = centerSelect.value;
+        if (doctorId && centerId) {
+            fetchAvailableDates(doctorId, centerId);
+        } else {
+            clearCalendar();
+        }
+    });
+
+    // Initialize
+    initCalendar();
+});
+</script>
+{% endblock %}

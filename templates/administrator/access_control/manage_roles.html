@@ -1,0 +1,218 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-6">Manage Roles</h1>
+
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 mb-6">
+        <label for="role-search" class="block mb-2 font-semibold text-gray-700">Select Role</label>
+        <input type="text" id="role-search" placeholder="Search roles..." class="w-full p-2 border rounded-md mb-2" autocomplete="off" />
+        <ul id="role-list" class="border border-gray-300 rounded max-h-40 overflow-y-auto hidden"></ul>
+    </div>
+
+    <form id="permissions-form" class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hidden">
+        <style>
+            /* Single box toggle with green tick/box and red cross/box */
+            .toggle-box {
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                cursor: pointer;
+                user-select: none;
+                border: 2px solid transparent;
+                transition: background-color 0.3s ease, border-color 0.3s ease;
+                color: white;
+            }
+            .toggle-box.green {
+                background-color: #48bb78; /* green-500 */
+                border-color: #48bb78;
+            }
+            .toggle-box.red {
+                background-color: #f56565; /* red-500 */
+                border-color: #f56565;
+            }
+            .hidden-checkbox {
+                display: none;
+            }
+        </style>
+        <table class="w-full table-auto border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border border-gray-300 p-2 text-left">Module</th>
+                    <th class="border border-gray-300 p-2 text-center">Access</th>
+                    <th class="border border-gray-300 p-2 text-center">Modify</th>
+                    <th class="border border-gray-300 p-2 text-center">Delete</th>
+                </tr>
+            </thead>
+            <tbody id="permissions-tbody">
+                <!-- Permissions rows will be populated here -->
+            </tbody>
+        </table>
+        <div class="flex justify-end mt-4">
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const roles = {{ roles_json|safe }};
+    const roleSearchInput = document.getElementById('role-search');
+    const roleList = document.getElementById('role-list');
+    const permissionsForm = document.getElementById('permissions-form');
+    const permissionsTbody = document.getElementById('permissions-tbody');
+    let selectedRoleId = null;
+
+    // Filter and display roles in the list
+    function filterRoles(filter = '') {
+        roleList.innerHTML = '';
+        const filteredRoles = roles.filter(role => role.display_name.toLowerCase().includes(filter.toLowerCase()));
+        if (filteredRoles.length === 0) {
+            roleList.style.display = 'none';
+            return;
+        }
+        filteredRoles.forEach(role => {
+            const li = document.createElement('li');
+            li.textContent = role.display_name;
+            li.className = 'p-2 cursor-pointer hover:bg-blue-100';
+            li.dataset.roleId = role.id;
+            li.addEventListener('click', () => {
+                selectRole(role.id, role.display_name);
+            });
+            roleList.appendChild(li);
+        });
+        roleList.style.display = 'block';
+    }
+
+    // Select a role from the list
+    function selectRole(roleId, roleName) {
+        selectedRoleId = roleId;
+        roleSearchInput.value = roleName;
+        roleList.style.display = 'none';
+        fetchPermissions(roleId);
+    }
+
+    // Initial population
+    filterRoles();
+
+    // Search input event
+    roleSearchInput.addEventListener('input', (e) => {
+        filterRoles(e.target.value);
+    });
+
+    // Fetch permissions for selected role
+    async function fetchPermissions(roleId) {
+        if (!roleId) {
+            permissionsForm.style.display = 'none';
+            return;
+        }
+        try {
+            const response = await fetch(`/access-control/roles/${roleId}/permissions/`);
+            if (!response.ok) throw new Error('Failed to fetch permissions');
+            const data = await response.json();
+            renderPermissions(data.permissions);
+            permissionsForm.style.display = 'block';
+        } catch (error) {
+            alert(error.message);
+            permissionsForm.style.display = 'none';
+        }
+    }
+
+    // Render permissions table rows
+    function renderPermissions(permissions) {
+        permissionsTbody.innerHTML = '';
+        permissions.forEach(perm => {
+            const tr = document.createElement('tr');
+            tr.classList.add('border-b', 'border-gray-200');
+
+            const tdModule = document.createElement('td');
+            tdModule.className = 'border border-gray-300 p-2';
+            tdModule.textContent = perm.module_name;
+            tr.appendChild(tdModule);
+
+                ['can_access', 'can_modify', 'can_delete'].forEach(key => {
+                const td = document.createElement('td');
+                td.className = 'border border-gray-300 p-2 text-center';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = perm[key];
+                checkbox.dataset.moduleId = perm.module_id;
+                checkbox.dataset.permission = key;
+                checkbox.className = 'hidden-checkbox';
+
+                const toggleBox = document.createElement('span');
+                toggleBox.className = 'toggle-box';
+                toggleBox.innerHTML = checkbox.checked ? '&#10003;' : '&#10005;'; // tick or cross
+                toggleBox.classList.add(checkbox.checked ? 'green' : 'red');
+
+                toggleBox.addEventListener('click', () => {
+                    checkbox.checked = !checkbox.checked;
+                    toggleBox.innerHTML = checkbox.checked ? '&#10003;' : '&#10005;';
+                    toggleBox.classList.toggle('green', checkbox.checked);
+                    toggleBox.classList.toggle('red', !checkbox.checked);
+                });
+
+                td.appendChild(checkbox);
+                td.appendChild(toggleBox);
+                tr.appendChild(td);
+            });
+
+            permissionsTbody.appendChild(tr);
+        });
+    }
+
+    // Handle form submit to save permissions
+    permissionsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!selectedRoleId) return;
+
+        const checkboxes = permissionsTbody.querySelectorAll('input[type="checkbox"]');
+        const permissionsData = {};
+
+        checkboxes.forEach(cb => {
+            const moduleId = cb.dataset.moduleId;
+            const permKey = cb.dataset.permission;
+            if (!permissionsData[moduleId]) {
+                permissionsData[moduleId] = { module_id: parseInt(moduleId), can_access: false, can_modify: false, can_delete: false };
+            }
+            permissionsData[moduleId][permKey] = cb.checked;
+        });
+
+        const payload = {
+            permissions: Object.values(permissionsData)
+        };
+
+        try {
+            const response = await fetch(`/access-control/roles/${selectedRoleId}/permissions/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error('Failed to save permissions');
+            alert('Permissions updated successfully');
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    // Helper to get CSRF token cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

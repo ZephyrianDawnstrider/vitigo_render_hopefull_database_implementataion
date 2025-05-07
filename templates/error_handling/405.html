@@ -1,0 +1,9 @@
+
+{% extends "error_handling/base_error.html" %}
+
+{% block title %}405 Method Not Allowed{% endblock %}
+{% block error_code %}405{% endblock %}
+{% block error_title %}Method Not Allowed{% endblock %}
+{% block error_message %}
+    <p>The request method is not supported for this endpoint.</p>
+{% endblock %}

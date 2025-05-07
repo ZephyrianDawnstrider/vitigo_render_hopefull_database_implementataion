@@ -1,0 +1,122 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Metric - {{ metric.patient.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar with Breadcrumbs -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" 
+                                       class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Compliance Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:metric_list' %}" 
+                                       class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Metrics</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Edit Metric</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-semibold text-gray-900">Edit Metric</h1>
+            <p class="mt-1 text-sm text-gray-600">Update compliance metric evaluation details</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white border rounded-lg shadow-sm">
+            <div class="p-6">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                        <p class="font-medium">Please correct the following errors:</p>
+                        <ul class="mt-1.5 ml-4 list-disc list-inside">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ field|title }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Grid Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Left Column -->
+                        <div class="space-y-6">
+                            {{ form.patient|as_crispy_field }}
+                            {{ form.metric_type|as_crispy_field }}
+                            {{ form.compliance_score|as_crispy_field }}
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-6">
+                            {{ form.evaluation_period_start|as_crispy_field }}
+                            {{ form.evaluation_period_end|as_crispy_field }}
+                            {{ form.notes|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <!-- Meta Information -->
+                    <div class="mt-6 pt-6 border-t">
+                        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Evaluated By</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ metric.evaluated_by.get_full_name }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Evaluation Date</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ metric.evaluation_date|date:"M d, Y" }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 mt-6 pt-6 border-t">
+                        <a href="{% url 'compliance_management:metric_list' %}" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                            Update Metric
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

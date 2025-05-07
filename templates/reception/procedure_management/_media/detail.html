@@ -1,0 +1,174 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Media Details - {{ media_file.title }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:media_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Media Files
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ media_file.title }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100">
+                            <i class="fas {% if media_file.file_type == 'IMAGE' %}fa-image{% elif media_file.file_type == 'VIDEO' %}fa-video{% else %}fa-file{% endif %} text-xl text-indigo-600"></i>
+                        </span>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+                            {{ media_file.title }}
+                        </h2>
+                        <div class="mt-1 flex items-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                {{ media_file.get_file_type_display }}
+                            </span>
+                            {% if media_file.is_private %}
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-lock text-xs mr-1"></i> Private
+                                </span>
+                            {% endif %}
+                            <span class="ml-2 text-sm text-gray-500">
+                                Uploaded {{ media_file.uploaded_at|timesince }} ago
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                {% if media_file.file %}
+                <a href="{{ media_file.file.url }}" target="_blank"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-download mr-2"></i>
+                    Download
+                </a>
+                {% endif %}
+                <a href="{% url 'procedure_management:media_update' media_file.id %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit
+                </a>
+                <button type="button"
+                        data-modal-target="deleteModal-{{ media_file.id }}" 
+                        data-modal-toggle="deleteModal-{{ media_file.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Media Preview -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Media Preview</h3>
+                    <div class="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg">
+                        {% if media_file.file %}
+                            {% if media_file.file_type == 'IMAGE' %}
+                                <img src="{{ media_file.file.url }}" alt="{{ media_file.title }}" 
+                                     class="object-contain w-full h-full">
+                            {% elif media_file.file_type == 'VIDEO' %}
+                                <video controls class="w-full h-full">
+                                    <source src="{{ media_file.file.url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            {% else %}
+                                <div class="flex items-center justify-center h-full">
+                                    <i class="fas fa-file-pdf text-6xl text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <i class="fas fa-exclamation-triangle text-4xl text-yellow-400 mb-2"></i>
+                                <p class="text-sm text-gray-500">File not available</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Details -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">File Information</h3>
+                    <dl class="grid grid-cols-1 gap-4">
+                        <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+                            <dt class="text-sm font-medium text-gray-500">Procedure</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                <a href="{% url 'procedure_management:procedure_detail' media_file.procedure.id %}" 
+                                   class="text-indigo-600 hover:text-indigo-900">
+                                    {{ media_file.procedure }}
+                                </a>
+                            </dd>
+                        </div>
+                        <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+                            <dt class="text-sm font-medium text-gray-500">Uploaded By</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ media_file.uploaded_by.get_full_name }}
+                            </dd>
+                        </div>
+                        <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+                            <dt class="text-sm font-medium text-gray-500">Upload Date</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ media_file.uploaded_at|date:"F j, Y H:i" }}
+                            </dd>
+                        </div>
+                        <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+                            <dt class="text-sm font-medium text-gray-500">Description</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ media_file.description|linebreaks|default:"No description provided" }}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include './modals/delete.html' with media=media_file %}
+
+{% endblock %}

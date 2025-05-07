@@ -1,0 +1,113 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'appointment_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-calendar-check mr-2"></i>Appointments</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'timeslot_dashboard' %}" class="hover:text-blue-600">Time Slot Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Create Time Slot</li>
+        </ol>
+    </nav>
+
+    <!-- Header with Doctor Info -->
+    <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Create Time Slot</h1>
+        {% if doctor %}
+        <p class="mt-1 text-sm text-gray-600">Creating time slot for Dr. {{ doctor.get_full_name }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Error Messages -->
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Please correct the following errors:</strong>
+                <ul class="list-disc list-inside">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Doctor Selection -->
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    {{ form.doctor|as_crispy_field }}
+                </div>
+
+                <!-- Center Selection -->
+                <div>
+                    {{ form.center|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Date and Time Selection -->
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                <div>
+                    {{ form.date|as_crispy_field }}
+                </div>
+
+                <div>
+                    {{ form.start_time|as_crispy_field }}
+                </div>
+
+                <div>
+                    {{ form.end_time|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-3 pt-4 border-t">
+                <a href="{% url 'timeslot_dashboard' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Create Time Slot
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for Form Validation -->
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const date = document.querySelector('#{{ form.date.id_for_label }}').value;
+            const startTime = document.querySelector('#{{ form.start_time.id_for_label }}').value;
+            const endTime = document.querySelector('#{{ form.end_time.id_for_label }}').value;
+            
+            if (!date || !startTime || !endTime) {
+                e.preventDefault();
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (startTime >= endTime) {
+                e.preventDefault();
+                alert('End time must be after start time');
+                return;
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

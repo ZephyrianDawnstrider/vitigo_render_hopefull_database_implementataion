@@ -1,0 +1,345 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Procedure Management</h1>
+            <p class="mt-1 text-sm text-gray-600">Track and manage patient procedures</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="#" class="flex items-center bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-plus-circle mr-2"></i>
+                Schedule New Procedure
+            </a>
+            <a href="#" class="flex items-center bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors">
+                <i class="fas fa-file-export mr-2"></i>
+                Export Data
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Total Procedures -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-blue-100 p-3">
+                    <i class="fas fa-procedures text-blue-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">This Month</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ total_procedures }}</h3>
+                <span class="text-base font-medium text-gray-500">Total Procedures</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>5%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+
+        <!-- Scheduled Procedures -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-yellow-100 p-3">
+                    <i class="fas fa-calendar-alt text-yellow-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Upcoming</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ scheduled_procedures }}</h3>
+                <span class="text-base font-medium text-gray-500">Scheduled Procedures</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-yellow-500">Requires Attention</span>
+                <i class="fas fa-arrow-right ml-2"></i>
+            </div>
+        </div>
+
+        <!-- Completed Procedures -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-green-100 p-3">
+                    <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Completed</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ completed_procedures }}</h3>
+                <span class="text-base font-medium text-gray-500">Completed Procedures</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>7%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+
+        <!-- Cancelled Procedures -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-red-100 p-3">
+                    <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Cancelled</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ cancelled_procedures }}</h3>
+                <span class="text-base font-medium text-gray-500">Cancelled Procedures</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-red-500 flex items-center">
+                    <i class="fas fa-arrow-down mr-1"></i>2%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <!-- Left side filters -->
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Procedure Type Filter -->
+                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Procedure Types</option>
+                    {% for procedure_type in procedure_types %}
+                    <option value="{{ procedure_type.id }}">{{ procedure_type.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Status Filter -->
+                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Statuses</option>
+                    <option value="SCHEDULED">Scheduled</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+
+                <!-- Patient Filter -->
+                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Patients</option>
+                    {% for patient in patients %}
+                    <option value="{{ patient.id }}">{{ patient.user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Search -->
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" placeholder="Search procedures...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Procedure List -->
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="p-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">Procedure Details</th>
+                        <th scope="col" class="px-6 py-3">Patient Info</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
+                        <th scope="col" class="px-6 py-3">Scheduled Date</th>
+                        <th scope="col" class="px-6 py-3">Performed By</th>
+                        <th scope="col" class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for procedure in procedures %}
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="w-4 p-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">
+                                <div class="text-sm font-medium text-gray-900">{{ procedure.procedure_type.name }}</div>
+                                {% if procedure.notes %}
+                                <div class="text-sm text-gray-900">{{ procedure.notes }}</div>
+                                {% endif %}
+                                {% if procedure.tags.exists %}
+                                <div class="flex flex-wrap gap-2">
+                                    {% for tag in procedure.tags.all %}
+                                    <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                                        {{ tag.name }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ procedure.user.get_full_name }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        ID: #{{ procedure.user.id }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-2">
+                                <!-- Status Badge -->
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if procedure.status == 'SCHEDULED' %}
+                                        bg-blue-100 text-blue-800
+                                    {% elif procedure.status == 'IN_PROGRESS' %}
+                                        bg-yellow-100 text-yellow-800
+                                    {% elif procedure.status == 'COMPLETED' %}
+                                        bg-green-100 text-green-800
+                                    {% else %}
+                                        bg-red-100 text-red-800
+                                    {% endif %}">
+                                    {{ procedure.get_status_display }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">
+                                <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
+                                {{ procedure.scheduled_date|date:"M d, Y h:i A" }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if procedure.performed_by %}
+                            <div class="flex items-center">
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ procedure.performed_by.get_full_name }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">Staff</div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="text-sm text-gray-500">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button id="dropdownMenuIconButton{{ procedure.id }}" data-dropdown-toggle="dropdownDots{{ procedure.id }}" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Dropdown Menu -->
+                    <div id="dropdownDots{{ procedure.id }}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-56">
+                        <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownMenuIconButton{{ procedure.id }}">
+                            <li>
+                                <a href="{% url 'procedure_detail' procedure.id %}" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-eye text-blue-500 mr-2"></i> View Details
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-edit text-green-500 mr-2"></i> Edit Procedure
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-user-plus text-purple-500 mr-2"></i> Assign Staff
+                                </a>
+                            </li>
+                            {% if procedure.status != 'COMPLETED' and procedure.status != 'CANCELLED' %}
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Mark as Completed
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if procedure.status != 'CANCELLED' %}
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-times-circle text-red-500 mr-2"></i> Cancel Procedure
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+            <div class="flex flex-1 justify-between sm:hidden">
+                <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+                <a href="#" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
+            </div>
+            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">1</span>
+                        to
+                        <span class="font-medium">10</span>
+                        of
+                        <span class="font-medium">{{ paginator.count }}</span>
+                        results
+                    </p>
+                </div>
+                <div>
+                    <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                            <span class="sr-only">Previous</span>
+                            <i class="fas fa-chevron-left h-5 w-5"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                        <a href="?page={{ num }}" aria-current="page" class="relative inline-flex items-center {% if page_obj.number == num %}bg-blue-600 text-white{% else %}text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50{% endif %} px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                            {{ num }}
+                        </a>
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                            <span class="sr-only">Next</span>
+                            <i class="fas fa-chevron-right h-5 w-5"></i>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize Flowbite dropdowns
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
+        dropdownButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-dropdown-toggle');
+                const dropdownElement = document.getElementById(targetId);
+                dropdownElement.classList.toggle('hidden');
+            });
+        });
+    });
+</script>
+{% endblock %}

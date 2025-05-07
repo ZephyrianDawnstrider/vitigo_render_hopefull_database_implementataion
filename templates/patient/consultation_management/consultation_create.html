@@ -1,0 +1,169 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create New Consultation{% endblock %}
+
+{% block content %}
+<div class="px-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Create New Consultation</h1>
+        <p class="mt-1 text-sm text-gray-600">Schedule a new consultation for yourself</p>
+    </div>
+
+    <!-- Error Messages -->
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+            <div class="rounded-md p-4 mb-2 {% if message.tags == 'error' %}bg-red-50 text-red-700{% elif message.tags == 'success' %}bg-green-50 text-green-700{% else %}bg-blue-50 text-blue-700{% endif %}">
+                <p class="text-sm">{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <form method="post" id="consultation-form" novalidate>
+            {% csrf_token %}
+
+            <!-- Patient Selection -->
+            <div>
+                {{ form.patient|as_crispy_field }}
+            </div>
+
+            <!-- Doctor Selection -->
+            <div class="mt-4">
+                {{ form.doctor|as_crispy_field }}
+            </div>
+
+            <!-- Medical Center Selection -->
+            <div class="mt-4">
+                {{ form.center|as_crispy_field }}
+            </div>
+
+            <!-- Consultation Type and Priority -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div class="col-span-1">
+                    {{ form.consultation_type|as_crispy_field }}
+                </div>
+                <div class="col-span-1">
+                    {{ form.priority|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Scheduling -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div class="col-span-1">
+                    <label for="id_scheduled_datetime" class="block text-sm font-medium text-gray-700 mb-1">Scheduled Date and Time</label>
+                    <input type="hidden" id="id_scheduled_datetime" name="scheduled_datetime" />
+                    <input type="hidden" id="id_time_slot" name="time_slot" />
+                    <div class="w-full flex flex-col md:flex-row gap-6 mt-2">
+                        <div id="inline-calendar" class="w-full md:w-1/2 border border-gray-300 rounded-xl p-4 shadow-sm bg-white"></div>
+                        <div id="timeslot-container" class="w-full md:w-1/2 grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+                    </div>
+                    <div id="selected-time-info" class="hidden mt-4 text-indigo-700 font-medium text-sm"></div>
+                </div>
+                <div class="col-span-1">
+                    {{ form.duration_minutes|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Chief Complaint -->
+            <div class="grid grid-cols-1 gap-6 mt-4">
+                <div class="col-span-1">
+                    {{ form.chief_complaint|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200 mt-6">
+                <a href="{% url 'consultation_dashboard' %}" 
+                   class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Schedule Consultation
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Important Notes</h3>
+        <ul class="list-disc list-inside space-y-2 text-sm text-gray-600">
+            <li>Consultations must be scheduled at least 15 minutes in advance</li>
+            <li>Default consultation duration is 30 minutes</li>
+            <li>High priority consultations will be highlighted in the schedule</li>
+            <li>Make sure to include all relevant details in the chief complaint</li>
+        </ul>
+    </div>
+</div>
+
+<!-- jQuery and Select2 CDN (ensure these are included in base.html or this page) -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- Include flatpickr CSS and JS -->
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#id_patient').select2();
+        $('#id_doctor').select2();
+        $('#id_center').select2();
+
+        // Fetch available slots when doctor or center changes
+        $('#id_doctor, #id_center').on('change', function() {
+            const doctorId = $('#id_doctor').val();
+            const centerId = $('#id_center').val();
+
+            if (doctorId && centerId) {
+                $.ajax({
+                    url: '/api/get-available-slots/',
+                    type: 'GET',
+                    data: {
+                        doctor: doctorId,
+                        center: centerId
+                    },
+                    success: function(response) {
+                        updateCalendar(response.available_dates);
+                        updateTimeSlots(response.available_times);
+                    },
+                    error: function() {
+                        alert('Error fetching availability. Please try again.');
+                    }
+                });
+            }
+        });
+
+        function updateCalendar(dates) {
+            // Add your calendar update logic here
+            console.log('Available dates:', dates);
+            // Example: highlight available dates
+        }
+
+        function updateTimeSlots(times) {
+            let container = $('#timeslot-container');
+            container.empty();
+            times.forEach(function(time) {
+                container.append(
+                    `<button type="button" class="time-slot-btn px-2 py-1 border rounded text-sm" data-time="${time}">
+                        ${time}
+                    </button>`
+                );
+            });
+
+            $('.time-slot-btn').click(function() {
+                const selected = $(this).data('time');
+                $('#id_time_slot').val(selected);
+                $('#selected-time-info').removeClass('hidden').text('Selected time: ' + selected);
+            });
+        }
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,157 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create New Consultation{% endblock %}
+
+{% block content %}
+<div class="px-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Create New Consultation</h1>
+        <p class="mt-1 text-sm text-gray-600">Schedule a new consultation for a patient</p>
+    </div>
+
+    <!-- Error Messages -->
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+            <div class="rounded-md p-4 mb-2 {% if message.tags == 'error' %}bg-red-50 text-red-700{% elif message.tags == 'success' %}bg-green-50 text-green-700{% else %}bg-blue-50 text-blue-700{% endif %}">
+                <p class="text-sm">{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <form method="post" class="space-y-6" novalidate>
+            {% csrf_token %}
+
+            <!-- Patient and Doctor Selection -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.patient.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Patient
+                    </label>
+                    <div class="relative">
+                        <input type="text" 
+                            id="patient-search" 
+                            placeholder="Search patient..." 
+                            class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                        <select name="{{ form.patient.html_name }}" 
+                                id="{{ form.patient.auto_id }}"
+                                size="5"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                            <option value="">Select a patient</option>
+                            {% for choice in form.patient %}
+                                {{ choice }}
+                            {% endfor %}
+                        </select>
+                        <!-- New Patient Link -->
+                        <div class="mt-2 flex items-center justify-between text-sm">
+                            <span class="text-gray-500">Can't find patient?</span>
+                            <a href="{% url 'patient_registration' %}" 
+                               class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-user-plus mr-1"></i>
+                                Register New Patient
+                            </a>
+                        </div>
+                    </div>
+                    {% if form.patient.help_text %}
+                    <p class="mt-2 text-sm text-gray-500">{{ form.patient.help_text }}</p>
+                    {% endif %}
+                    {% if form.patient.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.patient.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                {% if form.doctor %}
+                <div class="col-span-1">
+                    {{ form.doctor|as_crispy_field }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Consultation Type and Priority -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="col-span-1">
+                    {{ form.consultation_type|as_crispy_field }}
+                </div>
+                <div class="col-span-1">
+                    {{ form.priority|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Scheduling -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="col-span-1">
+                    {{ form.scheduled_datetime|as_crispy_field }}
+                </div>
+                <div class="col-span-1">
+                    {{ form.duration_minutes|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Chief Complaint -->
+            <div class="grid grid-cols-1 gap-6">
+                <div class="col-span-1">
+                    {{ form.chief_complaint|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200">
+                <a href="{% url 'consultation_dashboard' %}" 
+                   class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Schedule Consultation
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Important Notes</h3>
+        <ul class="list-disc list-inside space-y-2 text-sm text-gray-600">
+            <li>Select both a patient and a doctor for the consultation</li>
+            <li>Consultations must be scheduled at least 15 minutes in advance</li>
+            <li>Default consultation duration is 30 minutes</li>
+            <li>High priority consultations will be highlighted in the schedule</li>
+            <li>Make sure to include all relevant details in the chief complaint</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('patient-search');
+        const selectElement = document.getElementById('{{ form.patient.auto_id }}');
+        const originalOptions = Array.from(selectElement.options);
+    
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            // Reset options
+            selectElement.innerHTML = '';
+            
+            // Filter and add matching options
+            originalOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    selectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            // Add placeholder if no options found
+            if (selectElement.options.length === 0) {
+                const noResults = new Option('No patients found', '');
+                noResults.disabled = true;
+                selectElement.appendChild(noResults);
+            }
+        });
+    });
+</script>
+{% endblock content %}

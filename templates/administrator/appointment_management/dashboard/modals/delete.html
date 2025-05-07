@@ -1,0 +1,56 @@
+<div id="deleteModal{{ appointment.id }}" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="deleteModal{{ appointment.id }}">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="p-6 text-center">
+                <div class="flex items-center justify-center mb-6">
+                    <div class="rounded-full bg-red-100 p-3">
+                        <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    </div>
+                </div>
+                <h3 class="mb-5 text-lg font-normal text-gray-500">
+                    Are you sure you want to delete this appointment?
+                </h3>
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="space-y-2">
+                            <p class="flex items-center text-gray-600">
+                                <i class="fas fa-calendar-alt w-5"></i>
+                                <span class="font-medium ml-2">Date:</span>
+                                <span class="ml-2">{{ appointment.date|date:"M d, Y" }}</span>
+                            </p>
+                            <p class="flex items-center text-gray-600">
+                                <i class="fas fa-clock w-5"></i>
+                                <span class="font-medium ml-2">Time:</span>
+                                <span class="ml-2">{{ appointment.time_slot.start_time|time:"g:i A" }}</span>
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <p class="flex items-center text-gray-600">
+                                <i class="fas fa-user-md w-5"></i>
+                                <span class="font-medium ml-2">Doctor:</span>
+                                <span class="ml-2">{{ appointment.doctor.get_full_name }}</span>
+                            </p>
+                            <p class="flex items-center text-gray-600">
+                                <i class="fas fa-user w-5"></i>
+                                <span class="font-medium ml-2">Patient:</span>
+                                <span class="ml-2">{{ appointment.patient.get_full_name }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <form action="{% url 'appointment_delete' appointment.id %}" method="POST" class="inline-flex">
+                    {% csrf_token %}
+                    <button type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                        <i class="fas fa-trash-alt mr-2"></i> Yes, delete it
+                    </button>
+                    <button data-modal-hide="deleteModal{{ appointment.id }}" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                        <i class="fas fa-times mr-2"></i> No, cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

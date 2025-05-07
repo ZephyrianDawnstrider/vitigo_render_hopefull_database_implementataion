@@ -1,0 +1,643 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'schedule_management' %}" class="hover:text-blue-600">Schedule Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Session Details</li>
+        </ol>
+    </nav>
+
+    <!-- Session Type Banner -->
+    <div class="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
+        <div class="flex flex-col sm:flex-row justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-100 rounded-full p-2">
+                    <i class="fas fa-radiation text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-blue-800">Session #{{ session.session_number }}</h2>
+                    <p class="text-sm text-blue-600">{{ session.scheduled_date|date:"l, F d, Y" }} at {{ session.scheduled_time|time:"g:i A" }}</p>
+                </div>
+            </div>
+            
+            <!-- Dynamic Action Buttons based on status -->
+            <div class="flex flex-wrap gap-2">
+                {% if session.status == 'SCHEDULED' %}
+                    <button data-modal-target="startSessionModal" data-modal-toggle="startSessionModal" 
+                            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                        <i class="fas fa-play mr-2"></i>Start Session
+                    </button>
+                    <button data-modal-target="cancelSessionModal" data-modal-toggle="cancelSessionModal"
+                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </button>
+                {% elif session.status == 'IN_PROGRESS' %}
+                    <button data-modal-target="completeSessionModal" data-modal-toggle="completeSessionModal"
+                            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                        <i class="fas fa-check mr-2"></i>Complete
+                    </button>
+                    <button data-modal-target="updateStatusModal" data-modal-toggle="updateStatusModal"
+                            class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Mark Missed
+                    </button>
+                {% endif %}
+                <button data-modal-target="updateStatusModal" data-modal-toggle="updateStatusModal"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                    <i class="fas fa-edit mr-2"></i>Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Session Modal -->
+    <div id="startSessionModal" tabindex="-1" aria-hidden="true" 
+         class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow">
+                <div class="flex items-center justify-between p-4 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-800">Start Session</h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="startSessionModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form action="{% url 'update_session_status' session.id %}" method="post" class="p-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="IN_PROGRESS">
+                    <p class="text-gray-700 mb-4">Are you sure you want to start this session? This will mark the session as in progress.</p>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" class="px-4 py-2 text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200" data-modal-hide="startSessionModal">Cancel</button>
+                        <button type="submit" class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600">Start Session</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Session Modal -->
+    <div id="completeSessionModal" tabindex="-1" aria-hidden="true" 
+         class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow">
+                <div class="flex items-center justify-between p-4 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-800">Complete Session</h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="completeSessionModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form action="{% url 'update_session_status' session.id %}" method="post" class="p-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="COMPLETED">
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Duration (seconds)</label>
+                            <input type="number" name="duration_seconds" required
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-2 mt-6">
+                        <button type="button" class="px-4 py-2 text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200" data-modal-hide="completeSessionModal">Cancel</button>
+                        <button type="submit" class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600">Complete Session</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Session Modal -->
+    <div id="cancelSessionModal" tabindex="-1" aria-hidden="true" 
+         class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow">
+                <div class="flex items-center justify-between p-4 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-800">Cancel Session</h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="cancelSessionModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form action="{% url 'update_session_status' session.id %}" method="post" class="p-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="CANCELLED">
+                    <p class="text-gray-700 mb-4">Are you sure you want to cancel this session? This action cannot be undone.</p>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" class="px-4 py-2 text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200" data-modal-hide="cancelSessionModal">No, Keep Session</button>
+                        <button type="submit" class="px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600">Yes, Cancel Session</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-3 gap-6">
+        <!-- Left Column - Main Session Info -->
+        <div class="col-span-2 space-y-6">
+            <!-- Status Banner -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Current Status</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full text-sm font-medium 
+                            {% if session.status == 'COMPLETED' %}bg-green-100 text-green-800
+                            {% elif session.status == 'SCHEDULED' %}bg-blue-100 text-blue-800
+                            {% elif session.status == 'MISSED' %}bg-yellow-100 text-yellow-800
+                            {% elif session.status == 'CANCELLED' %}bg-red-100 text-red-800
+                            {% endif %}">
+                            {{ session.get_status_display }}
+                        </span>
+                        <button data-modal-target="updateStatusModal" data-modal-toggle="updateStatusModal" 
+                                class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <span class="text-sm text-gray-600 block">Planned Dose</span>
+                        <span class="text-gray-800 font-medium">{{ session.planned_dose }} mJ/cm²</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <span class="text-sm text-gray-600 block">Duration</span>
+                        <span class="text-gray-800 font-medium">
+                            {% if session.duration_seconds %}
+                                {{ session.duration_seconds }} seconds
+                            {% else %}
+                                Not recorded
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <span class="text-sm text-gray-600 block">Device</span>
+                        <span class="text-gray-800 font-medium">{{ session.device.name }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Status Update Modal -->
+            <div id="updateStatusModal" tabindex="-1" aria-hidden="true" 
+                 class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-md max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-4 border-b rounded-t">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                Update Session Status
+                            </h3>
+                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="updateStatusModal">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <form action="{% url 'update_session_status' session.id %}" method="post" class="p-6">
+                            {% csrf_token %}
+                            <!-- Status Selection -->
+                            <div class="mb-4">
+                                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Status
+                                </label>
+                                <select name="status" id="status" required
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    {% for status_code, status_label in session.COMPLIANCE_CHOICES %}
+                                    <option value="{{ status_code }}" {% if session.status == status_code %}selected{% endif %}>
+                                        {{ status_label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Duration (shown only when completing) -->
+                            <div class="mb-4" id="duration-field">
+                                <label for="duration_seconds" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Duration (seconds)
+                                </label>
+                                <input type="number" id="duration_seconds" name="duration_seconds" 
+                                       value="{{ session.duration_seconds|default:'' }}"
+                                       min="0"
+                                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end space-x-2">
+                                <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" data-modal-hide="updateStatusModal">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                    Update Status
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RFID Tracking -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">RFID Tracking</h3>
+                    <button data-modal-target="updateRFIDModal" data-modal-toggle="updateRFIDModal" 
+                            class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-edit mr-1"></i>Update Times
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-2">Entry Time</label>
+                        <p class="text-gray-800 bg-gray-50 p-3 rounded-lg">
+                            {{ session.rfid_entry_time|default:"Not recorded"|date:"M d, Y H:i" }}
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-2">Exit Time</label>
+                        <p class="text-gray-800 bg-gray-50 p-3 rounded-lg">
+                            {{ session.rfid_exit_time|default:"Not recorded"|date:"M d, Y H:i" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add RFID Modal -->
+            <div id="updateRFIDModal" tabindex="-1" aria-hidden="true" 
+                 class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-md max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-4 border-b rounded-t">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                Update RFID Tracking Times
+                            </h3>
+                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="updateRFIDModal">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <form action="{% url 'update_rfid_tracking' session.id %}" method="post" class="p-6">
+                            {% csrf_token %}
+                            <!-- Entry Time -->
+                            <div class="mb-4">
+                                <label class="text-sm font-medium text-gray-700 block mb-2">Entry Time</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs text-gray-600">Date</label>
+                                        <input type="date" name="entry_date" 
+                                               value="{{ session.rfid_entry_time|date:'Y-m-d' }}"
+                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-gray-600">Time</label>
+                                        <input type="time" name="entry_time" 
+                                               value="{{ session.rfid_entry_time|time:'H:i' }}"
+                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Exit Time -->
+                            <div class="mb-4">
+                                <label class="text-sm font-medium text-gray-700 block mb-2">Exit Time</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs text-gray-600">Date</label>
+                                        <input type="date" name="exit_date" 
+                                               value="{{ session.rfid_exit_time|date:'Y-m-d' }}"
+                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-gray-600">Time</label>
+                                        <input type="time" name="exit_time" 
+                                               value="{{ session.rfid_exit_time|time:'H:i' }}"
+                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end space-x-2">
+                                <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" data-modal-hide="updateRFIDModal">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                    Update Times
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Problem Reports -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Problem Reports</h3>
+                    <!-- Modal toggle -->
+                    <button data-modal-target="addReportModal" data-modal-toggle="addReportModal" 
+                            class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-plus-circle mr-1"></i>Add Report
+                    </button>
+                </div>
+                {% if problem_reports %}
+                <div class="space-y-4">
+                    {% for report in problem_reports %}
+                    <div class="border rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="px-2 py-1 rounded-full text-xs font-medium
+                                    {% if report.severity == 'SEVERE' %}bg-red-100 text-red-800
+                                    {% elif report.severity == 'MODERATE' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    {{ report.get_severity_display }}
+                                </span>
+                            </div>
+                            <span class="text-sm text-gray-500">{{ report.reported_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <p class="text-gray-800 mt-2">{{ report.problem_description }}</p>
+                        {% if report.resolved %}
+                        <div class="mt-2 pt-2 border-t">
+                            <p class="text-sm text-gray-600"><span class="font-medium">Resolution:</span> {{ report.resolution_notes }}</p>
+                            <p class="text-sm text-gray-600"><span class="font-medium">Resolved by:</span> {{ report.resolved_by }} on {{ report.resolved_at|date:"M d, Y" }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-600 text-sm">No problems reported for this session.</p>
+                {% endif %}
+            </div>
+
+            <!-- Add Report Modal -->
+            <div id="addReportModal" tabindex="-1" aria-hidden="true" 
+                 class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-md max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-4 border-b rounded-t">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                Add Problem Report
+                            </h3>
+                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="addReportModal">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <form action="{% url 'add_session_report' session.id %}" method="post" class="p-6">
+                            {% csrf_token %}
+                            <!-- Severity Selection -->
+                            <div class="mb-4">
+                                <label for="severity" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Problem Severity
+                                </label>
+                                <select name="severity" id="severity" required
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="">Select severity</option>
+                                    <option value="NONE">No Problems</option>
+                                    <option value="MILD">Mild Issues</option>
+                                    <option value="MODERATE">Moderate Issues</option>
+                                    <option value="SEVERE">Severe Issues</option>
+                                </select>
+                            </div>
+
+                            <!-- Problem Description -->
+                            <div class="mb-4">
+                                <label for="problem_description" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Problem Description
+                                </label>
+                                <textarea id="problem_description" name="problem_description" rows="3" required
+                                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
+                            </div>
+
+                            <!-- Side Effects -->
+                            <div class="mb-4">
+                                <label for="side_effects" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Side Effects (if any)
+                                </label>
+                                <textarea id="side_effects" name="side_effects" rows="2"
+                                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
+                            </div>
+
+                            <!-- Action Taken -->
+                            <div class="mb-4">
+                                <label for="action_taken" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Action Taken
+                                </label>
+                                <textarea id="action_taken" name="action_taken" rows="2"
+                                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end space-x-2">
+                                <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" data-modal-hide="addReportModal">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                    Submit Report
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Notes -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Staff Notes</h3>
+                    <button data-modal-target="editNotesModal" data-modal-toggle="editNotesModal" 
+                            class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-edit mr-1"></i>Edit Notes
+                    </button>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    {{ session.staff_notes|default:"No staff notes recorded"|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Edit Notes Modal -->
+            <div id="editNotesModal" tabindex="-1" aria-hidden="true" 
+                 class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-md max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-4 border-b rounded-t">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                Edit Staff Notes
+                            </h3>
+                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="editNotesModal">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <form action="{% url 'update_session_notes' session.id %}" method="post" class="p-6">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="staff_notes" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Notes
+                                </label>
+                                <textarea id="staff_notes" name="staff_notes" rows="6"
+                                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">{{ session.staff_notes }}</textarea>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Add any relevant notes, observations, or instructions for this session.
+                                </p>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end space-x-2">
+                                <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" data-modal-hide="editNotesModal">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                    Save Notes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add this after the Staff Notes section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Session Remarks</h3>
+                    <button data-modal-target="editRemarksModal" data-modal-toggle="editRemarksModal" 
+                            class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-edit mr-1"></i>Edit Remarks
+                    </button>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    {{ session.remarks|default:"No remarks recorded"|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Add this modal near the other modals -->
+            <div id="editRemarksModal" tabindex="-1" aria-hidden="true" 
+                 class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-md max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-4 border-b rounded-t">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                Edit Session Remarks
+                            </h3>
+                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="editRemarksModal">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <form action="{% url 'update_session_remarks' session.id %}" method="post" class="p-6">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="remarks" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Remarks
+                                </label>
+                                <textarea id="remarks" name="remarks" rows="6"
+                                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">{{ session.remarks }}</textarea>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Add any remarks, special instructions, or additional comments for this session.
+                                </p>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="flex items-center justify-end space-x-2">
+                                <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" data-modal-hide="editRemarksModal">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                    Save Remarks
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column - Patient & Protocol Info -->
+        <div class="space-y-6">
+            <!-- Patient Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Patient Information</h3>
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-400 text-2xl"></i>
+                    </div>
+                    <div>
+                        <a href="{% url 'user_detail' session.plan.patient.id %}">
+                            <h4 class="font-medium text-gray-800">{{ session.plan.patient.get_full_name }}</h4>
+                            <p class="text-sm text-gray-600">ID: #{{ session.plan.patient.id }}</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t">
+                    <a href="#" class="text-blue-600 hover:text-blue-800 block mb-2">
+                        <i class="fas fa-folder-open mr-2"></i>View Patient Record
+                    </a>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 block">
+                        <i class="fas fa-history mr-2"></i>View Treatment History
+                    </a>
+                </div>
+            </div>
+
+            <!-- Administrator Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Session Administrator</h3>
+                {% if session.administered_by %}
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="w-16 h-16 rounded-full bg-gray-200 overflow-hidden">
+                        {% if session.administered_by.profile_picture %}
+                            <img src="{{ session.administered_by.profile_picture.url }}" alt="Admin" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-user-md text-gray-400 text-2xl"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">{{ session.administered_by.get_full_name }}</h4>
+                        <p class="text-sm text-gray-600">{{ session.administered_by.email }}</p>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            {{ session.administered_by.role.display_name }}
+                        </span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex items-center justify-center h-24 bg-gray-50 rounded-lg">
+                    <p class="text-gray-500 text-sm">No administrator assigned yet</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Protocol Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Protocol Details</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-2">Protocol Name</label>
+                        <p class="text-gray-800 bg-gray-50 p-3 rounded-lg">{{ session.plan.protocol.name }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-2">Type</label>
+                        <p class="text-gray-800 bg-gray-50 p-3 rounded-lg">{{ session.plan.protocol.phototherapy_type }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-2">Progress</label>
+                        <p class="text-gray-800 bg-gray-50 p-3 rounded-lg">Session {{ session.session_number }} of {{ session.plan.total_sessions_planned }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

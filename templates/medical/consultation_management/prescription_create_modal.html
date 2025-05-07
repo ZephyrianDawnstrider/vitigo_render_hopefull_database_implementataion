@@ -1,0 +1,106 @@
+<!-- Create Prescription Template Modal -->
+<div id="createTemplateModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-2xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 border-b rounded-t">
+                <h3 class="text-xl font-semibold text-gray-900">
+                    Create Prescription Template
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="createTemplateModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal body -->
+            <form action="{% url 'create_prescription_template' %}" method="POST" class="p-6 space-y-6">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div>
+                    <label for="template_name" class="block mb-2 text-sm font-medium text-gray-900">Template Name</label>
+                    <input type="text" id="template_name" name="name" required 
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                           placeholder="e.g., Basic Vitiligo Treatment">
+                </div>
+
+                <div>
+                    <label for="description" class="block mb-2 text-sm font-medium text-gray-900">Description</label>
+                    <textarea id="description" name="description" rows="2"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Brief description of this template"></textarea>
+                </div>
+
+                <!-- Medications Section -->
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900">Medications</label>
+                    <div id="medications-container" class="space-y-4">
+                        <div class="medication-item bg-gray-50 p-4 rounded-lg">
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block mb-1 text-sm font-medium text-gray-700">Medication</label>
+                                    <select name="medications[]" required
+                                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                        <option value="">Select medication</option>
+                                        {% for medication in medications %}
+                                            <option value="{{ medication.id }}">{{ medication.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block mb-1 text-sm font-medium text-gray-700">Dosage</label>
+                                    <input type="text" name="dosages[]" required
+                                           class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                           placeholder="e.g., 10mg">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block mb-1 text-sm font-medium text-gray-700">Frequency</label>
+                                    <input type="text" name="frequencies[]" required
+                                           class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                           placeholder="e.g., Twice daily">
+                                </div>
+                                <div>
+                                    <label class="block mb-1 text-sm font-medium text-gray-700">Duration</label>
+                                    <input type="text" name="durations[]" required
+                                           class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                           placeholder="e.g., 7 days">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="add-medication" 
+                            class="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                        <i class="fas fa-plus-circle mr-2"></i>Add Another Medication
+                    </button>
+                </div>
+
+                <!-- Template Settings -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is_active" name="is_active" checked
+                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="is_active" class="ml-2 text-sm font-medium text-gray-900">Active Template</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="is_global" name="is_global"
+                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="is_global" class="ml-2 text-sm font-medium text-gray-900">Make Global</label>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="flex items-center space-x-2 pt-4 border-t">
+                    <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        Create Template
+                    </button>
+                    <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10" data-modal-hide="createTemplateModal">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

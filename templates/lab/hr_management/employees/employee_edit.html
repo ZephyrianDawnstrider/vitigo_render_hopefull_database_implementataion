@@ -1,0 +1,209 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Edit Employee - {{ employee.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'employee_detail' employee.id %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">{{ employee.user.get_full_name }}</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Edit</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Form Section -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="md:grid md:grid-cols-3 md:gap-6">
+            <div class="md:col-span-1">
+                <div class="px-4 sm:px-0">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Edit Employee Details</h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                        Update the employee's personal and employment information.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-5 md:mt-0 md:col-span-2">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="shadow sm:rounded-md sm:overflow-hidden">
+                        <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                            <!-- Personal Information -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">First Name</label>
+                                        {% render_field form.first_name class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.first_name.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                                        {% render_field form.last_name class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.last_name.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                                        {% render_field form.email class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.email.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                                        {% render_field form.phone_number class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.phone_number.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Employment Information -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Employment Information</h3>
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Department</label>
+                                        {% render_field form.department class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.department.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.department.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Position</label>
+                                        {% render_field form.position class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.position.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.position.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Employment Status</label>
+                                        {% render_field form.employment_status class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.employment_status.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.employment_status.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Employment Type</label>
+                                        {% render_field form.employment_type class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.employment_type.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.employment_type.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6">
+                                        <label class="block text-sm font-medium text-gray-700">Reporting To</label>
+                                        {% render_field form.reporting_to class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.reporting_to.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.reporting_to.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6">
+                                        <label class="block text-sm font-medium text-gray-700">Current Salary</label>
+                                        {% render_field form.current_salary class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.current_salary.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.current_salary.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Emergency Contact Information -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Emergency Contact</h3>
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Emergency Contact Name</label>
+                                        {% render_field form.emergency_contact_name class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.emergency_contact_name.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.emergency_contact_name.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Emergency Contact Number</label>
+                                        {% render_field form.emergency_contact_number class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                        {% if form.emergency_contact_number.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.emergency_contact_number.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Address -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Address</h3>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Residential Address</label>
+                                    {% render_field form.address class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %}
+                                    {% if form.address.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                            <div class="flex justify-end space-x-3">
+                                <a href="{% url 'employee_detail' employee.id %}" 
+                                   class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Cancel
+                                </a>
+                                <button type="submit" 
+                                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}{{ procedure_type.name }} - Procedure Type Details{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:type_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Types
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ procedure_type.name }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center h-12 w-12 rounded-full 
+                            {% if procedure_type.is_active %}bg-green-100{% else %}bg-gray-100{% endif %}">
+                            <i class="fas fa-layer-group text-xl 
+                                {% if procedure_type.is_active %}text-green-600{% else %}text-gray-600{% endif %}">
+                            </i>
+                        </span>
+                    </div>
+                    <div class="ml-4">
+                        <div class="flex items-center">
+                            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+                                {{ procedure_type.name }}
+                            </h2>
+                            <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if procedure_type.risk_level == 'HIGH' %}bg-red-100 text-red-800
+                                {% elif procedure_type.risk_level == 'MODERATE' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ procedure_type.get_risk_level_display }}
+                            </span>
+                        </div>
+                        <div class="mt-1 flex items-center text-sm text-gray-500">
+                            <span class="font-medium">Code:</span>
+                            <span class="ml-1">{{ procedure_type.code }}</span>
+                            <span class="mx-2">|</span>
+                            <span class="font-medium">Category:</span>
+                            <a href="{% url 'procedure_management:category_detail' procedure_type.category.id %}" 
+                               class="ml-1 text-indigo-600 hover:text-indigo-900">
+                                {{ procedure_type.category.name }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                <a href="{% url 'procedure_management:type_update' procedure_type.id %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit
+                </a>
+                <button type="button"
+                        data-modal-target="deleteModal-{{ procedure_type.id }}" 
+                        data-modal-toggle="deleteModal-{{ procedure_type.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700
+                               {% if procedures_count > 0 %}opacity-50 cursor-not-allowed{% endif %}"
+                        {% if procedures_count > 0 %}disabled{% endif %}>
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Basic Information -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+                <dl class="grid grid-cols-1 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Duration</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ procedure_type.duration_minutes }} minutes</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Recovery Time</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ procedure_type.recovery_time_minutes }} minutes</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Base Cost</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ procedure_type.base_cost|floatformat:2 }} USD</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Priority Level</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ procedure_type.get_priority_display }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Requirements -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Requirements</h3>
+                <dl class="grid grid-cols-1 gap-4">
+                    <div class="flex items-center">
+                        <dt class="text-sm font-medium text-gray-500 flex-1">Consent Required</dt>
+                        <dd class="text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if procedure_type.requires_consent %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ procedure_type.requires_consent|yesno:"Required,Not Required" }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="flex items-center">
+                        <dt class="text-sm font-medium text-gray-500 flex-1">Fasting Required</dt>
+                        <dd class="text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if procedure_type.requires_fasting %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ procedure_type.requires_fasting|yesno:"Required,Not Required" }}
+                            </span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Description -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Description</h3>
+                <div class="prose max-w-none">
+                    {{ procedure_type.description|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Statistics</h3>
+                <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="px-4 py-5 bg-gray-50 rounded-lg overflow-hidden">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Procedures</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">{{ procedures_count }}</dd>
+                    </div>
+                    <div class="px-4 py-5 bg-gray-50 rounded-lg overflow-hidden">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Checklist Templates</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">{{ checklist_templates.count }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Prerequisites List -->
+            <div class="lg:col-span-2 bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Prerequisites</h3>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    {% for prerequisite in prerequisites %}
+                    <li class="px-4 py-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-900">{{ prerequisite.name }}</h4>
+                                <p class="mt-1 text-sm text-gray-500">{{ prerequisite.description }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if prerequisite.is_mandatory %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ prerequisite.is_mandatory|yesno:"Mandatory,Optional" }}
+                            </span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="px-4 py-8 text-center text-gray-500">
+                        <i class="fas fa-clipboard-list text-4xl mb-4"></i>
+                        <p>No prerequisites defined</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Instructions -->
+            <div class="lg:col-span-2 bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Instructions</h3>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for instruction in instructions %}
+                    <div class="px-4 py-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-sm font-medium text-gray-900">{{ instruction.title }}</h4>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if instruction.instruction_type == 'PRE' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ instruction.get_instruction_type_display }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500">{{ instruction.description }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="px-4 py-8 text-center text-gray-500">
+                        <i class="fas fa-file-medical text-4xl mb-4"></i>
+                        <p>No instructions available</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% include './modals/delete.html' with procedure_type=procedure_type %}
+
+{% endblock %}

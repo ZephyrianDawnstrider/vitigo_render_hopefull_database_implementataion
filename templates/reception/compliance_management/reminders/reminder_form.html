@@ -1,0 +1,160 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Reminder{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:reminder_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Reminders
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{% if is_edit %}Edit{% else %}Create{% endif %} Reminder</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-semibold text-gray-900">
+                {% if is_edit %}Edit{% else %}Create{% endif %} Reminder
+            </h1>
+            <p class="mt-1 text-sm text-gray-600">
+                {% if is_edit %}
+                Update reminder details for {{ reminder.patient.get_full_name }}
+                {% else %}
+                Create a new reminder for a patient
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Reminder Information</h2>
+            </div>
+            <div class="px-6 py-4">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="rounded-md bg-red-50 p-4 mb-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">
+                                    There were errors with your submission
+                                </h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    {{ form.non_field_errors }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Patient Selection -->
+                        <div>
+                            {{ form.patient|as_crispy_field }}
+                            {% if form.patient.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.patient.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Reminder Type -->
+                        <div>
+                            {{ form.reminder_type|as_crispy_field }}
+                            {% if form.reminder_type.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.reminder_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Scheduled DateTime -->
+                        <div>
+                            {{ form.scheduled_datetime|as_crispy_field }}
+                            {% if form.scheduled_datetime.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.scheduled_datetime.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            {{ form.status|as_crispy_field }}
+                            {% if form.status.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Message -->
+                        <div class="md:col-span-2">
+                            {{ form.message|as_crispy_field }}
+                            {% if form.message.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.message.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-6 border-t">
+                        <a href="{% url 'compliance_management:reminder_list' %}" 
+                           class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            {% if is_edit %}Update{% else %}Create{% endif %} Reminder
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Initialize form elements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any custom form initialization here
+    });
+</script>
+{% endblock %}

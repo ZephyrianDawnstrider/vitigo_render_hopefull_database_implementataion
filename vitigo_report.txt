@@ -1,0 +1,1005 @@
+# Vitigo Report
+
+## access_control
+- **admin.py**: Configures the admin interface for managing access control models (Module, Role, ModulePermission).
+  - **Limitations**: No custom actions or validations are defined.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing roles and permissions.
+  - **Suggested Changes**: Consider adding custom actions for bulk updates or role management.
+
+- **models.py**: Defines the data models for access control, including Module, Role, and ModulePermission.
+  - **Limitations**: No validation on the `template_folder` field in the Role model.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing access control.
+  - **Suggested Changes**: Implement validation for the `template_folder` field to ensure it points to valid directories.
+
+- **permissions.py**: Manages permission checks for users regarding module access, modification, and deletion.
+  - **Limitations**: Does not cache permission checks, leading to potential performance issues.
+  - **Refers to**: ModulePermission and Role models.
+  - **Affects**: User access control throughout the application.
+  - **Suggested Changes**: Implement caching for permission checks to improve performance.
+
+- **tests.py**: Placeholder for unit tests related to access control.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for access control functionality.
+  - **Suggested Changes**: Add unit tests for all permission checks and role management functionalities.
+
+- **urls.py**: Defines URL routing for access control views.
+  - **Limitations**: No access control checks on the URL patterns themselves.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for access control functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **views.py**: Contains various views that manage access control functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in access control.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **utils.py**: Contains utility functions for access control.
+  - **Limitations**: Review utility functions for efficiency.
+  - **Refers to**: None.
+  - **Affects**: Functionality of access control.
+  - **Suggested Changes**: Enhance utility functions for better performance.
+
+- **management/**: Contains management commands for access control.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of access control functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the access control models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for access control.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templates/**: Contains templates for rendering views related to access control.
+  - **Limitations**: Ensure templates are well-structured and optimized.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: User interface for access control.
+  - **Suggested Changes**: Optimize templates for performance and usability.
+
+- **templatetags/**: Contains custom template tags for access control.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+## api Directory
+
+- **admin.py**: Configures the admin interface for managing API models.
+  - **Limitations**: No models registered yet.
+  - **Refers to**: None.
+  - **Affects**: Admin interface for API models.
+  - **Suggested Changes**: Register models for management in the admin interface.
+
+- **apps.py**: Configures the API application settings.
+  - **Limitations**: Currently, no models are registered, which means the admin interface will not manage any API-related models.
+ - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **custom_auth.py**: Defines custom token authentication logic.
+  - **Limitations**: Does not cache authentication results.
+  - **Refers to**: None.
+  - **Affects**: User authentication process.
+  - **Suggested Changes**: Register models for management in the admin interface to facilitate data management.
+
+- **models.py**: Placeholder for API models.
+  - **Limitations**: No models defined yet.
+  - **Refers to**: None.
+  - **Affects**: Data structure for the API.
+  - **Suggested Changes**: Define models for the API.
+
+- **permissions.py**: Manages permissions for accessing API resources.
+  - **Limitations**: Basic permission checks; could be expanded.
+  - **Refers to**: None.
+  - **Affects**: User access control.
+  - **Suggested Changes**: Enhance permission checks for more granular control.
+
+- **serializers.py**: Serializes data for API responses.
+  - **Limitations**: Some fields may require additional validation.
+  - **Refers to**: Models from other applications.
+  - **Affects**: Data representation in API responses.
+  - **Suggested Changes**: Implement additional validation logic.
+
+- **tests.py**: Placeholder for API tests.
+  - **Limitations**: No tests defined yet.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for API functionality.
+  - **Suggested Changes**: Add unit tests for API endpoints.
+
+- **urls.py**: Defines URL routing for API endpoints.
+  - **Functionality**: This file maps URL patterns to their corresponding views, allowing users to access different functionalities of the API through specific URLs.
+  - **Limitations**: No access control checks are implemented on sensitive endpoints, which could lead to unauthorized access.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns to enhance security.
+
+- **_views/authentication.py**: Handles user authentication and registration functionalities.
+  - **Functionality**: This file manages user registration, login, and role assignment. It ensures that users can create accounts, log in, and have their roles assigned appropriately.
+  - **Limitations**: Proper error handling and logging should be ensured to provide feedback during authentication processes.
+  - **Suggested Changes**: Improve error handling and logging to enhance user experience and debugging.
+
+- **views.py**: Contains various API views that manage patient, doctor, and query-related operations.
+  - **Functionality**: This file defines views for handling requests related to patients, doctors, and queries, including retrieving and updating data.
+  - **Limitations**: User permissions must be handled correctly to prevent unauthorized access to sensitive information.
+  - **Suggested Changes**: Optimize views for performance and security to ensure a smooth user experience.
+
+- **migrations/**: Contains migration files for the API models.
+  - **Functionality**: This directory is where migration files are stored, which are used to apply changes to the database schema based on model definitions.
+  - **Limitations**: No migration files are present, indicating that no migrations have been defined for API models.
+  - **Suggested Changes**: Regularly check for and apply migrations to keep the database schema in sync with the models.
+
+## appointment_management
+
+- **admin.py**: Configures the admin interface for managing appointments and reminders.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of appointments, time slots, and reminders through a graphical interface.
+  - **Limitations**: The admin interface may become cluttered; lacks custom actions for bulk operations.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing appointments and reminders.
+  - **Suggested Changes**: Consider adding custom actions for bulk updates or management.
+
+- **models.py**: Defines data models for managing appointments, time slots, and reminders.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of appointment-related data, including time slots, appointments, and reminders.
+  - **Limitations**: The `clean` method in the `Appointment` model could be more robust; reminder templates may require additional validation.
+  - **Refers to**: User model and other models defined in the same file.
+  - **Affects**: Data structure for managing appointments and reminders.
+  - **Suggested Changes**: Improve validation logic in the `clean` method and for reminder templates.
+
+- **urls.py**: Defines URL routing for appointment management views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for appointment management functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **views/appointments.py**: Contains views for managing appointments.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in appointment management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **views/calendar.py**: Contains the calendar view for managing appointment slots.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in appointment management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **views/timeslots.py**: Contains views for managing doctor time slots.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in appointment management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **tests.py**: Placeholder for unit tests related to appointment management.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for appointment management functionality.
+  - **Suggested Changes**: Add unit tests for all appointment management functionalities.
+
+- **forms.py**: Contains forms for creating and updating appointments and time slots.
+  - **Limitations**: Ensure validation is comprehensive.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: User input handling for appointment management.
+  - **Suggested Changes**: Improve validation logic in forms.
+
+- **utils.py**: Contains utility functions for appointment management.
+  - **Limitations**: Review utility functions for efficiency.
+  - **Refers to**: None.
+  - **Affects**: Functionality of appointment management.
+  - **Suggested Changes**: Enhance utility functions for better performance.
+
+- **migrations/**: Contains migration files for the appointment management models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for appointment management.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templatetags/**: Contains custom template tags for appointment management.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+## asset_management Directory
+
+- **admin.py**: Configures the admin interface for managing various asset-related models.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of asset categories, assets, maintenance schedules, and insurance policies through a graphical interface.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing assets.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines models for asset categories, assets, maintenance schedules, asset depreciation, asset audits, and insurance policies.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of asset-related data, including categories, individual assets, and their associated maintenance and insurance information.
+  - **Limitations**: Validation logic is present but could be improved in some areas.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing assets.
+  - **Suggested Changes**: Consider enhancing validation logic for certain fields.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for asset management functionality.
+  - **Suggested Changes**: Add unit tests for all asset management functionalities.
+
+- **urls.py**: Defines URL routing for asset management views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for asset management functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **views/assets.py**: Contains views for managing assets.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in asset management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **views/audits.py**: Contains views for managing asset audits.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in asset management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **views/dashboard.py**: Contains views for the asset management dashboard.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in asset management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **views/export.py**: Contains views for exporting asset data.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in asset management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **views/insurances.py**: Contains views for managing insurance policies for assets.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in asset management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **views/maintenance.py**: Contains views for managing maintenance schedules for assets.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in asset management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **migrations/**: Contains migration files for the asset management models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for asset management.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templatetags/**: Contains custom template tags for asset management.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+  
+## backups Directory
+
+- **settings/**: Contains backup settings configurations.
+  - **settings_backup_20241226_114413.json**: Contains a backup of various settings configurations, including categories, definitions, and system-wide settings.
+    - **Limitations**: Some sections are currently empty, indicating potential areas for future configuration.
+    - **Refers to**: None.
+    - **Affects**: Application settings and configurations.
+    - **Suggested Changes**: Consider populating the empty configuration sections as needed.
+
+## body_mapping Directory
+
+- **admin.py**: Configures the admin interface for managing various body mapping-related models.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of gender, body models, body views, and body regions through a graphical interface.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models/base.py` and `models/coordinates.py`.
+  - **Affects**: Admin interface for managing body mapping.
+  - **Suggested Changes**: None.
+
+- **models/base.py**: Defines models for gender, body views, and body models.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of body mapping data, including gender and body views.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for body mapping.
+  - **Suggested Changes**: None.
+
+- **models/coordinates.py**: Defines models for body images, coordinate groups, coordinates, and region measurements.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of coordinates and images related to body mapping.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for body mapping.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for body mapping functionality.
+  - **Suggested Changes**: Add unit tests for all body mapping functionalities.
+
+- **views.py**: Contains views for managing body mapping functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in body mapping.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **management/**: Contains management commands for body mapping.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of body mapping functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the body mapping models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models/base.py` and `models/coordinates.py`.
+  - **Affects**: Database schema for body mapping.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templatetags/**: Contains custom template tags for body mapping.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+## clinic_management Directory
+
+- **admin.py**: Configures the admin interface for managing various clinic visit-related models.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of visit statuses, clinic visits, checklists, and their items through a graphical interface.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing clinic visit-related functionalities.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines models for visit statuses, clinic visits, checklists, and related entities.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of clinic visit-related data, including schedules, notes, issues, metrics, reminders, reports, and alerts.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing clinic visit-related functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for clinic management functionality.
+  - **Suggested Changes**: Add unit tests for all clinic management functionalities.
+
+- **urls.py**: Defines URL routing for clinic management views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for clinic management functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **forms.py**: Contains forms for creating and updating clinic visit-related data.
+  - **Limitations**: Ensure validation is comprehensive.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: User input handling for clinic management.
+  - **Suggested Changes**: Improve validation logic in forms.
+
+- **utils.py**: Contains utility functions for clinic management.
+  - **Limitations**: Review utility functions for efficiency.
+  - **Refers to**: None.
+  - **Affects**: Functionality of clinic management.
+  - **Suggested Changes**: Enhance utility functions for better performance.
+
+- **management/**: Contains management commands for clinic management.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of clinic management functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the clinic management models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for clinic management.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templatetags/**: Contains custom template tags for clinic management.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+- **views/**: Contains views for managing clinic visit-related functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in clinic visit management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+## data_management Directory
+
+- **data_management Directory**: No files found.
+
+## compliance_management Directory
+- **admin.py**: Configures the admin interface for managing various compliance-related models.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing compliance-related functionalities.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines models for compliance schedules, notes, issues, metrics, reminders, reports, patient groups, and alerts.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing compliance-related functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for compliance management functionality.
+  - **Suggested Changes**: Add unit tests for all compliance management functionalities.
+
+## notification_management Directory
+
+- **No files found.**
+
+## report_management Directory
+
+- **No files found.**
+
+## research_management Directory
+
+- **admin.py**: Configures the admin interface for managing various research-related models.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of research studies, protocols, patient enrollments, data collection points, research data, analysis results, and publications through a graphical interface.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing research-related functionalities.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines models for research studies, protocols, patient enrollments, data collection points, research data, analysis results, and publications.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of research-related data, including studies, protocols, enrollments, data points, research data, analysis results, and publications.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing research-related functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for research management functionality.
+  - **Suggested Changes**: Add unit tests for all research management functionalities.
+
+- **urls.py**: Defines URL routing for research management views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for research management functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **views.py**: Contains views for managing research-related functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in research management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **management/**: Contains management commands for research management.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of research management functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the research management models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for research management.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templatetags/**: Contains custom template tags for research management.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+## user_management
+
+- **admin.py**: Configures the admin interface for managing user accounts.
+  - **Functionality**: This file registers the `CustomUser` model with the Django admin site, allowing for easy management of user accounts through a graphical interface.
+  - **Limitations**: None noted; all fields are well-defined.
+  - **Refers to**: `CustomUser` model defined in `models.py`.
+  - **Affects**: Admin interface for managing user functionalities.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines the `CustomUser` model and its associated manager.
+  - **Functionality**: This file contains the definitions for the user model, including custom fields and methods for user management.
+  - **Limitations**: None noted; all fields are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing user functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for user management functionality.
+  - **Suggested Changes**: Add unit tests for all user management functionalities.
+
+- **urls.py**: Defines URL routing for user management views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for user management functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **views.py**: Contains views for managing user functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in user management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **management/**: Contains management commands for user management.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of user management functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the user management models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for user management.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templatetags/**: Contains custom template tags for user management.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+## workflow_management Directory
+
+- **No files found.**
+
+## mobile_app_backend Directory
+     
+- **admin.py**: Configures the admin interface for managing mobile app-related models.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of mobile app functionalities through a graphical interface.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing mobile app functionalities.
+  - **Suggested Changes**: None.
+
+- **apps.py**: Configures the mobile app application settings.
+  - **Limitations**: None noted; all settings are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines models for mobile app functionalities.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of mobile app-related data.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing mobile app functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for mobile app functionalities.
+  - **Suggested Changes**: Add unit tests for all mobile app functionalities.
+
+- **views.py**: Contains views for managing mobile app functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in mobile app management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **migrations/**: Contains migration files for the mobile app models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for mobile app functionalities.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+## reporting_and_analytics Directory
+
+- **admin.py**: Configures the admin interface for managing reporting and analytics models.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of reporting and analytics functionalities through a graphical interface.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing reporting and analytics functionalities.
+  - **Suggested Changes**: None.
+
+- **apps.py**: Configures the reporting and analytics application settings.
+  - **Limitations**: None noted; all settings are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **forms.py**: Contains forms for creating and updating reporting-related data.
+  - **Limitations**: Ensure validation is comprehensive.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: User input handling for reporting functionalities.
+  - **Suggested Changes**: Improve validation logic in forms.
+
+- **models.py**: Defines models for reporting and analytics functionalities.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of reporting-related data.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing reporting and analytics functionalities.
+  - **Suggested Changes**: None.
+
+- **signals.py**: Contains signal handlers for reporting-related events.
+  - **Limitations**: Ensure signal handlers are efficient and well-documented.
+  - **Refers to**: None.
+  - **Affects**: Functionality of reporting-related events.
+  - **Suggested Changes**: Add documentation for signal handlers.
+
+- **tasks.py**: Contains background tasks related to reporting and analytics.
+  - **Limitations**: Ensure tasks are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Background processing for reporting functionalities.
+  - **Suggested Changes**: Add documentation and tests for tasks.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for reporting and analytics functionalities.
+  - **Suggested Changes**: Add unit tests for all reporting and analytics functionalities.
+
+- **urls.py**: Defines URL routing for reporting and analytics views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for reporting and analytics functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **management/**: Contains management commands for reporting and analytics.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of reporting and analytics functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the reporting and analytics models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for reporting and analytics.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **services/**: Contains services for generating reports.
+  - **Limitations**: Ensure services are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of report generation.
+  - **Suggested Changes**: Add documentation and tests for services.
+
+- **views/**: Contains views for managing reporting functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in reporting management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+## sandbox Directory
+
+- **admin.py**: Configures the admin interface for managing sandbox-related models.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of sandbox functionalities through a graphical interface.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing sandbox functionalities.
+  - **Suggested Changes**: None.
+
+- **apps.py**: Configures the sandbox application settings.
+  - **Limitations**: None noted; all settings are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines models for sandbox functionalities.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of sandbox-related data.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing sandbox functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for sandbox functionalities.
+  - **Suggested Changes**: Add unit tests for all sandbox functionalities.
+
+- **urls.py**: Defines URL routing for sandbox views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for sandbox functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **views.py**: Contains views for managing sandbox functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in sandbox management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **migrations/**: Contains migration files for the sandbox models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for sandbox functionalities.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+## settings Directory
+
+- **admin.py**: Configures the admin interface for managing settings-related models.
+  - **Functionality**: This file registers various models with the Django admin site, allowing for easy management of settings functionalities through a graphical interface.
+  - **Limitations**: None noted; all models are registered.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing settings functionalities.
+  - **Suggested Changes**: None.
+
+- **apps.py**: Configures the settings application settings.
+  - **Limitations**: None noted; all settings are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **forms.py**: Contains forms for creating and updating settings-related data.
+  - **Limitations**: Ensure validation is comprehensive.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: User input handling for settings functionalities.
+  - **Suggested Changes**: Improve validation logic in forms.
+
+- **models.py**: Defines models for settings functionalities.
+  - **Functionality**: This file contains the definitions for various models that represent the structure of settings-related data.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing settings functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for settings functionalities.
+  - **Suggested Changes**: Add unit tests for all settings functionalities.
+
+- **urls.py**: Defines URL routing for settings views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for settings functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **utils.py**: Contains utility functions for settings functionalities.
+  - **Limitations**: Review utility functions for efficiency.
+  - **Refers to**: None.
+  - **Affects**: Functionality of settings.
+  - **Suggested Changes**: Enhance utility functions for better performance.
+
+- **migrations/**: Contains migration files for the settings models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for settings functionalities.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templatetags/**: Contains custom template tags for settings functionalities.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+- **views/**: Contains views for managing settings functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in settings management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+## consultation_management Directory
+
+- **admin.py**: Configures the admin interface for managing consultations.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing consultations.
+  - **Suggested Changes**: None.
+
+- **apps.py**: Configures the consultation management application settings.
+  - **Limitations**: None noted; all settings are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **export_views.py**: Contains views for exporting consultation data.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: None.
+  - **Affects**: User experience in consultation management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **forms.py**: Contains forms for creating and updating consultations.
+  - **Limitations**: Ensure validation is comprehensive.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: User input handling for consultations.
+  - **Suggested Changes**: Improve validation logic in forms.
+
+- **models.py**: Defines models for managing consultations.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing consultations.
+  - **Suggested Changes**: None.
+
+- **prescription_views.py**: Contains views for managing prescriptions related to consultations.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: None.
+  - **Affects**: User experience in consultation management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for consultation management functionality.
+  - **Suggested Changes**: Add unit tests for all consultation management functionalities.
+
+- **urls.py**: Defines URL routing for consultation management views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for consultation management functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **utils.py**: Contains utility functions for consultation management.
+  - **Limitations**: Review utility functions for efficiency.
+  - **Refers to**: None.
+  - **Affects**: Functionality of consultation management.
+  - **Suggested Changes**: Enhance utility functions for better performance.
+
+- **management/**: Contains management commands for consultation management.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of consultation management functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the consultation management models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for consultation management.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templates/**: Contains templates for rendering views related to consultations.
+  - **Limitations**: Ensure templates are well-structured and optimized.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: User interface for consultation management.
+  - **Suggested Changes**: Optimize templates for performance and usability.
+
+- **templatetags/**: Contains custom template tags for consultation management.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+## dashboard Directory
+
+- **admin.py**: Configures the admin interface for managing dashboard-related models.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing dashboard functionalities.
+  - **Suggested Changes**: None.
+
+- **apps.py**: Configures the dashboard application settings.
+  - **Limitations**: None noted; all settings are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **exceptions.py**: Contains custom exceptions for dashboard functionalities.
+  - **Limitations**: Ensure exceptions are well-documented.
+  - **Refers to**: None.
+  - **Affects**: Error handling in dashboard functionalities.
+  - **Suggested Changes**: Add documentation for custom exceptions.
+
+- **models.py**: Defines models for dashboard functionalities.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing dashboard functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for dashboard functionalities.
+  - **Suggested Changes**: Add unit tests for all dashboard functionalities.
+
+- **urls.py**: Defines URL routing for dashboard views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for dashboard functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **utils.py**: Contains utility functions for dashboard functionalities.
+  - **Limitations**: Review utility functions for efficiency.
+  - **Refers to**: None.
+  - **Affects**: Functionality of dashboard.
+  - **Suggested Changes**: Enhance utility functions for better performance.
+
+- **migrations/**: Contains migration files for the dashboard models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for dashboard functionalities.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+## stock_management Directory
+
+- **admin.py**: Configures the admin interface for managing stock-related models.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing stock functionalities.
+  - **Suggested Changes**: None.
+
+- **apps.py**: Configures the stock management application settings.
+  - **Limitations**: None noted; all settings are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines models for managing stock functionalities.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing stock functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for stock management functionality.
+  - **Suggested Changes**: Add unit tests for all stock management functionalities.
+
+- **urls.py**: Defines URL routing for stock management views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for stock management functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **views.py**: Contains views for managing stock functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in stock management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **management/**: Contains management commands for stock management.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of stock management functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the stock management models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for stock management.
+  - **Suggested Changes**: Regularly check for and apply migrations.
+
+- **templatetags/**: Contains custom template tags for stock management.
+  - **Limitations**: Ensure tags are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Functionality of templates.
+  - **Suggested Changes**: Add documentation and tests for custom tags.
+
+  ## financial_management Directory
+
+- **admin.py**: Configures the admin interface for managing financial-related models.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Admin interface for managing financial functionalities.
+  - **Suggested Changes**: None.
+
+- **apps.py**: Configures the financial management application settings.
+  - **Limitations**: None noted; all settings are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Application configuration.
+  - **Suggested Changes**: None.
+
+- **models.py**: Defines models for managing financial functionalities.
+  - **Limitations**: None noted; all models are well-defined.
+  - **Refers to**: None.
+  - **Affects**: Data structure for managing financial functionalities.
+  - **Suggested Changes**: None.
+
+- **tests.py**: Placeholder for tests with no tests defined.
+  - **Limitations**: No tests defined.
+  - **Refers to**: None.
+  - **Affects**: Testing coverage for financial management functionality.
+  - **Suggested Changes**: Add unit tests for all financial management functionalities.
+
+- **urls.py**: Defines URL routing for financial management views.
+  - **Limitations**: No access control checks on sensitive endpoints; organization could be improved.
+  - **Refers to**: Views defined in `views.py`.
+  - **Affects**: Routing for financial management functionalities.
+  - **Suggested Changes**: Implement access control checks for sensitive URL patterns.
+
+- **views.py**: Contains views for managing financial functionalities.
+  - **Limitations**: Ensure user permissions are handled correctly.
+  - **Refers to**: Templates for rendering views.
+  - **Affects**: User experience in financial management.
+  - **Suggested Changes**: Optimize views for performance and security.
+
+- **management/**: Contains management commands for financial management.
+  - **Limitations**: Ensure commands are well-documented and tested.
+  - **Refers to**: None.
+  - **Affects**: Management of financial management functionalities.
+  - **Suggested Changes**: Add documentation and tests for management commands.
+
+- **migrations/**: Contains migration files for the financial management models.
+  - **Limitations**: Ensure migrations are up-to-date.
+  - **Refers to**: Models defined in `models.py`.
+  - **Affects**: Database schema for financial management.
+  - **Suggested Changes**: Regularly check for and apply migrations.

@@ -1,0 +1,15 @@
+
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Query Assignment Notification</h2>
+    <p>Query #{{ query.query_id }} has been assigned to you.</p>
+    <p><strong>Subject:</strong> {{ query.subject }}</p>
+    <p><strong>Description:</strong> {{ query.description }}</p>
+    <p><strong>Priority:</strong> {{ query.get_priority_display }}</p>
+    <p><strong>Status:</strong> {{ query.get_status_display }}</p>
+    <p><strong>Assigned By:</strong> {{ query.assigned_by.get_full_name }}</p>
+    <hr>
+    <p>Please review and take necessary action.</p>
+</body>
+</html>

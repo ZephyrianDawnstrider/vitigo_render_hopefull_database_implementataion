@@ -1,0 +1,90 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Payment Settings{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-white rounded-lg shadow-md">
+    <!-- Display messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-4 mb-2 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'settings:settings_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-cogs mr-2"></i>Settings</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Payment Settings</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Payment Settings</h1>
+        <p class="text-gray-600">Configure payment gateways and processing options</p>
+    </div>
+
+    <!-- Add New Payment Gateway Form -->
+    <div class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+            <i class="fas fa-plus-circle mr-2"></i>Add New Payment Gateway
+        </h3>
+        <form method="post" action="{% url 'settings:payment_settings' %}" class="bg-white p-6 rounded-lg shadow-sm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_payment_gateway">
+            {{ gateway_form|crispy }}
+            <div class="flex justify-end mt-6">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i>Save Gateway
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Existing Payment Gateways -->
+    <div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+            <i class="fas fa-credit-card mr-2"></i>Existing Payment Gateways
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for gateway in payment_gateways %}
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-lg font-medium text-gray-800">
+                        {{ gateway.name }}
+                    </h4>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm px-2 py-1 rounded-full {% if gateway.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ gateway.is_active|yesno:"Active,Inactive" }}
+                        </span>
+                        {% if gateway.is_default %}
+                        <span class="text-sm px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                            Default
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">Type: {{ gateway.get_gateway_type_display }}</p>
+                <div class="text-sm text-gray-500">
+                    <p>Environment: {{ gateway.get_environment_display }}</p>
+                    <p>Transaction Fee: {{ gateway.transaction_fee_percentage }}%</p>
+                    <p>Settlement Period: {{ gateway.settlement_period_days }} days</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full bg-gray-50 p-8 text-center rounded-lg">
+                <p class="text-gray-600">No payment gateways found. Add your first gateway above.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

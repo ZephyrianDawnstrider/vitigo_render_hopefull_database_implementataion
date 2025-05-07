@@ -1,0 +1,356 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    select[name="{{ form.patient.html_name }}"] {
+        height: auto !important;
+        min-height: 200px;
+    }
+    
+    select[name="{{ form.patient.html_name }}"] option {
+        padding: 8px 12px;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+</style>
+<style>
+    select[name="{{ form.doctor.html_name }}"] {
+        height: auto !important;
+        min-height: 200px;
+    }
+
+    select[name="{{ form.doctor.html_name }}"] option {
+        padding: 8px 12px;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="p-4 mt-14 sm:ml-64">
+    <div class="w-full">
+        <!-- Header -->
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Create New Appointment</h1>
+            <p class="mt-1 text-sm text-gray-600">Schedule a new appointment for a patient</p>
+        </div>
+
+        <!-- Appointment Form -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form method="post" id="appointmentForm" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Form Errors -->
+                {% if form.errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                Please correct the errors below.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display specific errors -->
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-2">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    {{ field.label }}: {{ error }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <!-- Non-field errors -->
+                {% for error in form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-2">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">
+                                {{ error }}
+                            </p>
+                        </div>
+                    </div>
+                    </div>
+                {% endfor %}
+                {% endif %}
+
+                <!-- Two Column Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Patient Selection -->
+                    <div>
+                        <label for="{{ form.patient.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Patient
+                        </label>
+                        <div class="relative">
+                            <input type="text" 
+                                id="patient-search" 
+                                placeholder="Search patient..." 
+                                class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                            <select name="{{ form.patient.html_name }}" 
+                                    id="{{ form.patient.auto_id }}"
+                                    size="5"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                                <option value="">Select a patient</option>
+                                {% for choice in form.patient %}
+                                    {{ choice }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if form.patient.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.patient.help_text }}</p>
+                        {% endif %}
+                        {% if form.patient.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.patient.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Doctor Selection -->
+                    <div>
+                        <label for="{{ form.doctor.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Doctor
+                        </label>
+                        <div class="relative">
+                            <input type="text" 
+                                id="doctor-search" 
+                                placeholder="Search doctor..." 
+                                class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                            <select name="{{ form.doctor.html_name }}" 
+                                    id="{{ form.doctor.auto_id }}"
+                                    size="5"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                                <option value="">Select a doctor</option>
+                                {% for choice in form.doctor %}
+                                    {{ choice }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if form.doctor.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.doctor.help_text }}</p>
+                        {% endif %}
+                        {% if form.doctor.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.doctor.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Appointment Type -->
+                    <div>
+                        {{ form.appointment_type|as_crispy_field }}
+                        {% if form.appointment_type.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.appointment_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Priority -->
+                    <div>
+                        {{ form.priority|as_crispy_field }}
+                        {% if form.priority.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.priority.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Date -->
+                    <div>
+                        {{ form.date|as_crispy_field }}
+                        {% if form.date.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    {{ form.notes|as_crispy_field }}
+                    {% if form.notes.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Timeslots -->
+                <div id="timeslotsContainer" class="mt-6">
+                    <h2 class="text-lg font-medium text-gray-700">Available Time Slots</h2>
+                    
+                    <!-- Helper text -->
+                    <div id="timeslotHelper" class="mt-2 text-sm text-gray-500">
+                        <p class="flex items-center">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Please select both a doctor and date to view available time slots
+                        </p>
+                        <ul class="mt-2 ml-6 list-disc text-gray-500">
+                            <li>Time slots are shown in 30-minute intervals</li>
+                            <li>Green slots indicate available times</li>
+                            <li>Gray slots are already booked</li>
+                        </ul>
+                    </div>
+
+                    <!-- Timeslots grid -->
+                    <div id="timeslots" class="grid grid-cols-2 gap-4 mt-4"></div>
+                </div>
+
+                <!-- Selected Slot -->
+                <input type="hidden" id="id_timeslot_id" name="timeslot_id">
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'appointment_dashboard' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none">
+                        Cancel
+                    </a>
+                    <button type="submit" id="submitAppointment" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none">
+                        Create Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const doctorField = document.querySelector('#id_doctor');
+        const dateField = document.querySelector('#id_date');
+        const timeslotsContainer = document.getElementById('timeslots');
+        const timeslotIdField = document.getElementById('id_timeslot_id');
+        const form = document.getElementById('appointmentForm');
+
+        // Clear selected timeslot when doctor or date changes
+        function clearSelectedTimeslot() {
+            timeslotIdField.value = '';
+            document.querySelectorAll('#timeslots div').forEach(div => {
+                div.classList.remove('border-2', 'border-blue-500');
+            });
+        }
+
+        async function fetchTimeSlots(doctorId, date) {
+            const url = `/appointments/doctor-timeslots/?user_id=${doctorId}&date=${date}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+
+                // Clear previous timeslots
+                timeslotsContainer.innerHTML = '';
+                clearSelectedTimeslot();
+
+                // Render timeslots
+                data.timeslots.forEach(slot => {
+                    const slotDiv = document.createElement('div');
+                    slotDiv.className = `p-2 rounded-md text-center cursor-pointer ${
+                        slot.is_available ? 'bg-green-200 hover:bg-green-300' : 'bg-red-200'
+                    }`;
+                    slotDiv.textContent = `${slot.start_time} - ${slot.end_time}`;
+                    
+                    if (slot.is_available) {
+                        slotDiv.addEventListener('click', () => {
+                            clearSelectedTimeslot();
+                            slotDiv.classList.add('border-2', 'border-blue-500');
+                            timeslotIdField.value = slot.id;
+                        });
+                    }
+                    
+                    timeslotsContainer.appendChild(slotDiv);
+                });
+            } catch (error) {
+                console.error('Error fetching timeslots:', error);
+                timeslotsContainer.innerHTML = '<p class="text-red-500">Error loading time slots</p>';
+            }
+        }
+
+        // Event listeners for doctor and date fields
+        doctorField.addEventListener('change', () => {
+            const doctorId = doctorField.value;
+            const date = dateField.value;
+            if (doctorId && date) {
+                fetchTimeSlots(doctorId, date);
+            }
+        });
+
+        dateField.addEventListener('change', () => {
+            const doctorId = doctorField.value;
+            const date = dateField.value;
+            if (doctorId && date) {
+                fetchTimeSlots(doctorId, date);
+            }
+        });
+
+        // Form validation
+        form.addEventListener('submit', (event) => {
+            if (!timeslotIdField.value) {
+                event.preventDefault();
+                alert('Please select a time slot');
+            }
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('patient-search');
+        const selectElement = document.getElementById('{{ form.patient.auto_id }}');
+        const originalOptions = Array.from(selectElement.options);
+    
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            // Reset options
+            selectElement.innerHTML = '';
+            
+            // Filter and add matching options
+            originalOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    selectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            // Add placeholder if no options found
+            if (selectElement.options.length === 0) {
+                const noResults = new Option('No patients found', '');
+                noResults.disabled = true;
+                selectElement.appendChild(noResults);
+            }
+        });
+    });
+</script>
+<script>
+    // Add doctor search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const doctorSearchInput = document.getElementById('doctor-search');
+        const doctorSelectElement = document.getElementById('{{ form.doctor.auto_id }}');
+        const originalDoctorOptions = Array.from(doctorSelectElement.options);
+    
+        doctorSearchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            // Reset options
+            doctorSelectElement.innerHTML = '';
+            
+            // Filter and add matching options
+            originalDoctorOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    doctorSelectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            // Add placeholder if no options found
+            if (doctorSelectElement.options.length === 0) {
+                const noResults = new Option('No doctors found', '');
+                noResults.disabled = true;
+                doctorSelectElement.appendChild(noResults);
+            }
+        });
+    });
+</script>
+{% endblock %}

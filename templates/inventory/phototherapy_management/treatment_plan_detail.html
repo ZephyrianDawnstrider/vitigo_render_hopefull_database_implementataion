@@ -1,0 +1,499 @@
+{% extends "../base.html" %}
+{% load static %}
+{% load payment_filters %}
+{% load math_filters %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600">
+                <i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a>
+            </li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'treatment_plan_list' %}" class="hover:text-blue-600">Treatment Plans</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Plan Details</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Treatment Plan Details</h1>
+            <p class="text-sm text-gray-600">Protocol: {{ plan.protocol.name }}</p>
+        </div>
+        <!-- Update the action buttons section -->
+        <div class="flex space-x-3">
+            <a href="{% url 'schedule_session' %}?plan={{ plan.id }}" 
+               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center">
+                <i class="fas fa-calendar-plus mr-2"></i>
+                Schedule Session
+            </a>
+            {% if plan.is_active %}
+                <button data-modal-target="deactivatePlanModal{{ plan.id }}" data-modal-toggle="deactivatePlanModal{{ plan.id }}"
+                        class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center">
+                    <i class="fas fa-ban mr-2"></i>
+                    Deactivate Plan
+                </button>
+            {% else %}
+                <button data-modal-target="activatePlanModal{{ plan.id }}" data-modal-toggle="activatePlanModal{{ plan.id }}"
+                        class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Activate Plan
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-4 gap-6">
+        <!-- Left Column - Plan Info, Sessions & Financial Summary (wider) -->
+        <div class="col-span-3 space-y-6">
+            <!-- Status Banner -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Plan Status</h3>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium 
+                        {% if plan.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        {{ plan.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Overall Progress</span>
+                        <span>{{ completion_percentage }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ completion_percentage }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Statistics Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <span class="text-sm text-gray-600 block">Sessions</span>
+                        <span class="text-xl font-semibold text-gray-800">{{ plan.sessions_completed }}/{{ plan.total_sessions_planned }}</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <span class="text-sm text-gray-600 block">Completed</span>
+                        <span class="text-xl font-semibold text-green-600">{{ completed_sessions_count }}</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <span class="text-sm text-gray-600 block">Missed</span>
+                        <span class="text-xl font-semibold text-red-600">{{ missed_sessions_count }}</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <span class="text-sm text-gray-600 block">Next Session</span>
+                        <span class="text-gray-800">
+                            {% if next_session %}
+                            {{ next_session.scheduled_date|date:"M d" }}
+                            {% else %}
+                            Not Scheduled
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sessions List -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Session History</h3>
+                {% if sessions %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dose</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for session in sessions %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ session.scheduled_date|date:"M d, Y" }}</div>
+                                    <div class="text-xs text-gray-500">{{ session.scheduled_time|time:"g:i A" }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                        {% if session.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                        {% elif session.status == 'SCHEDULED' %}bg-blue-100 text-blue-800
+                                        {% elif session.status == 'MISSED' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ session.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ session.actual_dose|default:"-" }} mJ/cm²
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ session.duration_seconds|default:"-" }}s
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="{% url 'session_detail' session.id %}" class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">No sessions recorded yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Financial Summary (Moved here from right column) -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Financial Summary</h3>
+                <div class="space-y-4">
+                    <!-- Payment Status Banner -->
+                    <div class="p-4 rounded-lg {% if plan.billing_status == 'PAID' %}bg-green-50 border border-green-200
+                        {% elif plan.billing_status == 'OVERDUE' %}bg-red-50 border border-red-200
+                        {% elif plan.billing_status == 'PARTIAL' %}bg-yellow-50 border border-yellow-200
+                        {% else %}bg-blue-50 border border-blue-200{% endif %}">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium {% if plan.billing_status == 'PAID' %}text-green-800
+                                    {% elif plan.billing_status == 'OVERDUE' %}text-red-800
+                                    {% elif plan.billing_status == 'PARTIAL' %}text-yellow-800
+                                    {% else %}text-blue-800{% endif %}">
+                                    Payment Status: {{ plan.get_billing_status_display }}
+                                </p>
+                                <p class="text-sm mt-1 {% if plan.billing_status == 'PAID' %}text-green-600
+                                    {% elif plan.billing_status == 'OVERDUE' %}text-red-600
+                                    {% elif plan.billing_status == 'PARTIAL' %}text-yellow-600
+                                    {% else %}text-blue-600{% endif %}">
+                                    {% if plan.billing_status == 'PAID' %}
+                                        Full payment received
+                                    {% elif plan.billing_status == 'OVERDUE' %}
+                                        Payment is overdue
+                                    {% elif plan.billing_status == 'PARTIAL' %}
+                                        Partial payment received
+                                    {% else %}
+                                        Payment pending
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-bold {% if plan.billing_status == 'PAID' %}text-green-600
+                                    {% elif plan.billing_status == 'OVERDUE' %}text-red-600
+                                    {% else %}text-gray-700{% endif %}">
+                                    ₹{{ plan.amount_paid }}/₹{{ plan.total_cost }}
+                                </p>
+                                <p class="text-sm text-gray-600">
+                                    {{ plan.get_payment_percentage }}% paid
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Plan Details -->
+                    <div class="border rounded-lg p-4">
+                        <h4 class="font-medium text-gray-800 mb-3">Payment Plan</h4>
+                        <div class="space-y-3">
+                            {% with latest_payment=payments.first %}
+                            {% if latest_payment and latest_payment.is_installment %}
+                                <!-- Installment Plan -->
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-600">Total Installments:</p>
+                                        <p class="font-medium">{{ latest_payment.total_installments }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Current Installment:</p>
+                                        <p class="font-medium">{{ latest_payment.installment_number }}/{{ latest_payment.total_installments }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Per Installment:</p>
+                                        <p class="font-medium">₹{{ plan.total_cost|divide:latest_payment.total_installments }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Next Due:</p>
+                                        <p class="font-medium">
+                                            {% if plan.billing_status != 'PAID' %}
+                                                {{ latest_payment.payment_date|add_days:30|date:"M d, Y" }}
+                                            {% else %}
+                                                No pending payments
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% elif plan.payments.filter.payment_type == 'PER_SESSION' %}
+                                <!-- Per Session Payment -->
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-600">Amount per Session:</p>
+                                        <p class="font-medium">₹{{ plan.total_cost|divide:plan.total_sessions_planned }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Sessions Paid:</p>
+                                        <p class="font-medium">{{ plan.payments.completed.count }}/{{ plan.total_sessions_planned }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Next Payment Due:</p>
+                                        <p class="font-medium">
+                                            {% if next_session %}
+                                                {{ next_session.scheduled_date|date:"M d, Y" }}
+                                            {% else %}
+                                                No upcoming sessions
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <!-- Full or Partial Payment -->
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-600">Total Amount:</p>
+                                        <p class="font-medium">₹{{ plan.total_cost }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Amount Paid:</p>
+                                        <p class="font-medium text-green-600">₹{{ plan.amount_paid }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Balance:</p>
+                                        <p class="font-medium text-red-600">₹{{ remaining_balance }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Due Date:</p>
+                                        <p class="font-medium">
+                                            {% if plan.billing_status != 'PAID' %}
+                                                {{ plan.start_date|add_days:7|date:"M d, Y" }}
+                                            {% else %}
+                                                Fully Paid
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+
+                    <!-- Payment History Table -->
+                    <div class="mt-4 pt-4 border-t">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Payment History</h4>
+                        {% if payments %}
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Receipt</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        {% for payment in payments %}
+                                        <tr>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">{{ payment.payment_date|date:"M d, Y" }}</div>
+                                                <div class="text-xs text-gray-500">{{ payment.payment_date|time:"g:i A" }}</div>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">₹{{ payment.amount }}</div>
+                                                {% if payment.is_installment %}
+                                                <div class="text-xs text-blue-600">
+                                                    Installment {{ payment.installment_number }}/{{ payment.total_installments }}
+                                                </div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <span class="text-sm text-gray-900">{{ payment.get_payment_type_display }}</span>
+                                                {% if payment.session %}
+                                                <div class="text-xs text-blue-600">Session #{{ payment.session.session_number }}</div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <span class="text-sm text-gray-900">{{ payment.get_payment_method_display }}</span>
+                                                {% if payment.transaction_id %}
+                                                <div class="text-xs text-gray-500">ID: {{ payment.transaction_id }}</div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                    {% if payment.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                                    {% elif payment.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                                    {% elif payment.status == 'FAILED' %}bg-red-100 text-red-800
+                                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                                    {{ payment.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-blue-600">
+                                                {% if payment.receipt_number %}
+                                                <a href="#" class="hover:text-blue-800">
+                                                    <i class="fas fa-receipt mr-1"></i>
+                                                    {{ payment.receipt_number }}
+                                                </a>
+                                                {% else %}
+                                                <span class="text-gray-400">No receipt</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-sm text-gray-500">No payments recorded</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Patient Info & Protocol Details (narrower) -->
+        <div class="space-y-6">
+            <!-- Patient Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Patient Information</h3>
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-400 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">{{ plan.patient.get_full_name }}</h4>
+                        <p class="text-sm text-gray-600">{{ plan.patient.email }}</p>
+                    </div>
+                </div>
+                {% if plan.rfid_card %}
+                <div class="mt-4 pt-4 border-t">
+                    <p class="text-sm text-gray-600">RFID Card Number:</p>
+                    <p class="text-gray-800 font-medium">{{ plan.rfid_card.card_number }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Center Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Treatment Center</h3>
+                {% if plan.center %}
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="font-medium text-gray-800">{{ plan.center.name }}</h4>
+                            <p class="text-sm text-gray-600">{{ plan.center.address }}</p>
+                        </div>
+                        <div class="pt-2 border-t">
+                            <p class="text-sm text-gray-600 mb-1">Contact Information:</p>
+                            <p class="text-gray-800">{{ plan.center.contact_number }}</p>
+                            {% if plan.center.email %}
+                                <p class="text-gray-800">{{ plan.center.email }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="pt-2 border-t">
+                            <p class="text-sm text-gray-600 mb-1">Operating Hours:</p>
+                            <p class="text-gray-800 whitespace-pre-line">{{ plan.center.operating_hours }}</p>
+                        </div>
+                        <div class="pt-2 border-t">
+                            <p class="text-sm text-gray-600 mb-1">Available Devices:</p>
+                            <p class="text-gray-800">{{ plan.center.get_available_device_count }} active devices</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center">No center assigned</p>
+                {% endif %}
+            </div>
+
+            <!-- Progress History -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Progress History</h3>
+                {% if progress_records %}
+                    <div class="space-y-4">
+                        {% for record in progress_records %}
+                        <div class="border rounded-lg p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-sm text-gray-600">{{ record.assessment_date|date:"M d, Y" }}</span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                    {% if record.response_level == 'EXCELLENT' %}bg-green-100 text-green-800
+                                    {% elif record.response_level == 'GOOD' %}bg-blue-100 text-blue-800
+                                    {% elif record.response_level == 'MODERATE' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ record.get_response_level_display }}
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="flex-grow">
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" 
+                                             style="width: {{ record.improvement_percentage }}%">
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">
+                                    {{ record.improvement_percentage }}% improvement
+                                </span>
+                            </div>
+                            {% if record.notes %}
+                            <p class="text-sm text-gray-600">{{ record.notes }}</p>
+                            {% endif %}
+                            {% if record.next_assessment_date %}
+                            <div class="mt-2 text-xs text-gray-500">
+                                Next Assessment: {{ record.next_assessment_date|date:"M d, Y" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">No progress records available</p>
+                {% endif %}
+            </div>
+
+            <!-- Treatment Protocol Details -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Protocol Details</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Frequency</p>
+                        <p class="text-gray-800 font-medium">{{ plan.protocol.frequency_per_week }} sessions/week</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Duration</p>
+                        <p class="text-gray-800 font-medium">{{ plan.protocol.duration_weeks }} weeks</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Initial Dose</p>
+                        <p class="text-gray-800 font-medium">{{ plan.protocol.initial_dose }} mJ/cm²</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Maximum Dose</p>
+                        <p class="text-gray-800 font-medium">{{ plan.protocol.max_dose }} mJ/cm²</p>
+                    </div>
+                </div>
+                {% if plan.special_instructions %}
+                <div class="mt-4 pt-4 border-t">
+                    <p class="text-sm text-gray-600 mb-2">Special Instructions</p>
+                    <p class="text-gray-800">{{ plan.special_instructions }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include './treatment_plan/activate_plan.html' %}
+{% include './treatment_plan/deactivate_plan.html' %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any JavaScript functionality here
+        console.log('Treatment plan detail page loaded');
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

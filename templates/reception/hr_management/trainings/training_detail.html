@@ -1,0 +1,185 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Training Details{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'training_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Training Programs</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ training.title }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'training_list' %}" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+                        <i class="mr-2 fas fa-arrow-left"></i> Back
+                    </a>
+                    {% if training.status == 'PLANNED' %}
+                    <a href="#" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+                        <i class="mr-2 fas fa-edit"></i> Edit
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Training Details -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Basic Information -->
+                    <div class="lg:col-span-2">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ training.title }}</h2>
+                        <p class="text-gray-600 mb-4">{{ training.description }}</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Trainer</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ training.trainer }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Location</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ training.location }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Start Date</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ training.start_date|date:"M d, Y" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">End Date</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ training.end_date|date:"M d, Y" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Status</p>
+                                <span class="mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if training.status == 'PLANNED' %}bg-yellow-100 text-yellow-800
+                                    {% elif training.status == 'IN_PROGRESS' %}bg-blue-100 text-blue-800
+                                    {% elif training.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ training.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Participants Summary -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Participants Summary</h3>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total Participants</p>
+                                <p class="mt-1 text-lg font-semibold text-gray-900">{{ total_participants }}/{{ training.max_participants }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Spots Available</p>
+                                <p class="mt-1 text-lg font-semibold text-gray-900">{{ spots_available }}</p>
+                            </div>
+                            {% if training.materials %}
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Training Materials</p>
+                                <a href="{{ training.materials.url }}" target="_blank" class="mt-1 inline-flex items-center text-sm text-blue-600 hover:text-blue-500">
+                                    <i class="mr-2 fas fa-download"></i> Download Materials
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Participants List -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Participants</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrollment Date</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completion</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for participant in participants %}
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">{{ participant.employee.user.get_full_name }}</div>
+                                            <div class="text-sm text-gray-500">{{ participant.employee.employee_id }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ participant.employee.department.name }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                {% if participant.status == 'ENROLLED' %}bg-yellow-100 text-yellow-800
+                                                {% elif participant.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                                {% elif participant.status == 'DROPPED' %}bg-red-100 text-red-800
+                                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                                {{ participant.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ participant.enrollment_date|date:"M d, Y" }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            {% if participant.status == 'COMPLETED' %}
+                                                <div class="text-sm text-gray-900">
+                                                    <div>Score: {{ participant.score|default:"N/A" }}</div>
+                                                    <div>Attendance: {{ participant.attendance|default:"N/A" }}%</div>
+                                                </div>
+                                            {% else %}
+                                                <div class="text-sm text-gray-500">Not completed</div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                            No participants enrolled in this training program yet
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

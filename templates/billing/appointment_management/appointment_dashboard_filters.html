@@ -1,0 +1,97 @@
+<!-- Filters and Search -->
+<div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <form method="GET" class="space-y-4">
+        <!-- First Row of Filters -->
+        <div class="flex flex-wrap items-center gap-4">
+            <!-- Doctor Filter -->
+            <select name="doctor" 
+                    onchange="this.form.submit()" 
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                <option value="">All Doctors</option>
+                {% for doctor in doctors %}
+                <option value="{{ doctor.id }}" {% if current_filters.doctor == doctor.id|stringformat:"i" %}selected{% endif %}>
+                    Dr. {{ doctor.get_full_name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Patient Filter -->
+            <select name="patient" 
+                    onchange="this.form.submit()" 
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                <option value="">All Patients</option>
+                {% for patient in patients %}
+                <option value="{{ patient.id }}" {% if current_filters.patient == patient.id|stringformat:"i" %}selected{% endif %}>
+                    {{ patient.get_full_name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Date Filter -->
+            <input type="date" 
+                   name="date" 
+                   value="{{ current_filters.date }}"
+                   onchange="this.form.submit()"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+
+            <!-- Search -->
+            <div class="relative flex-grow max-w-md">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input type="text" 
+                       name="search" 
+                       value="{{ current_filters.search }}"
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" 
+                       placeholder="Search appointments...">
+            </div>
+        </div>
+
+        <!-- Second Row of Filters -->
+        <div class="flex flex-wrap items-center gap-4">
+            <!-- Priority Filter -->
+            <select name="priority" 
+                    onchange="this.form.submit()" 
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                <option value="">All Priorities</option>
+                {% for value, label in priority_choices %}
+                <option value="{{ value }}" {% if current_filters.priority == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Status Filter -->
+            <select name="status" 
+                    onchange="this.form.submit()" 
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Appointment Type Filter -->
+            <select name="appointment_type" 
+                    onchange="this.form.submit()" 
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                <option value="">All Types</option>
+                {% for value, label in appointment_type_choices %}
+                <option value="{{ value }}" {% if current_filters.appointment_type == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+
+            {% if current_filters.priority or current_filters.status or current_filters.date or current_filters.doctor or current_filters.patient or current_filters.appointment_type or current_filters.search %}
+            <a href="{% url 'appointment_dashboard' %}" 
+               class="inline-flex items-center text-sm text-red-600 hover:text-red-800">
+                <i class="fas fa-times-circle mr-1"></i>
+                Clear Filters
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</div>

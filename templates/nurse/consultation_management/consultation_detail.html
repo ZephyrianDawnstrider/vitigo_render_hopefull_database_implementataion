@@ -1,0 +1,678 @@
+{% extends "../base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'consultation_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-stethoscope mr-2"></i>Consultations</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Consultation Details</li>
+        </ol>
+    </nav>
+
+    {% include './consultation_detail/status_banner.html' %}
+
+    <!-- Main Content Grid - Updated to match appointment layout -->
+    <div class="grid grid-cols-3 gap-6">
+        <!-- Left Column - Main Information -->
+        <div class="col-span-2 space-y-6">
+            <!-- Basic Information Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                    Consultation Information
+                </h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Date & Time</label>
+                        <p class="font-medium text-gray-800">{{ consultation.scheduled_datetime|date:"l, F d, Y g:i A" }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Type</label>
+                        <span class="px-3 py-1 text-sm font-semibold rounded-full inline-block
+                            {% if consultation.consultation_type == 'INITIAL' %}bg-blue-100 text-blue-800
+                            {% elif consultation.consultation_type == 'FOLLOW_UP' %}bg-green-100 text-green-800
+                            {% else %}bg-purple-100 text-purple-800{% endif %}">
+                            {{ consultation.get_consultation_type_display }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Priority</label>
+                        <span class="px-3 py-1 text-sm font-semibold rounded-full inline-block
+                            {% if consultation.priority == 'A' %}bg-blue-100 text-blue-800
+                            {% elif consultation.priority == 'B' %}bg-green-100 text-green-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            Priority {{ consultation.get_priority_display }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Duration</label>
+                        <p class="font-medium text-gray-800">{{ consultation.duration_minutes }} minutes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Information Cards -->
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Patient Information Card -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-user text-blue-500 mr-2"></i>
+                        Patient Information
+                    </h3>
+                    <a href="{% url 'user_detail' user_id=consultation.patient.id %}">
+                        <div class="flex items-center space-x-4 mb-4">
+                            {% if consultation.patient.profile_picture %}
+                                <img src="{{ consultation.patient.profile_picture.url }}" alt="Patient" class="w-16 h-16 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-400 text-2xl"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h4 class="font-medium text-gray-800">{{ consultation.patient.first_name }} {{ consultation.patient.last_name }}</h4>
+                                <p class="text-sm text-gray-600">{{ consultation.patient.email }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-600 block mb-1">Phone</label>
+                            <p class="font-medium text-gray-800">{{ consultation.patient.phone_number }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-600 block mb-1">Gender</label>
+                            <p class="font-medium text-gray-800">{{ consultation.patient.get_gender_display }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctor Information Card -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-user-md text-blue-500 mr-2"></i>
+                        Doctor Information
+                    </h3>
+                    <a href="{% url 'user_detail' user_id=consultation.doctor.id %}">
+                        <div class="flex items-center space-x-4 mb-4">
+                            {% if consultation.doctor.profile_picture %}
+                                <img src="{{ consultation.doctor.profile_picture.url }}" alt="Doctor" class="w-16 h-16 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-user-md text-gray-400 text-2xl"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h4 class="font-medium text-gray-800">Dr. {{ consultation.doctor.first_name }} {{ consultation.doctor.last_name }}</h4>
+                                <p class="text-sm text-gray-600">{{ consultation.doctor.email }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-600 block mb-1">Phone</label>
+                            <p class="font-medium text-gray-800">{{ consultation.doctor.phone_number }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-600 block mb-1">Gender</label>
+                            <p class="font-medium text-gray-800">{{ consultation.doctor.get_gender_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clinical Information - Updated styling -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-notes-medical text-blue-500 mr-2"></i>
+                        Clinical Information
+                    </h3>
+                    <button data-modal-target="clinicalInfoModal" 
+                            data-modal-toggle="clinicalInfoModal"
+                            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                        <i class="fas fa-edit mr-2"></i>Update Details
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    {% if consultation.vitals %}
+                    <div class="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                        {% for key, value in consultation.vitals.items %}
+                        <div>
+                            <label class="text-sm text-gray-600">{{ key|title }}</label>
+                            <p class="font-medium text-gray-900">{{ value }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Chief Complaint & Symptoms -->
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-700 mb-2">Chief Complaint</h3>
+                            <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                                {{ consultation.chief_complaint|default:"Not provided" }}
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-700 mb-2">Symptoms</h3>
+                            <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                                {{ consultation.symptoms|default:"Not recorded" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Diagnosis & Clinical Notes -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Diagnosis</h3>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.diagnosis|default:"Pending diagnosis" }}
+                        </p>
+                    </div>
+
+                    {% if request.user.role.name == 'DOCTOR' and consultation.private_notes %}
+                    <div class="border-t pt-4">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Doctor's Private Notes</h3>
+                        <div class="bg-yellow-50 p-3 rounded">
+                            {{ consultation.private_notes.clinical_observations|default:"No private notes" }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Patient Instructions Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>
+                        Patient Instructions
+                    </h3>
+                    <button data-modal-target="patientInstructionsModal" 
+                            data-modal-toggle="patientInstructionsModal"
+                            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                        <i class="fas fa-edit mr-2"></i>Update Instructions
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <!-- General Instructions -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">General Instructions</h4>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.patient_instructions|default:"No general instructions provided" }}
+                        </p>
+                    </div>
+
+                    <!-- Lifestyle Instructions -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Lifestyle & Dietary Instructions</h4>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.lifestyle_instructions|default:"No lifestyle instructions provided" }}
+                        </p>
+                    </div>
+
+                    <!-- Care Instructions -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Care & Precautions</h4>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.care_instructions|default:"No care instructions provided" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor's Notes Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-user-md text-blue-500 mr-2"></i>
+                        Doctor's Notes
+                    </h3>
+                    {% if request.user.role.name == 'DOCTOR' or request.user.role.name == 'ADMINISTRATOR' %}
+                    <button data-modal-target="doctorNotesModal" 
+                            data-modal-toggle="doctorNotesModal"
+                            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                        <i class="fas fa-edit mr-2"></i>Update Notes
+                    </button>
+                    {% endif %}
+                </div>
+                
+                {% if consultation.private_notes %}
+                <div class="space-y-4">
+                    <!-- Clinical Observations -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">
+                            Clinical Observations
+                            {% if consultation.private_notes.updated_at %}
+                            <span class="text-xs text-gray-500 ml-2">
+                                Last updated: {{ consultation.private_notes.updated_at|date:"M d, Y H:i" }}
+                            </span>
+                            {% endif %}
+                        </h4>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.private_notes.clinical_observations|default:"No observations recorded" }}
+                        </p>
+                    </div>
+                    <!-- Differential Diagnosis -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Differential Diagnosis</h4>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.private_notes.differential_diagnosis|default:"No differential diagnosis recorded" }}
+                        </p>
+                    </div>
+
+                    <!-- Treatment Rationale -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Treatment Rationale</h4>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.private_notes.treatment_rationale|default:"No treatment rationale recorded" }}
+                        </p>
+                    </div>
+
+                    <!-- Private Remarks -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Private Remarks</h4>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.private_notes.private_remarks|default:"No private remarks recorded" }}
+                        </p>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">No doctor's notes available</p>
+                {% endif %}
+            </div>
+
+            <!-- Prescriptions Section - Updated styling -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                      <i class="fas fa-prescription text-blue-500 mr-2"></i>
+                      Prescriptions
+                    </h3>
+                    <div class="flex space-x-2">
+                      <button data-modal-target="prescriptionModal" 
+                              data-modal-toggle="prescriptionModal"
+                              data-consultation-id="{{ consultation.id }}"
+                              class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                          <i class="fas fa-plus mr-2"></i>New Prescription
+                      </button>
+                      <button data-modal-target="templateModal" 
+                              data-modal-toggle="templateModal"
+                              class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                          <i class="fas fa-copy mr-2"></i>Use Template
+                      </button>
+                    </div>
+                  </div>
+                
+                {% if prescriptions %}
+                    <div class="mb-6">
+                        {% for prescription in prescriptions %}
+                            <div class="bg-gray-50 p-4 rounded mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-medium">Prescription #{{ forloop.counter }}</h3>
+                                    <div class="flex space-x-2">
+                                        <button data-modal-target="editPrescriptionModal{{ prescription.id }}" 
+                                                data-modal-toggle="editPrescriptionModal{{ prescription.id }}"
+                                                class="text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button data-modal-target="deletePrescriptionModal{{ prescription.id }}" 
+                                                data-modal-toggle="deletePrescriptionModal{{ prescription.id }}"
+                                                class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full">
+                                        <thead>
+                                            <tr>
+                                            {% for item in prescription.items.all %}
+                                                <tr>
+                                                    <td>{{ item.medication.name }}</td>
+                                                    <td>{{ item.dosage }}</td>
+                                                    <td>{{ item.frequency }}</td>
+                                                    <td>{{ item.duration }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">No prescriptions added yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Treatment Plan Section - Updated styling -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>
+                        Treatment Plan
+                    </h3>
+                    <button data-modal-target="treatmentPlanModal" 
+                            data-modal-toggle="treatmentPlanModal"
+                            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                        <i class="fas fa-edit mr-2"></i>Update Plan
+                    </button>
+                </div>
+                
+                {% if consultation.treatment_plan %}
+                    <div class="mb-6">
+                        <div class="bg-gray-50 p-4 rounded">
+                            <p><strong>Duration:</strong> {{ consultation.treatment_plan.duration_weeks }} weeks</p>
+                            <p><strong>Description:</strong> {{ consultation.treatment_plan.description }}</p>
+                            {% if treatment_plan_items %}
+                                <h3 class="font-medium mt-4 mb-2">Treatment Items</h3>
+                                <ul class="list-disc pl-5">
+                                    {% for item in treatment_plan_items %}
+                                        <li>{{ item.name }} - {{ item.description }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">No treatment plan created yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Phototherapy Section - Updated with informative messages -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-sun text-blue-500 mr-2"></i>
+                        Phototherapy Sessions
+                    </h3>
+                    {% if active_phototherapy_plan %}
+                    <a href="{% url 'schedule_session' %}?plan_id={{ active_phototherapy_plan.id }}" 
+                       class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                        <i class="fas fa-plus mr-2"></i>Schedule Session
+                    </a>
+                    {% endif %}
+                </div>
+                
+                {% if active_phototherapy_plan %}
+                    <div class="mb-4">
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700">
+                                        Active phototherapy plan found. Protocol: {{ active_phototherapy_plan.protocol.name }}
+                                    </p>
+                                    <p class="mt-2 text-sm">
+                                        <a href="{% url 'phototherapy_management' %}?plan_id={{ active_phototherapy_plan.id }}" 
+                                           class="text-blue-600 hover:text-blue-800 font-medium">
+                                            View Complete Plan Details →
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if phototherapy_sessions %}
+                        <div class="space-y-4">
+                            {% for session in phototherapy_sessions %}
+                            <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="font-medium text-gray-900">
+                                        Session #{{ forloop.counter }}
+                                    </p>
+                                    <p class="text-sm text-gray-600">
+                                        {{ session.schedule|date:"M d, Y g:i A" }}
+                                    </p>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="px-3 py-1 text-sm rounded-full 
+                                        {% if session.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                        {% elif session.status == 'SCHEDULED' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ session.get_status_display }}
+                                    </span>
+                                    <a href="{% url 'session_detail' session_id=session.id %}" 
+                                       class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">No sessions scheduled yet for the current plan</p>
+                    {% endif %}
+
+                {% else %}
+                    <div class="text-center py-6">
+                        {% if has_previous_plans %}
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-yellow-700">
+                                            Patient has previous phototherapy plans but no active plan.
+                                        </p>
+                                        <p class="mt-2 text-sm">
+                                            <a href="{% url 'phototherapy_management' %}?patient_id={{ consultation.patient.id }}" 
+                                               class="text-yellow-600 hover:text-yellow-800 font-medium">
+                                                View Previous Plans →
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <i class="fas fa-clipboard-list text-gray-400 text-4xl mb-3"></i>
+                        <p class="text-gray-600 mb-4">No active phototherapy plan found for this patient</p>
+                        <a href="{% url 'new_treatment_plan' %}?patient_id={{ consultation.patient.id }}&consultation_id={{ consultation.id }}" 
+                           class="inline-flex items-center px-4 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Create New Phototherapy Plan
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Right Column - Additional Information -->
+        <div class="space-y-6">
+            <!-- Staff Instructions - Updated styling -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-clipboard-check text-blue-500 mr-2"></i>
+                        Staff Instructions
+                    </h3>
+                    {% if can_edit %}
+                    <button data-modal-target="staffInstructionsModal" 
+                            data-modal-toggle="staffInstructionsModal"
+                            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                        <i class="fas fa-edit mr-2"></i>Edit
+                    </button>
+                    {% endif %}
+                </div>
+                
+                {% if consultation.staff_instructions %}
+                <div class="space-y-4">
+                    {% if consultation.staff_instructions.pre_consultation %}
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Pre-Consultation</h3>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.staff_instructions.pre_consultation }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if consultation.staff_instructions.during_consultation %}
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">During Consultation</h3>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.staff_instructions.during_consultation }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if consultation.staff_instructions.post_consultation %}
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Post-Consultation</h3>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded">
+                            {{ consultation.staff_instructions.post_consultation }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">No staff instructions added</p>
+                {% endif %}
+            </div>
+
+            <!-- Previous Consultations - Updated styling -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-history text-blue-500 mr-2"></i>
+                    Previous Consultations
+                </h3>
+                {% if previous_consultations %}
+                    <div class="space-y-4">
+                        {% for prev_consult in previous_consultations %}
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <p class="font-medium">{{ prev_consult.scheduled_datetime|date:"M d, Y" }}</p>
+                                    <span class="px-3 py-1 text-sm rounded-full 
+                                        {% if prev_consult.priority == 'A' %}bg-blue-100 text-blue-800
+                                        {% elif prev_consult.priority == 'B' %}bg-green-100 text-green-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        Priority {{ prev_consult.get_priority_display }}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600">{{ prev_consult.diagnosis|default:"No diagnosis recorded" }}</p>
+                                <div class="mt-2">
+                                    <a href="{% url 'consultation_detail' pk=prev_consult.id %}" 
+                                       class="text-blue-600 hover:text-blue-800 text-sm">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">No previous consultations found</p>
+                {% endif %}
+            </div>
+
+            <!-- Consultation Timeline - Updated styling -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-clock text-blue-500 mr-2"></i>
+                    Consultation Timeline
+                </h3>
+                {% if consultation_history %}
+                    <div class="space-y-4">
+                        {% for event in consultation_history %}
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-blue-500"></div>
+                                <div>
+                                    <p class="text-sm text-gray-600">{{ event.timestamp|date:"M d, Y H:i" }}</p>
+                                    <p class="text-gray-900">{{ event.description }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">No history available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_content %}
+
+{% include './consultation_detail/status_update_modals.html' %}
+{% include './consultation_detail/staff_instructions_modal.html' %}
+{% include './consultation_detail/prescription_modals.html' %}
+{% include './consultation_detail/clinic_information_modal.html' %}
+{% include './consultation_detail/doctor_notes_modal.html' %}
+{% include './consultation_detail/patient_instructions_modal.html' %}
+{% include './consultation_detail/treatment_plan_modal.html' %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Common function for adding medication fields
+    function initializeMedicationControls(container, addButton) {
+        if (!container || !addButton) return;
+        
+        addButton.addEventListener('click', function() {
+            const template = container.children[0].cloneNode(true);
+            // Clear input values
+            template.querySelectorAll('input').forEach(input => input.value = '');
+            template.querySelector('select').selectedIndex = 0;
+            
+            // Show remove button
+            const removeBtn = template.querySelector('.remove-medication');
+            if (removeBtn) removeBtn.style.display = 'block';
+            
+            container.appendChild(template);
+        });
+        
+        // Handle remove medication buttons
+        container.addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-medication');
+            if (removeBtn && container.children.length > 1) {
+                removeBtn.closest('.medication-item').remove();
+            }
+        });
+    }
+
+    // Initialize create prescription modal
+    const createContainer = document.querySelector('#prescriptionModal .medication-items');
+    const createAddButton = document.getElementById('addMedication');
+    initializeMedicationControls(createContainer, createAddButton);
+
+    // Initialize edit prescription modals
+    {% for prescription in prescriptions %}
+    const editContainer{{ prescription.id }} = document.querySelector('#editPrescriptionModal{{ prescription.id }} .medication-items');
+    const editAddButton{{ prescription.id }} = document.querySelector('#editPrescriptionModal{{ prescription.id }} .add-medication');
+    initializeMedicationControls(editContainer{{ prescription.id }}, editAddButton{{ prescription.id }});
+    {% endfor %}
+});
+</script>
+
+{% block scripts %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addMedicationBtn = document.getElementById('addMedication');
+    const medicationItems = document.querySelector('.medication-items');
+    
+    addMedicationBtn.addEventListener('click', function() {
+        const template = medicationItems.children[0].cloneNode(true);
+        template.querySelectorAll('input').forEach(input => input.value = '');
+        template.querySelector('select').selectedIndex = 0;
+        template.querySelector('.remove-medication').style.display = 'block';
+        medicationItems.appendChild(template);
+    });
+    
+    medicationItems.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-medication')) {
+            if (medicationItems.children.length > 1) {
+                e.target.closest('.medication-item').remove();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,56 @@
+<div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <form method="get" class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+        <div class="flex flex-wrap items-center gap-4">
+            <!-- Medication Type Filter -->
+            <select name="type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                <option value="">All Types</option>
+                <option value="PRESCRIPTION" {% if filters.type == 'PRESCRIPTION' %}selected{% endif %}>Prescription Only</option>
+                <option value="OTC" {% if filters.type == 'OTC' %}selected{% endif %}>Over The Counter</option>
+            </select>
+
+            <!-- Status Filter -->
+            <select name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                <option value="">All Status</option>
+                <option value="IN_STOCK" {% if filters.status == 'IN_STOCK' %}selected{% endif %}>In Stock</option>
+                <option value="LOW_STOCK" {% if filters.status == 'LOW_STOCK' %}selected{% endif %}>Low Stock</option>
+                <option value="OUT_OF_STOCK" {% if filters.status == 'OUT_OF_STOCK' %}selected{% endif %}>Out of Stock</option>
+            </select>
+
+            {% if show_supplier %}
+            <!-- Supplier Filter -->
+            <select name="supplier" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                <option value="">All Suppliers</option>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}" {% if filters.supplier == supplier.id|stringformat:"i" %}selected{% endif %}>{{ supplier.name }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </div>
+
+        <!-- Search and Buttons -->
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input type="text" 
+                       name="search" 
+                       value="{{ filters.search }}"
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" 
+                       placeholder="Search medications...">
+            </div>
+            <div class="flex space-x-3">
+                <button type="submit" class="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Filter
+                </button>
+                {% if filters.search or filters.type or filters.status or filters.supplier %}
+                <a href="{{ clear_url }}" 
+                   class="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center">
+                    <i class="fas fa-times mr-2"></i>
+                    Clear All
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>

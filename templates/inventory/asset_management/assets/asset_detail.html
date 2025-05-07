@@ -1,0 +1,300 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}{{ asset.name }} - Details{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'asset_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Asset Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'total_assets' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Assets</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ asset.name }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'edit_asset' asset.id %}" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <button type="button" data-modal-target="deleteModal-{{ asset.id }}" data-modal-toggle="deleteModal-{{ asset.id }}" 
+                            class="text-red-600 hover:text-red-700">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Basic Information -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Basic Information</h3>
+                    <div class="mt-6 border-t border-gray-200">
+                        <dl class="divide-y divide-gray-200">
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Asset Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.name }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Asset ID</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.asset_id }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Category</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.category.name }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if asset.status == 'AVAILABLE' %}bg-green-100 text-green-800
+                                        {% elif asset.status == 'IN_USE' %}bg-blue-100 text-blue-800
+                                        {% elif asset.status == 'UNDER_MAINTENANCE' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ asset.get_status_display }}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Location</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.location }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Details -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Technical Details</h3>
+                    <div class="mt-6 border-t border-gray-200">
+                        <dl class="divide-y divide-gray-200">
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Model Number</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.model_number }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Serial Number</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.serial_number }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Manufacturer</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.manufacturer }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Power Rating</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.power_rating }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Dimensions</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.dimensions }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Weight</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.weight }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purchase Information -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Purchase Information</h3>
+                    <div class="mt-6 border-t border-gray-200">
+                        <dl class="divide-y divide-gray-200">
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Purchase Date</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.purchase_date }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Purchase Cost</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">${{ asset.purchase_cost }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Warranty Expiry</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.warranty_expiry }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Vendor</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.vendor }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Vendor Contact</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ asset.vendor_contact }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Sections -->
+        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Maintenance History -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">Maintenance History</h3>
+                        <a href="{% url 'maintenance_schedule' %}" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
+                    </div>
+                    <div class="mt-6 border-t border-gray-200">
+                        {% if maintenance_history %}
+                        <ul class="divide-y divide-gray-200">
+                            {% for maintenance in maintenance_history %}
+                            <li class="py-4">
+                                <div class="flex space-x-3">
+                                    <div class="flex-1 space-y-1">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-sm font-medium">{{ maintenance.maintenance_type }}</h3>
+                                            <p class="text-sm text-gray-500">{{ maintenance.scheduled_date }}</p>
+                                        </div>
+                                        <p class="text-sm text-gray-500">{{ maintenance.get_status_display }}</p>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-sm text-gray-500 py-4">No maintenance history available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insurance Policies -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">Insurance Policies</h3>
+                        <a href="{% url 'total_insurances' %}" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
+                    </div>
+                    <div class="mt-6 border-t border-gray-200">
+                        {% if insurance_policies %}
+                        <ul class="divide-y divide-gray-200">
+                            {% for policy in insurance_policies %}
+                            <li class="py-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-medium">{{ policy.policy_number }}</h4>
+                                        <p class="text-sm text-gray-500">{{ policy.provider }}</p>
+                                        <p class="text-xs text-gray-400">Valid until: {{ policy.end_date }}</p>
+                                    </div>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if policy.status == 'ACTIVE' %}bg-green-100 text-green-800
+                                        {% elif policy.status == 'EXPIRED' %}bg-red-100 text-red-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ policy.get_status_display }}
+                                    </span>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-sm text-gray-500 py-4">No insurance policies found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit History -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">Audit History</h3>
+                        <a href="{% url 'total_audits' %}" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
+                    </div>
+                    <div class="mt-6 border-t border-gray-200">
+                        {% if audit_history %}
+                        <ul class="divide-y divide-gray-200">
+                            {% for audit in audit_history %}
+                            <li class="py-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium">{{ audit.audit_date }}</p>
+                                        <p class="text-sm text-gray-500">By: {{ audit.conducted_by }}</p>
+                                    </div>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if audit.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                        {% elif audit.status == 'IN_PROGRESS' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                        {{ audit.get_status_display }}
+                                    </span>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-sm text-gray-500 py-4">No audit history available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Depreciation History -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Depreciation History</h3>
+                    <div class="mt-6 border-t border-gray-200">
+                        {% if depreciation_history %}
+                        <ul class="divide-y divide-gray-200">
+                            {% for depreciation in depreciation_history %}
+                            <li class="py-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium">{{ depreciation.fiscal_year }}</p>
+                                        <p class="text-sm text-gray-500">Current Value: ${{ depreciation.current_value }}</p>
+                                        <p class="text-xs text-gray-400">Depreciation: ${{ depreciation.depreciation_amount }}</p>
+                                    </div>
+                                    <p class="text-sm text-gray-500">{{ depreciation.date }}</p>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-sm text-gray-500 py-4">No depreciation records available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Delete Modal -->
+{% include './modals/delete_asset.html' %}
+
+{% endblock %}

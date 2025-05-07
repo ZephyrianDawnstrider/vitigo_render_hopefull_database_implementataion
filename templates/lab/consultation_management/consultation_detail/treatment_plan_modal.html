@@ -1,0 +1,97 @@
+<div id="treatmentPlanModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-2xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <div class="flex items-start justify-between p-4 border-b">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    Update Treatment Plan
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="treatmentPlanModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form action="{% url 'update_treatment_plan' pk=consultation.id %}" method="POST">
+                {% csrf_token %}
+                <div class="p-6 space-y-6">
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Duration (weeks)</label>
+                            <input type="number" name="duration_weeks" value="{{ consultation.treatment_plan.duration_weeks|default:'' }}" min="1" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Total Cost</label>
+                            <input type="number" name="total_cost" value="{{ consultation.treatment_plan.total_cost|default:'' }}" min="0" step="0.01" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea name="description" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.treatment_plan.description }}</textarea>
+                    </div>
+                    
+                    <!-- Goals -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Goals</label>
+                        <textarea name="goals" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.treatment_plan.goals }}</textarea>
+                    </div>
+                    
+                    <!-- Treatment Plan Items -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Treatment Items</label>
+                        <div id="treatmentItems" class="space-y-4">
+                            {% for item in treatment_plan_items %}
+                            <div class="treatment-item grid grid-cols-3 gap-4">
+                                <input type="text" name="item_names[]" value="{{ item.name }}" placeholder="Item Name" class="rounded-md border border-gray-300">
+                                <input type="text" name="item_descriptions[]" value="{{ item.description }}" placeholder="Description" class="rounded-md border border-gray-300">
+                                <input type="number" name="item_costs[]" value="{{ item.cost }}" placeholder="Cost" class="rounded-md border border-gray-300">
+                            </div>
+                            {% endfor %}
+                            <div class="treatment-item grid grid-cols-3 gap-4">
+                                <input type="text" name="item_names[]" placeholder="Item Name" class="rounded-md border border-gray-300">
+                                <input type="text" name="item_descriptions[]" placeholder="Description" class="rounded-md border border-gray-300">
+                                <input type="number" name="item_costs[]" placeholder="Cost" class="rounded-md border border-gray-300">
+                            </div>
+                        </div>
+                        <button type="button" id="addTreatmentItem" class="mt-2 text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-plus mr-1"></i>Add Item
+                        </button>
+                    </div>
+                    
+                    <!-- Additional Information -->
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Lifestyle Modifications</label>
+                            <textarea name="lifestyle_modifications" rows="2" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.treatment_plan.lifestyle_modifications }}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dietary Recommendations</label>
+                            <textarea name="dietary_recommendations" rows="2" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.treatment_plan.dietary_recommendations }}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Exercise Recommendations</label>
+                            <textarea name="exercise_recommendations" rows="2" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ consultation.treatment_plan.exercise_recommendations }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end p-6 space-x-2 border-t border-gray-200">
+                    <button type="button" class="px-4 py-2 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50" data-modal-hide="treatmentPlanModal">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Save Plan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addButton = document.getElementById('addTreatmentItem');
+    const itemsContainer = document.getElementById('treatmentItems');
+
+    addButton.addEventListener('click', function() {
+        const template = itemsContainer.children[0].cloneNode(true);
+        template.querySelectorAll('input').forEach(input => input.value = '');
+        itemsContainer.appendChild(template);
+    });
+});
+</script>

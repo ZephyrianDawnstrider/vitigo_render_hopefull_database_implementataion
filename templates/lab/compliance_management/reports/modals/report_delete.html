@@ -1,0 +1,54 @@
+<div id="deleteModal-{{ report.id }}" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 border-b rounded-t">
+                <h3 class="text-xl font-semibold text-gray-900">
+                    Delete Report
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" data-modal-hide="deleteModal-{{ report.id }}">
+                    <i class="fas fa-times w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Modal body -->
+            <div class="p-6 space-y-6">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
+                        </span>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900">Confirm Deletion</h4>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Are you sure you want to delete the report "{{ report.title }}"? This action cannot be undone.
+                        </p>
+                    </div>
+                </div>
+
+                {% if report.period_start and report.period_end %}
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Report Period: {{ report.period_start|date:"M d, Y" }} - {{ report.period_end|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Modal footer -->
+            <div class="flex items-center justify-end p-6 space-x-2 border-t border-gray-200 rounded-b">
+                <form method="post" action="{% url 'compliance_management:report_delete' report.pk %}">
+                    {% csrf_token %}
+                    <button type="button" 
+                            class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-md hover:bg-gray-100 hover:text-gray-700" 
+                            data-modal-hide="deleteModal-{{ report.id }}">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 ml-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700">
+                        Delete Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

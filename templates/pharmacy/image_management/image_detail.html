@@ -1,0 +1,303 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-4">
+            <a href="{% url 'image_management' %}" class="flex items-center text-gray-600 hover:text-blue-600 transition-colors">
+                <i class="fas fa-arrow-left text-lg mr-2"></i>
+                <span class="font-medium">Back to Gallery</span>
+            </a>
+            <div class="h-6 w-px bg-gray-300"></div>
+            <h1 class="text-xl font-bold text-gray-900">Image Details</h1>
+        </div>
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'download_image' image.id %}" class="flex items-center space-x-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
+                <i class="fas fa-download"></i>
+                <span>Download</span>
+            </a>
+            {% if user.role == 'ADMINISTRATOR' %}
+            <button data-modal-target="deleteModal{{ image.id }}" data-modal-toggle="deleteModal{{ image.id }}" 
+                    class="flex items-center space-x-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors">
+                <i class="fas fa-trash-alt"></i>
+                <span>Delete</span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Image Column -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Image Card -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="relative">
+                    <img src="{{ image.image_file.url }}" 
+                         alt="Patient Image" 
+                         class="w-full h-auto {% if image.is_private %}blur-lg hover:blur-none transition-all duration-300{% endif %}">
+                    {% if image.is_private %}
+                    <div class="absolute top-4 right-4 bg-red-100 text-red-800 px-3 py-1 rounded-full flex items-center">
+                        <i class="fas fa-lock mr-2"></i>
+                        <span class="font-medium">Private Image</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Image Stats -->
+                <div class="p-6 border-t border-gray-100">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <div class="text-blue-500 mb-1"><i class="fas fa-ruler-combined text-xl"></i></div>
+                            <p class="text-sm text-gray-600">Dimensions</p>
+                            <p class="font-semibold text-gray-900">{{ image.width }} × {{ image.height }}</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-purple-500 mb-1"><i class="fas fa-weight-hanging text-xl"></i></div>
+                            <p class="text-sm text-gray-600">File Size</p>
+                            <p class="font-semibold text-gray-900">{{ file_size|filesizeformat }}</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-green-500 mb-1"><i class="fas fa-calendar-alt text-xl"></i></div>
+                            <p class="text-sm text-gray-600">Date Taken</p>
+                            <p class="font-semibold text-gray-900">{{ image.date_taken|date:"M d, Y" }}</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-yellow-500 mb-1"><i class="fas fa-clock text-xl"></i></div>
+                            <p class="text-sm text-gray-600">Uploaded</p>
+                            <p class="font-semibold text-gray-900">{{ image.uploaded_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            {% if image.notes %}
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="flex items-center text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-sticky-note text-yellow-500 mr-2"></i>
+                    Notes
+                </h2>
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
+                    <p class="text-gray-700">{{ image.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Annotations Section -->
+            {% if annotations %}
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="flex items-center text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-comment-medical text-purple-500 mr-2"></i>
+                    Annotations ({{ annotations.count }})
+                </h2>
+                <div class="space-y-4">
+                    {% for annotation in annotations %}
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-user-md text-purple-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ annotation.created_by.get_full_name }}</p>
+                                    <p class="text-sm text-gray-500">{{ annotation.created_at|date:"M d, Y H:i" }}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-full">
+                                {{ annotation.created_by.role }}
+                            </span>
+                        </div>
+                        <p class="mt-3 text-gray-700">{{ annotation.text }}</p>
+                        <div class="mt-2 text-sm text-purple-600">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            Coordinates: {{ annotation.x_coordinate }}, {{ annotation.y_coordinate }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Information -->
+        <div class="space-y-6">
+            <!-- Patient Information -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="flex items-center text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-user-circle text-blue-500 mr-2"></i>
+                    Patient Information
+                </h2>
+                <div class="divide-y divide-gray-100">
+                    <div class="py-3">
+                        <p class="text-sm text-gray-600">Name</p>
+                        <p class="font-medium text-gray-900">{{ image.patient.get_full_name }}</p>
+                    </div>
+                    <div class="py-3">
+                        <p class="text-sm text-gray-600">Body Part</p>
+                        <div class="flex items-center mt-1">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                                {{ image.body_part.name }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="py-3">
+                        <p class="text-sm text-gray-600">Image Type</p>
+                        <span class="inline-flex items-center px-3 py-1 mt-1 rounded-full text-sm font-medium
+                            {% if image.image_type == 'CLINIC' %}
+                                bg-green-100 text-green-800
+                            {% else %}
+                                bg-blue-100 text-blue-800
+                            {% endif %}">
+                            <i class="{% if image.image_type == 'CLINIC' %}fas fa-hospital{% else %}fas fa-user{% endif %} mr-2"></i>
+                            {{ image.get_image_type_display }}
+                        </span>
+                    </div>
+                    <div class="py-3">
+                        <p class="text-sm text-gray-600">Uploaded By</p>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <i class="fas fa-user-md text-gray-400"></i>
+                            <p class="font-medium text-gray-900">{{ image.uploaded_by.get_full_name }}</p>
+                        </div>
+                    </div>
+                    {% if image.tagged_users.exists %}
+                    <div class="py-3">
+                        <p class="text-sm text-gray-600 mb-2">Tagged Users</p>
+                        <div class="space-y-2">
+                            {% for tagged_user in image.tagged_users.all %}
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    {% if tagged_user.profile_picture %}
+                                        <img src="{{ tagged_user.profile_picture.url }}" alt="{{ tagged_user.get_full_name }}" 
+                                             class="w-8 h-8 rounded-full object-cover">
+                                    {% else %}
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <i class="fas {% if tagged_user.role.name == 'DOCTOR' %}fa-user-md{% else %}fa-user-nurse{% endif %} text-blue-600"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ tagged_user.get_full_name }}</p>
+                                        <p class="text-xs text-gray-500">{{ tagged_user.role.display_name }}</p>
+                                    </div>
+                                </div>
+                                {% if tagged_user.email %}
+                                <a href="mailto:{{ tagged_user.email }}" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Comparisons -->
+            {% if comparisons %}
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="flex items-center text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-clone text-indigo-500 mr-2"></i>
+                    Used in Comparisons
+                </h2>
+                <div class="space-y-3">
+                    {% for comparison in comparisons %}
+                    <div class="group p-4 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-colors">
+                        <h3 class="font-medium text-gray-900 group-hover:text-indigo-700">{{ comparison.title }}</h3>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <i class="fas fa-user-md mr-1"></i>
+                            {{ comparison.created_by.get_full_name }}
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            <i class="far fa-calendar-alt mr-1"></i>
+                            {{ comparison.created_at|date:"M d, Y" }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Related Images Grid -->
+            {% if related_images %}
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="flex items-center text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-images text-green-500 mr-2"></i>
+                    Other Images of Patient
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for rel_image in related_images %}
+                    <a href="{% url 'image_detail' rel_image.id %}" 
+                       class="group block relative rounded-lg overflow-hidden">
+                        <img src="{{ rel_image.image_file.url }}" 
+                             alt="Related Image" 
+                             class="w-full h-24 object-cover transform group-hover:scale-105 transition-transform duration-300 {% if rel_image.is_private %}blur-lg{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="absolute bottom-2 left-2 text-white text-xs">
+                                {{ rel_image.date_taken|date:"M d, Y" }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Similar Images -->
+            {% if similar_images %}
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="flex items-center text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-layer-group text-orange-500 mr-2"></i>
+                    Similar {{ image.body_part.name }} Images
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for sim_image in similar_images %}
+                    <a href="{% url 'image_detail' sim_image.id %}" 
+                       class="group block relative rounded-lg overflow-hidden">
+                        <img src="{{ sim_image.image_file.url }}" 
+                             alt="Similar Image" 
+                             class="w-full h-24 object-cover transform group-hover:scale-105 transition-transform duration-300 {% if sim_image.is_private %}blur-lg{% endif %}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="absolute bottom-2 left-2 text-white text-xs">
+                                {{ sim_image.patient.user.get_full_name }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% if user.role == 'ADMIN' %}
+<div id="deleteModal{{ image.id }}" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="deleteModal{{ image.id }}">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="p-6 text-center">
+                <form method="POST" action="{% url 'delete_image' image.id %}">
+                    {% csrf_token %}
+                    <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+                    <h3 class="mb-5 text-lg font-normal text-gray-800">
+                        Are you sure you want to delete this image?<br>
+                        <span class="text-sm text-gray-500">This action cannot be undone.</span>
+                    </h3>
+                    <button type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
+                        Yes, delete it
+                    </button>
+                    <button type="button" data-modal-hide="deleteModal{{ image.id }}" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

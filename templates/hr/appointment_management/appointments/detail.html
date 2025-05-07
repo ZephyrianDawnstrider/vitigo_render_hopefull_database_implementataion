@@ -1,0 +1,385 @@
+{% extends '../../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'appointment_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-calendar-check mr-2"></i>Appointments</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Appointment Details</li>
+        </ol>
+    </nav>
+
+    {% if error_messages %}
+    <div class="mb-6">
+        {% for message in error_messages %}
+        <div class="p-4 mb-4 text-yellow-800 border-l-4 border-yellow-300 bg-yellow-50">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm">{{ message }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Status Banner -->
+    <div class="mb-6 p-4 rounded-lg {% if appointment.status == 'CONFIRMED' %}bg-green-50 border-green-200{% elif appointment.status == 'PENDING' %}bg-yellow-50 border-yellow-200{% elif appointment.status == 'CANCELLED' %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %} border">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="{% if appointment.status == 'CONFIRMED' %}bg-green-100{% elif appointment.status == 'PENDING' %}bg-yellow-100{% elif appointment.status == 'CANCELLED' %}bg-red-100{% else %}bg-gray-100{% endif %} rounded-full p-2">
+                    <i class="fas {% if appointment.status == 'CONFIRMED' %}fa-check-circle text-green-600{% elif appointment.status == 'PENDING' %}fa-clock text-yellow-600{% elif appointment.status == 'CANCELLED' %}fa-times-circle text-red-600{% else %}fa-info-circle text-gray-600{% endif %} text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold {% if appointment.status == 'CONFIRMED' %}text-green-800{% elif appointment.status == 'PENDING' %}text-yellow-800{% elif appointment.status == 'CANCELLED' %}text-red-800{% else %}text-gray-800{% endif %}">
+                        {{ appointment.get_status_display }}
+                    </h2>
+                    {% if appointment.status == 'CANCELLED' and cancellation %}
+                    <p class="text-red-600 text-sm">Cancelled by {{ cancellation.cancelled_by.get_full_name }} - {{ cancellation.reason }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex space-x-2">
+                {% if appointment.status == 'PENDING' %}
+                <button onclick="updateStatus('CONFIRMED')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>Confirm
+                </button>
+                {% endif %}
+
+                <!-- Add Export button -->
+                <button data-modal-target="exportModal{{ appointment.id }}" 
+                        data-modal-toggle="exportModal{{ appointment.id }}"
+                        class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors flex items-center">
+                    <i class="fas fa-file-export mr-2"></i>Export
+                </button>
+
+                <!-- Add Reschedule button -->
+                {% if appointment.status != 'COMPLETED' and appointment.status != 'CANCELLED' %}
+                <button data-modal-target="rescheduleModal{{ appointment.id }}" 
+                        data-modal-toggle="rescheduleModal{{ appointment.id }}"
+                        class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center">
+                    <i class="fas fa-calendar-alt mr-2"></i>Reschedule
+                </button>
+                {% endif %}
+                
+                {% if appointment.status != 'CANCELLED' and appointment.status != 'COMPLETED' %}
+                <button data-modal-target="cancelModal{{ appointment.id }}" 
+                        data-modal-toggle="cancelModal{{ appointment.id }}"
+                        class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center">
+                    <i class="fas fa-times-circle mr-2"></i>Cancel
+                </button>
+                {% endif %}
+                {% if appointment.status == 'CONFIRMED' %}
+                <button onclick="updateStatus('COMPLETED')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                    <i class="fas fa-check-double mr-2"></i>Mark Complete
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-3 gap-6">
+        <!-- Left Column - Appointment and Patient Details -->
+        <div class="col-span-2 space-y-6">
+            <!-- Appointment Details Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                    Appointment Details
+                </h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Date</label>
+                        <p class="font-medium text-gray-800">{{ appointment.date|date:"l, F d, Y"|default:"No date specified" }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Time</label>
+                        <p class="font-medium text-gray-800">
+                            {% if appointment.time_slot %}
+                                {{ appointment.time_slot.start_time|time:"g:i A" }} - {{ appointment.time_slot.end_time|time:"g:i A" }}
+                            {% else %}
+                                No time slot assigned
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Type</label>
+                        <span class="px-3 py-1 text-sm font-semibold rounded-full inline-block
+                            {% if appointment.appointment_type == 'CONSULTATION' %}bg-blue-100 text-blue-800
+                            {% elif appointment.appointment_type == 'FOLLOW_UP' %}bg-green-100 text-green-800
+                            {% elif appointment.appointment_type == 'PROCEDURE' %}bg-purple-100 text-purple-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ appointment.get_appointment_type_display }}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Priority</label>
+                        <span class="px-3 py-1 text-sm font-semibold rounded-full inline-block
+                            {% if appointment.priority == 'A' %}bg-red-100 text-red-800
+                            {% elif appointment.priority == 'B' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ appointment.get_priority_display }} Priority
+                        </span>
+                    </div>
+                </div>
+                {% if appointment.notes %}
+                <div class="mt-6">
+                    <label class="text-sm text-gray-600 block mb-1">Notes</label>
+                    <p class="text-gray-800 bg-gray-50 p-3 rounded-lg">{{ appointment.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Patient Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-user text-blue-500 mr-2"></i>
+                    Patient Information
+                </h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Name</label>
+                        <p class="font-medium text-gray-800">{{ appointment.patient.get_full_name|default:"Name not provided" }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Email</label>
+                        <p class="font-medium text-gray-800">{{ appointment.patient.email|default:"No email provided" }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Gender</label>
+                        <p class="font-medium text-gray-800">
+                            {% if appointment.patient.gender %}
+                                {{ appointment.patient.get_gender_display }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Phone</label>
+                        <p class="font-medium text-gray-800">
+                            {% if appointment.patient.phone_number %}
+                                {{ appointment.patient.phone_number }}
+                            {% else %}
+                                No phone number provided
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-6">
+            <!-- Doctor Information Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-user-md text-blue-500 mr-2"></i>
+                    Doctor Information
+                </h3>
+                <div class="flex items-center space-x-4 mb-4">
+                    {% if appointment.doctor.profile_picture %}
+                        <img src="{{ appointment.doctor.profile_picture.url }}" alt="Doctor" class="w-16 h-16 rounded-full object-cover">
+                    {% else %}
+                        <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-user-md text-gray-400 text-2xl"></i>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h4 class="font-medium text-gray-800">Dr. {{ appointment.doctor.get_full_name|default:"Name not provided" }}</h4>
+                        <p class="text-sm text-gray-600">{{ appointment.doctor.email|default:"No email provided" }}</p>
+                        {% if appointment.doctor.phone_number %}
+                            <p class="text-sm text-gray-600">{{ appointment.doctor.phone_number }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previous Appointments -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-history text-blue-500 mr-2"></i>
+                    Previous Appointments
+                </h3>
+                <div class="space-y-4">
+                    {% if previous_appointments %}
+                        {% for prev_appt in previous_appointments %}
+                        <div class="p-4 {% if not forloop.last %}border-b border-gray-100{% endif %}">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ prev_appt.date|date:"M d, Y" }}</p>
+                                    <p class="text-sm text-gray-600">{{ prev_appt.get_appointment_type_display }}</p>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                    {% if prev_appt.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                    {% elif prev_appt.status == 'CANCELLED' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ prev_appt.get_status_display }}
+                                </span>
+                            </div>
+                            {% if prev_appt.notes %}
+                            <p class="text-sm text-gray-600 mt-2">{{ prev_appt.notes|truncatechars:100 }}</p>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-500 text-center py-4">No previous appointments found</p>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">No previous appointments found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+{% include './modals/cancel.html' %}
+
+<!-- Export Modal -->
+{% include './modals/export.html' %}
+
+<!-- Reschedule Modal -->
+{% include './modals/reschedule.html' %}
+
+<!-- Add the JavaScript for handling reschedule functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('new_date_{{ appointment.id }}');
+    const timeslotsContainer = document.getElementById('timeslotsContainer_{{ appointment.id }}');
+    const timeslotsGrid = document.getElementById('timeslots_{{ appointment.id }}');
+    const selectedTimeslotInput = document.getElementById('selected_timeslot_{{ appointment.id }}');
+
+    dateInput.addEventListener('change', async function() {
+        const date = this.value;
+        try {
+            const response = await fetch(`/appointments/doctor-timeslots/?user_id={{ appointment.doctor.id }}&date=${date}`);
+            const data = await response.json();
+
+            timeslotsGrid.innerHTML = '';
+            if (data.timeslots.length > 0) {
+                data.timeslots.forEach(slot => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = `p-2 text-sm rounded-md text-center ${
+                        slot.is_available 
+                            ? 'bg-green-100 hover:bg-green-200 cursor-pointer' 
+                            : 'bg-gray-100 cursor-not-allowed opacity-50'
+                    }`;
+                    button.textContent = `${slot.start_time}`;
+                    
+                    if (slot.is_available) {
+                        button.onclick = function() {
+                            document.querySelectorAll('#timeslots_{{ appointment.id }} button').forEach(btn => {
+                                btn.classList.remove('ring-2', 'ring-blue-500');
+                            });
+                            button.classList.add('ring-2', 'ring-blue-500');
+                            selectedTimeslotInput.value = slot.id;
+                        };
+                    }
+                    
+                    timeslotsGrid.appendChild(button);
+                });
+                timeslotsContainer.classList.remove('hidden');
+            } else {
+                timeslotsGrid.innerHTML = '<p class="col-span-4 text-center text-gray-500">No available time slots for this date</p>';
+                timeslotsContainer.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error fetching time slots:', error);
+        }
+    });
+});
+</script>
+
+<!-- Add this script section at the bottom of your template -->
+<script>
+    function showCancelModal() {
+        document.getElementById('cancelModal').classList.remove('hidden');
+    }
+
+    function hideCancelModal() {
+        document.getElementById('cancelModal').classList.add('hidden');
+    }
+
+    async function updateStatus(newStatus) {
+        try {
+            let data = { status: newStatus };
+            const response = await fetch(`/appointments/{{ appointment.id }}/status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(responseData.error || 'Failed to update status');
+            }
+
+            // Success message
+            alert('Status updated successfully!');
+            window.location.reload();
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert(error.message || 'Failed to update appointment status');
+        }
+    }
+
+    async function confirmCancel(appointmentId) {
+        const reason = document.getElementById(`cancellationReason${appointmentId}`).value.trim();
+        if (!reason) {
+            alert('Please provide a reason for cancellation');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/appointments/${appointmentId}/status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    status: 'CANCELLED',
+                    reason: reason
+                })
+            });
+
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(responseData.error || 'Failed to cancel appointment');
+            }
+
+            // Success message
+            alert('Appointment cancelled successfully!');
+            window.location.reload();
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert(error.message || 'Failed to cancel appointment');
+        }
+    }
+
+    // Wire up the cancel confirmation button
+    document.getElementById('confirmCancel').addEventListener('click', function() {
+        updateStatus('CANCELLED');
+    });
+
+    // Add event listener for the reminder form
+    document.getElementById('addReminderForm').addEventListener('submit', addReminder);
+</script>
+{% endblock %}

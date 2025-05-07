@@ -1,0 +1,610 @@
+{% extends '../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'schedule_management' %}" class="hover:text-blue-600">Schedule Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Schedule Phototherapy Session</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center">
+            <h2 class="text-2xl font-bold text-gray-800">Schedule Phototherapy Session</h2>
+            <div class="relative ml-2 group">
+                <i class="fas fa-info-circle text-gray-400 hover:text-blue-500 cursor-help text-lg"></i>
+                <div class="hidden group-hover:block absolute left-0 top-6 w-96 p-4 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div class="text-sm text-gray-600 space-y-2">
+                        <p class="font-medium text-gray-700 mb-2">About Phototherapy Session Scheduling</p>
+                        <p>Create a new phototherapy treatment session by:</p>
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li>Selecting an active treatment plan for a patient</li>
+                            <li>Choosing an available device compatible with the treatment protocol</li>
+                            <li>Setting the date and time for the session</li>
+                            <li>Specifying the planned radiation dose</li>
+                            <li>Assigning a qualified staff member to administer the treatment</li>
+                        </ul>
+                        <p class="mt-2 text-blue-600">Note: All fields marked with * are required</p>
+                    </div>
+                    <div class="absolute -top-2 left-2 w-4 h-4 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'phototherapy_management' %}" 
+           class="text-blue-500 hover:text-blue-600 flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    <div class="mb-4">
+        {% for error in form.non_field_errors %}
+        <div class="p-4 rounded-lg bg-red-100 text-red-700">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-6" novalidate>
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Treatment Plan with Search -->
+            <div class="form-group">
+                <label for="{{ form.plan.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Treatment Plan*
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                        id="plan-search" 
+                        placeholder="Search plans by patient name or protocol..." 
+                        class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                    <select name="plan" 
+                            id="{{ form.plan.auto_id }}"
+                            size="5"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base"
+                            required>
+                        {% if form.plan.field.choices %}
+                            {% for value, label in form.plan.field.choices %}
+                                {% if value and label %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>No active treatment plans available</option>
+                        {% endif %}
+                    </select>
+                </div>
+                {% if form.plan.help_text %}
+                <p class="mt-2 text-sm text-gray-500">{{ form.plan.help_text }}</p>
+                {% endif %}
+                {% if form.plan.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.plan.errors.0 }}</p>
+                {% endif %}
+                
+                <!-- Add Treatment Plan Instructions -->
+                <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-700">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Can't find the treatment plan you need? 
+                        <a href="{% url 'new_treatment_plan' %}" 
+                           class="font-medium text-blue-600 hover:text-blue-800 underline">
+                            Create a new treatment plan
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Plan Details -->
+            <div id="plan-details" class="hidden p-4 mb-4 bg-white rounded-lg border border-gray-200">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-sm font-medium text-gray-800">Treatment Plan Details</h3>
+                    <a href="#" id="plan-detail-link" class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-external-link-alt mr-1"></i>View Full Details
+                    </a>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-600">Patient:</p>
+                        <p class="font-medium" id="plan-patient-name">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Protocol:</p>
+                        <p class="font-medium" id="plan-protocol-name">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Sessions:</p>
+                        <p class="font-medium">
+                            <span id="plan-completed-sessions">-</span> / 
+                            <span id="plan-total-sessions">-</span>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Current Dose:</p>
+                        <p class="font-medium" id="plan-current-dose">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Last Session:</p>
+                        <p class="font-medium" id="plan-last-session-date">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Last Dose Given:</p>
+                        <p class="font-medium" id="plan-last-dose">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Last Payment:</p>
+                        <p class="font-medium" id="plan-last-payment">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Next Payment Due:</p>
+                        <p class="font-medium" id="plan-next-payment">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Administered By:</p>
+                        <p class="font-medium" id="plan-last-administrator">-</p>
+                    </div>
+                </div>
+                <!-- Protocol Details Collapsible -->
+                <div class="mt-3">
+                    <button type="button" 
+                            class="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                            onclick="toggleProtocolDetails()">
+                        <span>Protocol Details</span>
+                        <i class="fas fa-chevron-down" id="protocol-chevron"></i>
+                    </button>
+                    <div id="protocol-details" class="hidden mt-2 p-3 bg-gray-50 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-600">Initial Dose:</p>
+                                <p class="font-medium" id="protocol-initial-dose">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Max Dose:</p>
+                                <p class="font-medium" id="protocol-max-dose">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Increment:</p>
+                                <p class="font-medium" id="protocol-increment">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Frequency:</p>
+                                <p class="font-medium" id="protocol-frequency">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Device -->
+            <div class="form-group">
+                <label for="{{ form.device.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Device*
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                        id="device-search" 
+                        placeholder="Search devices by name or location..." 
+                        class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                    <select name="device" 
+                            id="{{ form.device.auto_id }}"
+                            size="5"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base"
+                            required>
+                        {% if form.device.field.choices %}
+                            {% for value, label in form.device.field.choices %}
+                                {% if value and label %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>No devices available</option>
+                        {% endif %}
+                    </select>
+                </div>
+                {% if form.device.help_text %}
+                <p class="mt-2 text-sm text-gray-500">{{ form.device.help_text }}</p>
+                {% endif %}
+                {% if form.device.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.device.errors.0 }}</p>
+                {% endif %}
+                
+                <!-- Add Device Instructions -->
+                <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-700">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Need to register a new device? 
+                        <a href="{% url 'register_device' %}" 
+                           class="font-medium text-blue-600 hover:text-blue-800 underline">
+                            Register new device
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Device Details -->
+            <div id="device-details" class="hidden p-4 mt-2 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 class="text-sm font-medium text-gray-800 mb-2">Device Details</h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-600">Location:</p>
+                        <p class="font-medium" id="device-location">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Last Maintenance:</p>
+                        <p class="font-medium" id="device-last-maintenance">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Status:</p>
+                        <p class="font-medium" id="device-status">-</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Next Maintenance:</p>
+                        <p class="font-medium" id="device-next-maintenance">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date -->
+            <div>
+                {{ form.scheduled_date|as_crispy_field }}
+                {% if form.scheduled_date.errors %}
+                <div class="mt-1 text-red-600 text-sm">
+                    {% for error in form.scheduled_date.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Time -->
+            <div>
+                {{ form.scheduled_time|as_crispy_field }}
+                {% if form.scheduled_time.errors %}
+                <div class="mt-1 text-red-600 text-sm">
+                    {% for error in form.scheduled_time.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Planned Dose with Quick Select -->
+            <div class="form-group">
+                <label for="id_planned_dose" class="block text-sm font-medium text-gray-700">Planned Dose (joules/cm²)*</label>
+                <div class="mt-1">
+                    <input type="number" 
+                        name="planned_dose" 
+                        id="id_planned_dose"
+                        step="0.001"
+                        min="0"
+                        value="{{ form.planned_dose.value|default:'' }}"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        required>
+                    {% if form.planned_dose.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.planned_dose.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <p class="mt-2 text-sm text-gray-500">{{ form.planned_dose.help_text }}</p>
+                
+                <!-- Quick Select Doses -->
+                <div class="mt-2 dose-presets">
+                    <label class="text-sm font-medium text-gray-700 mb-2">Quick Select Dose</label>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '0.280')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.280</a>
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '0.320')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.320</a>
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '0.360')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.360</a>
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '0.420')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.420</a>
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '0.500')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.500</a>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '1.000')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">1.000</a>
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '1.500')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">1.500</a>
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '2.000')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">2.000</a>
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '2.500')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">2.500</a>
+                        <a href="javascript:void(0)" onclick="setDose('id_planned_dose', '3.000')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">3.000</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Administered By -->
+            <div class="form-group">
+                <label for="{{ form.administered_by.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Administered By*
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                        id="staff-search" 
+                        placeholder="Search staff..." 
+                        class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                    <select name="administered_by" 
+                            id="{{ form.administered_by.auto_id }}"
+                            size="5"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base"
+                            required>
+                        {% if form.administered_by.field.choices %}
+                            {% for value, label in form.administered_by.field.choices %}
+                                {% if value and label %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>No staff members available</option>
+                        {% endif %}
+                    </select>
+                </div>
+                {% if form.administered_by.help_text %}
+                <p class="mt-2 text-sm text-gray-500">{{ form.administered_by.help_text }}</p>
+                {% endif %}
+                {% if form.administered_by.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.administered_by.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Add Remarks Field -->
+            <div class="col-span-2">
+                <label for="remarks" class="block text-sm font-medium text-gray-700">
+                    Session Remarks
+                </label>
+                <div class="mt-1">
+                    <textarea id="remarks" 
+                            name="remarks" 
+                            rows="3"
+                            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Enter any additional remarks or special instructions for this session"></textarea>
+                </div>
+                {% if form.remarks.help_text %}
+                <p class="mt-2 text-sm text-gray-500">{{ form.remarks.help_text }}</p>
+                {% endif %}
+                {% if form.remarks.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.remarks.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-span-2 flex justify-end space-x-4">
+                <button type="button" 
+                        onclick="window.location.href='{% url 'phototherapy_management' %}'"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    Schedule Session
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Dose preset functionality
+    function setDose(fieldId, value) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = value;
+            console.log(`Setting ${fieldId} to ${value}`);
+        }
+    }
+
+    // Staff search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const staffSearchInput = document.getElementById('staff-search');
+        const staffSelectElement = document.getElementById('{{ form.administered_by.auto_id }}');
+        const originalStaffOptions = Array.from(staffSelectElement.options);
+        
+        staffSearchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            staffSelectElement.innerHTML = '';
+            
+            originalStaffOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    staffSelectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            if (staffSelectElement.options.length === 0) {
+                const noResults = new Option('No staff members found', '');
+                noResults.disabled = true;
+                staffSelectElement.appendChild(noResults);
+            }
+        });
+
+        // Plan search functionality
+        const planSearchInput = document.getElementById('plan-search');
+        const planSelectElement = document.getElementById('{{ form.plan.auto_id }}');
+        const originalPlanOptions = Array.from(planSelectElement.options);
+        
+        planSearchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            planSelectElement.innerHTML = '';
+            
+            originalPlanOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    planSelectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            if (planSelectElement.options.length === 0) {
+                const noResults = new Option('No treatment plans found', '');
+                noResults.disabled = true;
+                planSelectElement.appendChild(noResults);
+            }
+        });
+
+        // Device search functionality
+        const deviceSearchInput = document.getElementById('device-search');
+        const deviceSelectElement = document.getElementById('{{ form.device.auto_id }}');
+        const originalDeviceOptions = Array.from(deviceSelectElement.options);
+        
+        deviceSearchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            deviceSelectElement.innerHTML = '';
+            
+            originalDeviceOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    deviceSelectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            if (deviceSelectElement.options.length === 0) {
+                const noResults = new Option('No devices found', '');
+                noResults.disabled = true;
+                deviceSelectElement.appendChild(noResults);
+            }
+        });
+    });
+
+    // Add this to your existing JavaScript
+    document.getElementById('id_plan').addEventListener('change', function() {
+        const planId = this.value;
+        const planDetails = document.getElementById('plan-details');
+        if (planId) {
+            fetch(`/phototherapy/treatment-plan/${planId}/details/`)
+                .then(response => response.json())
+                .then(data => {
+                    planDetails.classList.remove('hidden');
+                    
+                    // Update plan details
+                    document.getElementById('plan-patient-name').textContent = data.patient_name;
+                    document.getElementById('plan-protocol-name').textContent = data.protocol_name;
+                    document.getElementById('plan-completed-sessions').textContent = data.sessions_completed;
+                    document.getElementById('plan-total-sessions').textContent = data.total_sessions;
+                    document.getElementById('plan-current-dose').textContent = `${data.current_dose} joules/cm²`;
+                    document.getElementById('plan-last-session-date').textContent = data.last_session_date;
+                    document.getElementById('plan-last-dose').textContent = data.last_dose;
+                    
+                    // Update payment information
+                    if (data.last_payment.date) {
+                        document.getElementById('plan-last-payment').textContent = 
+                            `₹${data.last_payment.amount} (${data.last_payment.date})`;
+                    } else {
+                        document.getElementById('plan-last-payment').textContent = 'No payments yet';
+                    }
+                    
+                    if (data.next_payment.amount) {
+                        document.getElementById('plan-next-payment').textContent = 
+                            `₹${data.next_payment.amount} (${data.next_payment.status})`;
+                    } else {
+                        document.getElementById('plan-next-payment').textContent = 'All payments completed';
+                    }
+                    
+                    // Update protocol details
+                    document.getElementById('protocol-initial-dose').textContent = `${data.protocol.initial_dose} joules/cm²`;
+                    document.getElementById('protocol-max-dose').textContent = `${data.protocol.max_dose} joules/cm²`;
+                    document.getElementById('protocol-increment').textContent = `${data.protocol.increment_percentage}%`;
+                    document.getElementById('protocol-frequency').textContent = `${data.protocol.frequency_per_week}x per week`;
+                    
+                    // Update plan details link
+                    document.getElementById('plan-detail-link').href = `/phototherapy/treatment-plans/${planId}/`;
+                    
+                    // Automatically set planned dose to current dose
+                    document.getElementById('id_planned_dose').value = data.current_dose;
+                    
+                    // Update dose presets based on protocol
+                    updateDosePresets(data.protocol.initial_dose, data.protocol.max_dose);
+
+                    // Update administrator information
+                    document.getElementById('plan-last-administrator').textContent = data.administrator;
+                })
+                .catch(error => {
+                    console.error('Error fetching plan details:', error);
+                    planDetails.classList.add('hidden');
+                });
+        } else {
+            planDetails.classList.add('hidden');
+        }
+    });
+
+    function toggleProtocolDetails() {
+        const protocolDetails = document.getElementById('protocol-details');
+        const chevron = document.getElementById('protocol-chevron');
+        const isHidden = protocolDetails.classList.contains('hidden');
+        
+        protocolDetails.classList.toggle('hidden');
+        chevron.classList.toggle('fa-chevron-down');
+        chevron.classList.toggle('fa-chevron-up');
+    }
+
+    function updateDosePresets(initialDose, maxDose) {
+        // Calculate intermediate doses
+        const range = maxDose - initialDose;
+        const step = range / 4;
+        
+        const doses = [
+            initialDose,
+            initialDose + step,
+            initialDose + (step * 2),
+            initialDose + (step * 3),
+            maxDose
+        ];
+
+        // Update dose preset buttons
+        const container = document.querySelector('.dose-presets');
+        container.innerHTML = doses.map(dose => 
+            `<a href="javascript:void(0)" 
+                onclick="setDose('id_planned_dose', '${dose.toFixed(3)}')" 
+                class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">
+                ${dose.toFixed(3)}
+            </a>`
+        ).join('');
+    }
+
+    // Add validation for administered_by
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const administeredBy = document.getElementById('{{ form.administered_by.auto_id }}');
+        if (!administeredBy.value) {
+            e.preventDefault();
+            alert('Please select who will administer the session');
+        }
+    });
+
+    // Add this to handle device selection
+    document.getElementById('id_device').addEventListener('change', function() {
+        const deviceId = this.value;
+        if (deviceId) {
+            fetch(`/phototherapy/device/${deviceId}/details/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('device-details').classList.remove('hidden');
+                    document.getElementById('device-location').textContent = data.location;
+                    document.getElementById('device-last-maintenance').textContent = data.last_maintenance_date;
+                    document.getElementById('device-status').textContent = data.is_active ? 'Active' : 'Inactive';
+                    document.getElementById('device-next-maintenance').textContent = data.next_maintenance_date;
+                    
+                    // Add warning class if maintenance is due
+                    if (data.needs_maintenance) {
+                        document.getElementById('device-details').classList.add('bg-yellow-50', 'border-yellow-200');
+                    } else {
+                        document.getElementById('device-details').classList.remove('bg-yellow-50', 'border-yellow-200');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching device details:', error);
+                    document.getElementById('device-details').classList.add('hidden');
+                });
+        } else {
+            document.getElementById('device-details').classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Consent Forms List{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Consent Forms</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Consent Forms</h1>
+            </div>
+            <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+                <a href="{% url 'procedure_management:consent_create' %}" 
+                   class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-plus mr-2"></i>
+                    New Consent Form
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <form method="get" class="mt-6">
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    <input type="text" name="search" value="{{ request.GET.search|default:'' }}"
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                           placeholder="Search by patient name or procedure type...">
+                </div>
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-search mr-2"></i>
+                    Search
+                </button>
+            </div>
+        </form>
+
+        <!-- Consent Forms List -->
+        <div class="mt-6 overflow-hidden bg-white shadow sm:rounded-md">
+            <ul role="list" class="divide-y divide-gray-200">
+                {% for consent_form in consent_forms %}
+                <li>
+                    <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-blue-100">
+                                        <i class="fas fa-file-signature text-lg text-blue-600"></i>
+                                    </span>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-900">
+                                        {{ consent_form.procedure.procedure_type.name }}
+                                    </h3>
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Patient: {{ consent_form.procedure.patient.get_full_name }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500">
+                                        Created: {{ consent_form.created_at|date:"M d, Y" }}
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        Status: 
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {% if consent_form.signed_by_patient %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {{ consent_form.signed_by_patient|yesno:"Signed,Pending" }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <a href="{% url 'procedure_management:consent_detail' consent_form.id %}"
+                                       class="text-indigo-600 hover:text-indigo-900" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'procedure_management:consent_update' consent_form.id %}"
+                                       class="text-blue-600 hover:text-blue-900" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if consent_form.scanned_document %}
+                                    <a href="{{ consent_form.scanned_document.url }}" target="_blank"
+                                       class="text-green-600 hover:text-green-900" title="Download">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    {% endif %}
+                                    <button type="button" 
+                                            class="text-red-600 hover:text-red-900" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="px-4 py-8 text-center text-gray-500">
+                    <i class="fas fa-file-signature text-4xl mb-4"></i>
+                    <p>No consent forms found</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Pagination -->
+        {% include '../common/pagination.html' with page_obj=page_obj %}
+    </div>
+</div>
+
+{% endblock %}

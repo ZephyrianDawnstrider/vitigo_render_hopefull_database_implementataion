@@ -1,0 +1,118 @@
+<!-- Edit Device Modal -->
+<div id="editDeviceModal{{ device.id }}" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-2xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b rounded-t">
+                <h3 class="text-xl font-semibold text-gray-900">
+                    Edit Device Details
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="editDeviceModal{{ device.id }}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <form method="post" action="{% url 'edit_device' device.id %}">
+                {% csrf_token %}
+                <div class="p-8">
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- Device Name -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Device Name</label>
+                            <input 
+                                type="text" 
+                                name="name" 
+                                value="{{ device.name }}" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            >
+                        </div>
+
+                        <!-- Model Number -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Model Number</label>
+                            <input 
+                                type="text" 
+                                name="model_number" 
+                                value="{{ device.model_number }}" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            >
+                        </div>
+
+                        <!-- Serial Number -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Serial Number</label>
+                            <input 
+                                type="text" 
+                                name="serial_number" 
+                                value="{{ device.serial_number }}" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            >
+                        </div>
+
+                        <!-- Location -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Location</label>
+                            <input 
+                                type="text" 
+                                name="location" 
+                                value="{{ device.location }}" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            >
+                        </div>
+
+                        <!-- Next Maintenance Date -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Next Maintenance Date</label>
+                            <input 
+                                type="date" 
+                                name="next_maintenance_date" 
+                                value="{{ device.next_maintenance_date|date:'Y-m-d' }}" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            >
+                        </div>
+
+                        <!-- Status -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select 
+                                name="is_active" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            >
+                                <option value="True" {% if device.is_active %}selected{% endif %}>Active</option>
+                                <option value="False" {% if not device.is_active %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Maintenance Notes -->
+                        <div class="col-span-2 space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Maintenance Notes</label>
+                            <textarea 
+                                name="maintenance_notes" 
+                                rows="3" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            >{{ device.maintenance_notes }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t rounded-b">
+                    <button 
+                        type="button" 
+                        class="px-4 py-2.5 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100" 
+                        data-modal-hide="editDeviceModal{{ device.id }}"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="px-4 py-2.5 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                    >
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

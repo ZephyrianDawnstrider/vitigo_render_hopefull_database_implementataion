@@ -1,0 +1,99 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Performance Review{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="flex px-5 py-3 mb-4 bg-white shadow-sm" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                    <i class="mr-2 fas fa-home"></i> Home
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                    <a href="{% url 'performance_reviews' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Performance Reviews</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                    <span class="ml-1 text-gray-500 md:ml-2">Create Review</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-bold mb-6">Create Performance Review</h2>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Employee Selection -->
+                    <div>
+                        {{ form.employee|as_crispy_field }}
+                    </div>
+                    
+                    <!-- Review Date -->
+                    <div>
+                        {{ form.review_date|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Review Period -->
+                    <div>
+                        {{ form.review_period_start|as_crispy_field }}
+                    </div>
+                    <div>
+                        {{ form.review_period_end|as_crispy_field }}
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>{{ form.technical_skills|as_crispy_field }}</div>
+                    <div>{{ form.communication|as_crispy_field }}</div>
+                    <div>{{ form.teamwork|as_crispy_field }}</div>
+                    <div>{{ form.productivity|as_crispy_field }}</div>
+                    <div>{{ form.reliability|as_crispy_field }}</div>
+                </div>
+
+                <!-- Detailed Comments -->
+                <div class="space-y-4">
+                    {{ form.achievements|as_crispy_field }}
+                    {{ form.areas_for_improvement|as_crispy_field }}
+                    {{ form.goals|as_crispy_field }}
+                    {{ form.overall_comments|as_crispy_field }}
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 pt-4">
+                    <a href="{% url 'performance_reviews' %}" 
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                        Create Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

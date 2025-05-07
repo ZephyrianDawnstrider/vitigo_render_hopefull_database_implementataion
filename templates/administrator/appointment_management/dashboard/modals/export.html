@@ -1,0 +1,21 @@
+<div id="exportModal{{ appointment.id }}" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="exportModal{{ appointment.id }}">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="p-6">
+                <h3 class="mb-4 text-lg font-medium text-gray-900">Export Appointment Data</h3>
+                <p class="text-sm text-gray-500 mb-4">Choose your preferred export format:</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="{% url 'appointment_export_single' appointment.id %}?format=pdf" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        <i class="fas fa-file-pdf mr-2"></i>Export as PDF
+                    </a>
+                    <a href="{% url 'appointment_export_single' appointment.id %}?format=csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        <i class="fas fa-file-csv mr-2"></i>Export as CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

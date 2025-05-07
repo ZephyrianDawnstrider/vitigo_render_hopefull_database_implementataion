@@ -1,0 +1,230 @@
+{% extends "../base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <h1 class="text-2xl font-bold mb-6">Create Image Comparison</h1>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <form method="get" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Patient Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Patient Search
+                    </label>
+                    <input type="text"
+                           name="patient_search"
+                           value="{{ patient_search }}"
+                           placeholder="Search by name or email"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                </div>
+
+                <!-- Date Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Start Date
+                    </label>
+                    <input type="date"
+                           name="start_date"
+                           value="{{ start_date }}"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        End Date
+                    </label>
+                    <input type="date"
+                           name="end_date"
+                           value="{{ end_date }}"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                </div>
+
+                <!-- Doctor Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Doctor
+                    </label>
+                    <select name="doctor"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                        <option value="">All Doctors</option>
+                        {% for doctor in doctors %}
+                            <option value="{{ doctor.id }}" {% if selected_doctor == doctor.id|stringformat:"i" %}selected{% endif %}>
+                                Dr. {{ doctor.get_full_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Buttons Section -->
+        <div class="flex justify-end space-x-3">
+            <!-- Clear Filters Link -->
+            <a href="{% url 'comparison_create' %}" 
+               class="bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium py-2 px-4 rounded">
+                Clear Filters
+            </a>
+            
+            <!-- Apply Filters Button -->
+            <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+                Apply Filters
+            </button>
+        </div>
+        </form>
+    </div>
+
+    <!-- Comparison Creation Form -->
+    <form method="post" class="mb-8">
+        {% csrf_token %}
+        <div class="bg-white rounded-lg shadow p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="comparison_title">
+                        Comparison Title
+                    </label>
+                    <input type="text" 
+                           name="comparison_title" 
+                           id="comparison_title"
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                           required>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="comparison_description">
+                        Description (Optional)
+                    </label>
+                    <textarea name="comparison_description" 
+                          id="comparison_description"
+                          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          rows="1"></textarea>
+                </div>
+            </div>
+        </div>
+
+        {% if patients_consultations %}
+            {% for patient, consultations in patients_consultations.items %}
+                <div class="mb-8 border-b pb-6">
+                    <h2 class="text-xl font-semibold mb-4">{{ patient.get_full_name }}</h2>
+                    <p class="text-gray-600 text-sm mb-4">Email: {{ patient.email }}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for consultation_data in consultations %}
+                            <div class="border rounded-lg p-4 consultation-card {% if consultation_data.image_count == 0 %}opacity-50{% endif %}">
+                                <div class="flex items-center justify-between mb-3">
+                                    {% if consultation_data.image_count > 0 %}
+                                    <input type="checkbox" 
+                                           name="consultation_ids" 
+                                           value="{{ consultation_data.consultation.id }}"
+                                           class="consultation-checkbox">
+                                    {% endif %}
+                                    <span class="text-sm text-gray-600">
+                                        {{ consultation_data.consultation.date_time|date:"M d, Y" }}
+                                    </span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h3 class="font-medium">Doctor:</h3>
+                                    <p class="text-sm text-gray-700">
+                                        Dr. {{ consultation_data.consultation.doctor.get_full_name }}
+                                    </p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h3 class="font-medium">Type:</h3>
+                                    <p class="text-sm text-gray-700">
+                                        {{ consultation_data.consultation.get_consultation_type_display }}
+                                    </p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h3 class="font-medium">Diagnosis:</h3>
+                                    <p class="text-sm text-gray-700">
+                                        {{ consultation_data.consultation.diagnosis|truncatechars:100 }}
+                                    </p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h3 class="font-medium">Images Available:</h3>
+                                    <p class="text-sm text-gray-700">{{ consultation_data.image_count }} images</p>
+                                </div>
+                                
+                                {% if consultation_data.images %}
+                                    <div class="grid grid-cols-3 gap-2">
+                                        {% for image in consultation_data.images|slice:":3" %}
+                                            <div class="relative group">
+                                                <img src="{{ image.image_file.url }}" 
+                                                     alt="Patient image"
+                                                     class="w-full h-20 object-cover rounded">
+                                                {% if image.body_part %}
+                                                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {{ image.body_part.name }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="flex justify-center mt-4 mb-4">
+                <div class="inline-flex rounded-md shadow">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if patient_search %}&patient_search={{ patient_search }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if selected_doctor %}&doctor={{ selected_doctor }}{% endif %}"
+                           class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Previous
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if patient_search %}&patient_search={{ patient_search }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if selected_doctor %}&doctor={{ selected_doctor }}{% endif %}"
+                           class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Next
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="fixed bottom-0 left-0 w-full bg-white border-t p-4">
+                <div class="container mx-auto flex justify-end">
+                    <button type="submit" 
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Create Comparison
+                    </button>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-gray-700">No consultations found matching the search criteria.</p>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.consultation-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedBoxes = document.querySelectorAll('.consultation-checkbox:checked');
+            if (checkedBoxes.length > 8) {
+                this.checked = false;
+                alert('You can only compare up to 8 consultations at once.');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

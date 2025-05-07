@@ -1,0 +1,453 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% block title %}Clinic Management Dashboard{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 mt-14 sm:ml-64">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Clinic Management</h1>
+            <p class="mt-1 text-sm text-gray-600">Administrative Dashboard</p>
+        </div>
+        <div class="flex space-x-3">
+            <div class="dropdown relative">
+                <button id="exportDropdown" data-dropdown-toggle="exportDropdownItems" class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-file-excel mr-2"></i>
+                    Export Data
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="exportDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10">
+                    <a href="{% url 'clinic_management:dashboard_export' %}?format=excel" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-excel mr-3 text-green-600"></i>
+                        <span class="text-sm text-gray-700">Export to Excel</span>
+                    </a>
+                    <a href="{% url 'clinic_management:dashboard_export' %}?format=pdf" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-pdf mr-3 text-red-600"></i>
+                        <span class="text-sm text-gray-700">Export to PDF</span>
+                    </a>
+                </div>
+            </div>
+            <button class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-cog mr-2"></i>
+                Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Total Active Visits -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-hospital-user text-white text-2xl"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/80 text-sm">Active Visits</p>
+                    <p class="text-white text-2xl font-bold">{{ active_visits_count }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'clinic_management:active_visits' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                    View Details <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Active Checklists -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-tasks text-white text-2xl"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/80 text-sm">Active Checklists</p>
+                    <p class="text-white text-2xl font-bold">{{ active_checklists }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'clinic_management:active_checklists' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                    Manage Checklists <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Visit Statuses -->
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-clipboard-check text-white text-2xl"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/80 text-sm">Status Types</p>
+                    <p class="text-white text-2xl font-bold">{{ status_types_count }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'clinic_management:visit_status_config' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                    Configure Statuses <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Completed Today -->
+        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-check-circle text-white text-2xl"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/80 text-sm">Completed Today</p>
+                    <p class="text-white text-2xl font-bold">{{ completed_today }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'clinic_management:completed_visits_report' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                    View Report <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Administrative Tools -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Visit Management -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-hospital text-blue-600 mr-2"></i>
+                    Visit Management
+                </h2>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-4">
+                <a href="{% url 'clinic_management:new_visit' %}" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-plus-circle text-blue-600 text-2xl mb-2"></i>
+                    <span class="text-blue-600 font-medium">New Visit</span>
+                </a>
+                <a href="{% url 'clinic_management:all_visits' %}" class="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-list text-green-600 text-2xl mb-2"></i>
+                    <span class="text-green-600 font-medium">All Visits</span>
+                </a>
+                <a href="{% url 'clinic_management:visit_logs' %}" class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-history text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-purple-600 font-medium">Visit Logs</span>
+                </a>
+                <a href="{% url 'clinic_management:visit_analytics' %}" class="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-chart-line text-orange-600 text-2xl mb-2"></i>
+                    <span class="text-orange-600 font-medium">Analytics</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Checklist Configuration -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-tasks text-purple-600 mr-2"></i>
+                    Checklist Configuration
+                </h2>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-4">
+                <a href="{% url 'clinic_management:new_checklist' %}" class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-plus-square text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-purple-600 font-medium">New Checklist</span>
+                </a>
+                <a href="{% url 'clinic_management:manage_checklists' %}" class="flex flex-col items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-clipboard-list text-indigo-600 text-2xl mb-2"></i>
+                    <span class="text-indigo-600 font-medium">Manage Lists</span>
+                </a>
+                <a href="{% url 'clinic_management:checklist_items' %}" class="flex flex-col items-center p-4 bg-pink-50 rounded-lg hover:bg-pink-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-list-check text-pink-600 text-2xl mb-2"></i>
+                    <span class="text-pink-600 font-medium">Checklist Items</span>
+                </a>
+                <a href="{% url 'clinic_management:checklist_reports' %}" class="flex flex-col items-center p-4 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-chart-pie text-cyan-600 text-2xl mb-2"></i>
+                    <span class="text-cyan-600 font-medium">Reports</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Billing & Payments -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Billing Management -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-file-invoice-dollar text-green-600 mr-2"></i>
+                    Billing Management
+                </h2>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-4">
+                <a href="#" class="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-plus-circle text-green-600 text-2xl mb-2"></i>
+                    <span class="text-green-600 font-medium">New Bill</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-clock text-yellow-600 text-2xl mb-2"></i>
+                    <span class="text-yellow-600 font-medium">Pending Bills</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-history text-blue-600 text-2xl mb-2"></i>
+                    <span class="text-blue-600 font-medium">Billing History</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-chart-bar text-indigo-600 text-2xl mb-2"></i>
+                    <span class="text-indigo-600 font-medium">Reports</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Payment Processing -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-credit-card text-purple-600 mr-2"></i>
+                    Payment Processing
+                </h2>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-4">
+                <a href="#" class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-credit-card text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-purple-600 font-medium">Card Payment</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-terminal text-red-600 text-2xl mb-2"></i>
+                    <span class="text-red-600 font-medium">POS Devices</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-cog text-teal-600 text-2xl mb-2"></i>
+                    <span class="text-teal-600 font-medium">Settings</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-amber-50 rounded-lg hover:bg-amber-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-list-alt text-amber-600 text-2xl mb-2"></i>
+                    <span class="text-amber-600 font-medium">Transaction Logs</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Registration Quick Links -->
+    <div class="bg-white rounded-lg shadow-lg mb-6">
+        <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-user-plus text-blue-600 mr-2"></i>
+                Patient Registration Quick Links
+            </h2>
+        </div>
+        <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <a href="{% url 'patient_registration' %}" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all transform hover:scale-105">
+                <i class="fas fa-user-plus text-blue-600 text-2xl mb-2"></i>
+                <span class="text-blue-600 font-medium">New Registration</span>
+            </a>
+            <a href="{% url 'patient_list' %}" class="flex flex-col items-center p-4 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-all transform hover:scale-105">
+                <i class="fas fa-database text-emerald-600 text-2xl mb-2"></i>
+                <span class="text-emerald-600 font-medium">Update Records</span>
+            </a>
+            <a href="{% url 'patient_list' %}" class="flex flex-col items-center p-4 bg-violet-50 rounded-lg hover:bg-violet-100 transition-all transform hover:scale-105">
+                <i class="fas fa-search text-violet-600 text-2xl mb-2"></i>
+                <span class="text-violet-600 font-medium">Search Patient</span>
+            </a>
+            <a href="{% url 'patient_list' %}" class="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all transform hover:scale-105">
+                <i class="fas fa-folder-open text-orange-600 text-2xl mb-2"></i>
+                <span class="text-orange-600 font-medium">Patient Records</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Management & Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Status Management -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-toggle-on text-emerald-600 mr-2"></i>
+                    Status Management
+                </h2>
+                <a href="{% url 'clinic_management:new_visit_status' %}" class="px-3 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    New Status
+                </a>
+            </div>
+            <div class="p-4">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Active Cases</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Order</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Is Active</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for status in visit_statuses %}
+                            <tr>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <span class="w-3 h-3 rounded-full mr-2" style="background-color: {{ status.color_code }}"></span>
+                                        <span class="font-medium text-gray-900">{{ status.display_name }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        {{ status.active_visits }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <button class="text-gray-400 hover:text-gray-600" title="Move Up">
+                                            <i class="fas fa-arrow-up"></i>
+                                        </button>
+                                        <span class="text-gray-900">{{ status.order }}</span>
+                                        <button class="text-gray-400 hover:text-gray-600" title="Move Down">
+                                            <i class="fas fa-arrow-down"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" 
+                                               class="sr-only peer" 
+                                               {% if status.is_active %}checked{% endif %}
+                                               data-modal-target="statusToggleModal{{ status.id }}"
+                                               data-modal-toggle="statusToggleModal{{ status.id }}">
+                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                                    </label>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <button data-modal-target="editStatusModal{{ status.id }}" 
+                                                data-modal-toggle="editStatusModal{{ status.id }}"
+                                                class="text-blue-600 hover:text-blue-800" 
+                                                title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button data-modal-target="deleteStatusModal{{ status.id }}" 
+                                                data-modal-toggle="deleteStatusModal{{ status.id }}"
+                                                class="text-red-600 hover:text-red-800" 
+                                                title="Delete" 
+                                                {% if status.active_visits > 0 %}disabled{% endif %}>
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% include '../modals/status_toggle_modal.html' %}
+                            {% include '../modals/status_delete_modal.html' %}
+                            {% include '../modals/status_edit_modal.html' %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Log -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-history text-blue-600 mr-2"></i>
+                    Recent Activity
+                </h2>
+                <a href="{% url 'clinic_management:all_activities' %}" 
+                   class="text-sm text-blue-600 hover:text-blue-700">View All</a>
+            </div>
+            <div class="p-4">
+                <div class="space-y-4">
+                    {% for log in recent_logs %}
+                    <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="flex-shrink-0">
+                            <span class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-user-clock text-blue-600"></i>
+                            </span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ log.action }}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                {{ log.timestamp }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Data Section -->
+    <div class="mt-6 bg-white rounded-lg shadow-lg">
+        <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-file-export text-indigo-600 mr-2"></i>
+                Export Data
+            </h2>
+        </div>
+        <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="dropdown relative">
+                <button id="visitExportDropdown" 
+                        data-dropdown-toggle="visitExportOptions" 
+                        class="w-full flex items-center justify-center space-x-2 p-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Export Visit Data</span>
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="visitExportOptions" class="dropdown-menu hidden absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10">
+                    <form action="{% url 'clinic_management:visit_data_export' %}" method="get" class="space-y-4">
+                        <a href="{% url 'clinic_management:visit_data_export' %}?format=excel" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-file-excel mr-3 text-green-600"></i>
+                            <span class="text-sm text-gray-700">Excel Format</span>
+                        </a>
+                        <a href="{% url 'clinic_management:visit_data_export' %}?format=pdf" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-file-pdf mr-3 text-red-600"></i>
+                            <span class="text-sm text-gray-700">PDF Format</span>
+                        </a>
+                    </form>
+                </div>
+            </div>
+            <div class="dropdown relative">
+                <button id="checklistExportDropdown" 
+                        data-dropdown-toggle="checklistExportOptions" 
+                        class="w-full flex items-center justify-center space-x-2 p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Export Checklist Report</span>
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="checklistExportOptions" class="dropdown-menu hidden absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10">
+                    <a href="{% url 'clinic_management:checklist_data_export' %}?format=excel" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-excel mr-3 text-green-600"></i>
+                        <span class="text-sm text-gray-700">Excel Format</span>
+                    </a>
+                    <a href="{% url 'clinic_management:checklist_data_export' %}?format=pdf" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-pdf mr-3 text-red-600"></i>
+                        <span class="text-sm text-gray-700">PDF Format</span>
+                    </a>
+                </div>
+            </div>
+            <div class="dropdown relative">
+                <button id="analyticsExportDropdown" 
+                        data-dropdown-toggle="analyticsExportOptions" 
+                        class="w-full flex items-center justify-center space-x-2 p-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analytics Report</span>
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="analyticsExportOptions" class="dropdown-menu hidden absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10">
+                    <a href="{% url 'clinic_management:analytics_export' %}?format=excel" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-excel mr-3 text-green-600"></i>
+                        <span class="text-sm text-gray-700">Excel Format</span>
+                    </a>
+                    <a href="{% url 'clinic_management:analytics_export' %}?format=pdf" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-pdf mr-3 text-red-600"></i>
+                        <span class="text-sm text-gray-700">PDF Format</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

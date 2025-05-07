@@ -1,0 +1,204 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Bulk Actions - HR Management{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'employee_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Employees</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Bulk Actions</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="flex items-center space-x-4">
+                    <button type="button" onclick="window.history.back()" class="text-gray-700 bg-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 border">
+                        <i class="mr-2 fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Employee Bulk Actions</h1>
+            <p class="mt-1 text-sm text-gray-500">Perform actions on multiple employees simultaneously</p>
+        </div>
+
+        <!-- Action Form Card -->
+        <div class="bg-white shadow rounded-lg">
+            <form method="POST" action="{% url 'employee_bulk_actions' %}" id="bulkActionForm">
+                {% csrf_token %}
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                    <!-- Action Selection -->
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Select Action</label>
+                            <select name="action" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md">
+                                <option value="">Choose an action...</option>
+                                <option value="update_department">Update Department</option>
+                                <option value="update_status">Update Employment Status</option>
+                                <option value="deactivate">Deactivate Employees</option>
+                            </select>
+                        </div>
+
+                        <!-- Dynamic Action Parameters -->
+                        <div id="departmentParam" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700">Select Department</label>
+                            <select name="department" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md">
+                                {% for dept in departments %}
+                                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div id="statusParam" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700">Select Status</label>
+                            <select name="status" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md">
+                                {% for key, value in employment_statuses.items %}
+                                    <option value="{{ key }}">{{ value }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employee Selection Table -->
+                <div class="overflow-x-auto">
+                    <!-- Selection Counter -->
+                    <div class="px-6 py-3 bg-gray-50 border-b">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="selectAllTop" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <label for="selectAllTop" class="ml-2 text-sm text-gray-700">Select All</label>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <span id="selectedCount">0</span> employees selected
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="relative w-12 px-6">
+                                    <input type="checkbox" id="selectAllHeader" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for employee in employees %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="relative w-12 px-6">
+                                    <input type="checkbox" name="employee_ids" value="{{ employee.id }}" class="employee-checkbox absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ employee.user.get_full_name }}</div>
+                                            <div class="text-sm text-gray-500">{{ employee.employee_id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ employee.department.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        {{ employee.get_employment_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-3">
+                    <button type="button" onclick="window.history.back()" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </button>
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Apply Action
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllTop = document.getElementById('selectAllTop');
+    const selectAllHeader = document.getElementById('selectAllHeader');
+    const employeeCheckboxes = document.getElementsByClassName('employee-checkbox');
+    const selectedCountElement = document.getElementById('selectedCount');
+
+    function updateSelectedCount() {
+        const checkedCount = Array.from(employeeCheckboxes).filter(cb => cb.checked).length;
+        selectedCountElement.textContent = checkedCount;
+    }
+
+    function toggleAllCheckboxes(checked) {
+        Array.from(employeeCheckboxes).forEach(checkbox => {
+            checkbox.checked = checked;
+        });
+        selectAllTop.checked = checked;
+        selectAllHeader.checked = checked;
+        updateSelectedCount();
+    }
+
+    selectAllTop.addEventListener('change', function() {
+        toggleAllCheckboxes(this.checked);
+    });
+
+    selectAllHeader.addEventListener('change', function() {
+        toggleAllCheckboxes(this.checked);
+    });
+
+    Array.from(employeeCheckboxes).forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const allChecked = Array.from(employeeCheckboxes).every(cb => cb.checked);
+            selectAllTop.checked = allChecked;
+            selectAllHeader.checked = allChecked;
+            updateSelectedCount();
+        });
+    });
+});
+</script>
+{% endblock %}

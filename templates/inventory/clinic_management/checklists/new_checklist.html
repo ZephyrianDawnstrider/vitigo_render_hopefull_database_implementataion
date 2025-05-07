@@ -1,0 +1,175 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Create New Checklist{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumbs -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'clinic_management:clinic_dashboard' %}" class="hover:text-purple-600"><i class="fas fa-clinic-medical mr-2"></i>Clinic Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">New Checklist</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">New Checklist</h1>
+                <p class="mt-1 text-sm text-gray-600">Create a new checklist template for clinic visits</p>
+            </div>
+            <a href="{% url 'clinic_management:clinic_dashboard' %}" 
+               class="flex items-center px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form Card -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm">
+            <div class="p-6">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-green-50 text-green-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Name Field -->
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Checklist Name <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Choose a clear and descriptive name for the checklist</p>
+                    </div>
+
+                    <!-- Description Field -->
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Description
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Provide detailed information about the checklist's purpose and usage</p>
+                    </div>
+
+                    <!-- Order and Active Status -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.order.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                Display Order
+                            </label>
+                            {{ form.order }}
+                            {% if form.order.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.order.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-sm text-gray-500">Lower numbers appear first in the list</p>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.is_active.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                Active Status
+                            </label>
+                            <div class="mt-2">
+                                <label class="inline-flex items-center">
+                                    {{ form.is_active }}
+                                    <span class="ml-2 text-sm text-gray-700">Make this checklist active</span>
+                                </label>
+                            </div>
+                            {% if form.is_active.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end space-x-3 pt-4 border-t">
+                        <a href="{% url 'clinic_management:clinic_dashboard' %}"
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                            Create Checklist
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Helper Information Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Checklist Guide -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Checklist Guide</h3>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-purple-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Purpose</h4>
+                            <p class="text-sm text-gray-500">Checklists help standardize processes and ensure consistency in clinic operations</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-list-check text-purple-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Items</h4>
+                            <p class="text-sm text-gray-500">You can add checklist items after creating the checklist</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-sort text-purple-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Order</h4>
+                            <p class="text-sm text-gray-500">Controls the display order in lists and reports</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Practices -->
+            <div class="bg-purple-50 rounded-lg p-6">
+                <h3 class="text-sm font-medium text-purple-800 mb-3">Best Practices</h3>
+                <div class="space-y-3 text-sm text-purple-700">
+                    <p><strong>Clear Names:</strong> Use descriptive, specific names for easy identification</p>
+                    <p><strong>Detailed Description:</strong> Include the purpose and when to use the checklist</p>
+                    <p><strong>Logical Order:</strong> Consider the workflow when setting the display order</p>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="bg-amber-50 rounded-lg p-6">
+                <h3 class="text-sm font-medium text-amber-800 mb-3">Quick Tips</h3>
+                <ul class="space-y-2 text-sm text-amber-700 list-disc list-inside">
+                    <li>Keep checklist names concise but descriptive</li>
+                    <li>Use clear, action-oriented descriptions</li>
+                    <li>Consider marking as inactive for testing</li>
+                    <li>Plan your items before creating the checklist</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

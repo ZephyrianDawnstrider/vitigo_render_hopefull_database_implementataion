@@ -1,0 +1,239 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="px-4 mt-14 sm:ml-64">
+  <div class="w-full max-w-7xl mx-auto bg-white p-10 shadow-xl rounded-2xl">
+    <div class="mb-6">
+      <h1 class="text-3xl font-semibold text-gray-800">Create New Consultation</h1>
+      <p class="mt-1 text-sm text-gray-600">Schedule a new consultation yourself</p>
+    </div>
+
+    {% if messages %}
+    <div class="mb-6">
+      {% for message in messages %}
+        <div class="rounded-md p-4 mb-2 {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" id="consultation-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="patient" value="{{ request.user.id }}" />
+      <input type="hidden" name="consultation_type" value="{{ form.consultation_type.initial }}" />
+      {% if request.user.role.name == 'PATIENT' %}
+      <input type="hidden" name="priority" value="{{ form.priority.initial }}" />
+      {% endif %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <label for="id_patient_name" class="block text-base font-medium text-gray-700">Patient Name</label>
+          <input type="text" id="id_patient_name" name="patient_name" value="{{ request.user.get_full_name }}" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-gray-100 cursor-not-allowed" />
+        </div>
+
+        <div>
+          <label for="id_doctor" class="block text-base font-medium text-gray-700">Doctor</label>
+          <select id="id_doctor" name="doctor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm">
+            <option value="">Select a doctor</option>
+            {% for doctor in form.fields.doctor.queryset %}
+              <option value="{{ doctor.id }}">{{ doctor.get_full_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="id_center" class="block text-base font-medium text-gray-700">Clinic / Medical Center</label>
+          <select id="id_center" name="center" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" disabled>
+            <option value="">Select a clinic</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="id_duration_minutes" class="block text-base font-medium text-gray-700">Consultation Duration</label>
+          <select id="id_duration_minutes" name="duration_minutes" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm">
+            <option value="15" {% if form.duration_minutes.value == '15' %}selected{% endif %}>15 minutes</option>
+            <option value="30" {% if form.duration_minutes.value == '30' %}selected{% endif %}>30 minutes</option>
+            <option value="45" {% if form.duration_minutes.value == '45' %}selected{% endif %}>45 minutes</option>
+          </select>
+        </div>
+
+        <div class="lg:col-span-2">
+          <label for="id_chief_complaint" class="block text-base font-medium text-gray-700">Chief Complaint</label>
+          <textarea id="id_chief_complaint" name="chief_complaint" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm">{{ form.chief_complaint.value }}</textarea>
+        </div>
+
+        <div class="lg:col-span-2 flex items-center">
+          <input type="checkbox" id="id_urgent_consultation" name="urgent_consultation" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" {% if form.urgent_consultation.value %}checked{% endif %} />
+          <label for="id_urgent_consultation" class="ml-2 block text-sm text-gray-900">Urgent Consultation Request (serious cases only)</label>
+        </div>
+
+        {% if not request.user.role.name == 'PATIENT' %}
+        <div>
+          <label for="id_priority" class="block text-base font-medium text-gray-700">Priority</label>
+          {{ form.priority }}
+        </div>
+        {% endif %}
+
+        <div id="consultation-calendar" class="mt-6">
+          <div class="calendar-header mb-2 flex items-center justify-between">
+              {% comment %} <button type="button" id="prev-month" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"><</button> {% endcomment %}
+              <div id="calendar-month-year" class="font-semibold"></div>
+              {% comment %} <button type="button" id="next-month" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">></button> {% endcomment %}
+          </div>
+          <!-- Added missing calendar container for flatpickr -->
+          <div id="inline-calendar" class="mb-4"></div>
+          <!-- Added missing timeslot container -->
+          <div id="timeslot-container" class="mb-2 flex flex-wrap gap-2"></div>
+          <!-- Added missing selected time info box -->
+          <div id="selected-time-info" class="hidden text-sm text-indigo-600 font-medium"></div>
+      </div>
+
+      <!-- Selected Slot -->
+      <input type="hidden" id="id_scheduled_datetime" name="scheduled_datetime">
+      <input type="hidden" id="id_time_slot" name="time_slot">
+
+      <div class="mt-8">
+        <button type="submit" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all">
+          Schedule Consultation
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const doctorSelect = document.getElementById('id_doctor');
+  const centerSelect = document.getElementById('id_center');
+  const scheduledInput = document.getElementById('id_scheduled_datetime');
+  const timeSlotInput = document.getElementById('id_time_slot');
+  const timeslotContainer = document.getElementById('timeslot-container');
+  const timeInfoBox = document.getElementById('selected-time-info');
+
+  let availableDates = [];
+  let timeslots = [];
+
+  let fp = flatpickr("#inline-calendar", {
+    inline: true,
+    enableTime: false,
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    enable: [],
+    onDayCreate: function (dObj, dStr, fp, dayElem) {
+      const date = dayElem.dateObj.toISOString().slice(0, 10);
+      if (availableDates.includes(date)) {
+        dayElem.style.boxShadow = "0 0 0 2px #3b82f6";
+        dayElem.style.borderRadius = "50%";
+        dayElem.style.cursor = "pointer";
+      }
+    },
+    onChange: function (selectedDates, dateStr) {
+      if (dateStr && availableDates.includes(dateStr)) {
+        fetchTimeslots(dateStr);
+      } else {
+        timeslotContainer.innerHTML = '';
+        scheduledInput.value = '';
+        timeSlotInput.value = '';
+        timeInfoBox.classList.add('hidden');
+        timeInfoBox.textContent = '';
+      }
+    }
+  });
+
+  doctorSelect.addEventListener('change', function () {
+    const doctorId = this.value;
+    centerSelect.innerHTML = '<option value="">Select a clinic</option>';
+    centerSelect.disabled = true;
+    scheduledInput.value = '';
+    timeSlotInput.value = '';
+    timeslotContainer.innerHTML = '';
+    fp.set('enable', []);
+    if (!doctorId) return;
+
+    fetch(`/consultations/api/doctor-centers/?user_id=${doctorId}`, { credentials: 'include' })
+      .then(response => response.json())
+      .then(data => {
+        if (data.centers && data.centers.length > 0) {
+          data.centers.forEach(center => {
+            const option = document.createElement('option');
+            option.value = center.id;
+            option.textContent = center.name;
+            centerSelect.appendChild(option);
+          });
+          centerSelect.disabled = false;
+        }
+      })
+      .catch(error => console.error('Error fetching centers:', error));
+  });
+
+  centerSelect.addEventListener('change', function () {
+    const doctorId = doctorSelect.value;
+    const centerId = this.value;
+    scheduledInput.value = '';
+    timeSlotInput.value = '';
+    timeslotContainer.innerHTML = '';
+    fp.set('enable', []);
+    if (!doctorId || !centerId) return;
+
+    fetch(`/consultations/api/doctor-available-dates/?user_id=${doctorId}&center_id=${centerId}`, { credentials: 'include' })
+      .then(response => response.json())
+      .then(data => {
+        if (data.available_dates && data.available_dates.length > 0) {
+          availableDates = data.available_dates;
+          fp.set('enable', availableDates);
+        } else {
+          availableDates = [];
+          fp.set('enable', []);
+        }
+      })
+      .catch(error => console.error('Error fetching available dates:', error));
+  });
+
+  function fetchTimeslots(dateStr) {
+    const doctorId = doctorSelect.value;
+    const centerId = centerSelect.value;
+    scheduledInput.value = '';
+    timeSlotInput.value = '';
+    timeslotContainer.innerHTML = '';
+    timeInfoBox.classList.add('hidden');
+    timeInfoBox.textContent = '';
+
+    if (!doctorId || !centerId || !dateStr) return;
+
+    fetch(`/consultations/api/doctor-timeslots/?user_id=${doctorId}&center_id=${centerId}&date=${dateStr}`, { credentials: 'include' })
+      .then(response => response.json())
+      .then(data => {
+        timeslots = data.timeslots || [];
+        renderTimeslots(timeslots, dateStr);
+      })
+      .catch(error => console.error('Error fetching timeslots:', error));
+  }
+
+  function renderTimeslots(timeslots, dateStr) {
+    timeslotContainer.innerHTML = '';
+    if (timeslots.length === 0) {
+      timeslotContainer.textContent = 'No available timeslots for selected date.';
+      return;
+    }
+    timeslots.forEach(slot => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'px-3 py-2 rounded-md border border-gray-300 hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm';
+      btn.textContent = `${slot.start_time} - ${slot.end_time}`;
+      btn.disabled = !slot.is_available;
+      btn.addEventListener('click', () => {
+        Array.from(timeslotContainer.children).forEach(child => child.classList.remove('bg-indigo-600', 'text-white'));
+        btn.classList.add('bg-indigo-600', 'text-white');
+        scheduledInput.value = `${dateStr} ${slot.start_time}`;
+        timeSlotInput.value = slot.id;
+        timeInfoBox.classList.remove('hidden');
+        timeInfoBox.textContent = `Selected: ${dateStr} at ${slot.start_time}`;
+      });
+      timeslotContainer.appendChild(btn);
+    });
+  }
+});
+</script>
+{% endblock %}

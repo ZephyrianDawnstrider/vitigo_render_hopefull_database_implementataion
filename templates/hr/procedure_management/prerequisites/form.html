@@ -1,0 +1,196 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if is_edit %}Edit{% else %}New{% endif %} Prerequisite{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:prerequisite_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Prerequisites
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{% if is_edit %}Edit{% else %}New{% endif %} Prerequisite</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+                    {% if is_edit %}Edit{% else %}Create New{% endif %} Prerequisite
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    {% if is_edit %}
+                    Update an existing prerequisite for a procedure type
+                    {% else %}
+                    Add a new prerequisite requirement for a procedure type
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="rounded-md bg-red-50 p-4 mb-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">
+                                    Please correct the following errors:
+                                </h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    {{ form.errors }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        {% if not is_edit %}
+                        <!-- Procedure Type Selection (only for create) -->
+                        <div class="md:col-span-2">
+                            {{ form.procedure_type|as_crispy_field }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Prerequisite Name -->
+                        <div class="md:col-span-2">
+                            {{ form.name|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        {{ form.description|as_crispy_field }}
+                    </div>
+
+                    <!-- Requirements and Order -->
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div class="flex items-start">
+                            {{ form.is_mandatory|as_crispy_field }}
+                            <p class="mt-1 text-sm text-gray-500">
+                                Mandatory prerequisites must be completed before the procedure
+                            </p>
+                        </div>
+                        <div>
+                            {{ form.order|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t">
+                        <a href="{% if is_edit %}{% url 'procedure_management:prerequisite_detail' prerequisite.id %}{% else %}{% url 'procedure_management:prerequisite_list' %}{% endif %}"
+                           class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                            {% if is_edit %}Update{% else %}Create{% endif %} Prerequisite
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if is_edit %}
+        <!-- Related Information -->
+        <div class="mt-6 bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Associated Procedure Type</h3>
+                <dl class="grid grid-cols-1 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Name</dt>
+                        <dd class="mt-1">
+                            <a href="{% url 'procedure_management:type_detail' prerequisite.procedure_type.id %}"
+                               class="text-sm text-indigo-600 hover:text-indigo-900">
+                                {{ prerequisite.procedure_type.name }}
+                            </a>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Category</dt>
+                        <dd class="mt-1">
+                            <a href="{% url 'procedure_management:category_detail' prerequisite.procedure_type.category.id %}"
+                               class="text-sm text-indigo-600 hover:text-indigo-900">
+                                {{ prerequisite.procedure_type.category.name }}
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.getElementById('id_name');
+        if (nameInput) {
+            nameInput.addEventListener('input', function() {
+                if (this.value.length < 3) {
+                    this.classList.add('border-red-300');
+                } else {
+                    this.classList.remove('border-red-300');
+                }
+            });
+        }
+
+        const orderInput = document.getElementById('id_order');
+        if (orderInput) {
+            orderInput.addEventListener('input', function() {
+                if (parseInt(this.value) < 0) {
+                    this.value = 0;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

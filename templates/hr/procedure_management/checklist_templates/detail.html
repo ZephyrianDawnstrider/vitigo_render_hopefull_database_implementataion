@@ -1,0 +1,168 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Template Details - {{ template.name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:template_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Templates
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ template.name }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center h-12 w-12 rounded-full 
+                            {% if template.is_active %}bg-green-100{% else %}bg-gray-100{% endif %}">
+                            <i class="fas fa-file-alt text-xl 
+                                {% if template.is_active %}text-green-600{% else %}text-gray-600{% endif %}">
+                            </i>
+                        </span>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+                            {{ template.name }}
+                        </h2>
+                        <div class="mt-1 flex items-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if template.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ template.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                            <span class="ml-2 text-sm text-gray-500">
+                                Procedure Type: {{ template.procedure_type.name }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                <a href="{% url 'procedure_management:template_update' template.id %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit Template
+                </a>
+                <button type="button"
+                        data-modal-target="deleteModal-{{ template.id }}" 
+                        data-modal-toggle="deleteModal-{{ template.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700
+                               {% if checklists_count > 0 %}opacity-50 cursor-not-allowed{% endif %}"
+                        {% if checklists_count > 0 %}disabled{% endif %}>
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <!-- Template Information -->
+            <div class="lg:col-span-1 bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Template Information</h3>
+                <div class="prose max-w-none">
+                    {{ template.description|linebreaks }}
+                </div>
+                <dl class="mt-4 grid grid-cols-1 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Checklists Created</dt>
+                        <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ checklists_count }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Items Count</dt>
+                        <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ items.count }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Checklist Items -->
+            <div class="lg:col-span-2 bg-white shadow rounded-lg">
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">Checklist Items</h3>
+                    <a href="#" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
+                        <i class="fas fa-plus mr-1.5"></i> Add Item
+                    </a>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    {% for item in items %}
+                    <li class="px-4 py-4 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="flex-shrink-0 h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
+                                    {{ forloop.counter }}
+                                </span>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">{{ item.description }}</p>
+                                    {% if item.is_mandatory %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        Required
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="px-4 py-8 text-center text-gray-500">
+                        <p>No items added to this template yet</p>
+                        <button type="button" 
+                                class="mt-4 inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
+                            <i class="fas fa-plus mr-1.5"></i> Add First Item
+                        </button>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include './modals/delete.html' with template=template %}
+
+{% endblock %}

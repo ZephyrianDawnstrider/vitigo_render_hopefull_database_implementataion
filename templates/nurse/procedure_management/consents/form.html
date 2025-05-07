@@ -1,0 +1,217 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if is_edit %}Edit{% else %}New{% endif %} Consent Form{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:consent_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Consent Forms
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{% if is_edit %}Edit{% else %}New{% endif %} Consent Form</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 mt-8">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex items-start">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-semibold text-gray-900">{% if is_edit %}Edit{% else %}New{% endif %} Consent Form</h1>
+                    <div class="relative ml-2 group">
+                        <i class="fas fa-info-circle text-gray-400 hover:text-blue-500 cursor-help text-lg"></i>
+                        <div class="hidden group-hover:block absolute left-0 top-6 w-96 p-4 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                            <div class="text-sm text-gray-600 space-y-2">
+                                <p class="font-medium text-gray-700 mb-2">{% if is_edit %}About Editing Consent Form{% else %}About Creating New Consent Form{% endif %}</p>
+                                {% if is_edit %}
+                                <p>Update an existing consent form by:</p>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    <li>Modifying witness information</li>
+                                    <li>Updating notes</li>
+                                    <li>Uploading new documents</li>
+                                    <li>Managing signatures</li>
+                                </ul>
+                                <p class="mt-2 text-yellow-600"><i class="fas fa-exclamation-triangle mr-1"></i>Changes will be logged for audit purposes</p>
+                                {% else %}
+                                <p>Create a new consent form by:</p>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    <li>Selecting the procedure</li>
+                                    <li>Adding witness information</li>
+                                    <li>Uploading required documents</li>
+                                    <li>Adding any relevant notes</li>
+                                </ul>
+                                <p class="mt-2 text-blue-600"><i class="fas fa-info-circle mr-1"></i>Required fields are marked with *</p>
+                                {% endif %}
+                            </div>
+                            <div class="absolute -top-2 left-2 w-4 h-4 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="mt-1 text-sm text-gray-600">{% if is_edit %}Update existing{% else %}Create a new{% endif %} procedure consent form</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white border rounded-lg shadow-sm">
+            <div class="p-6">
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                        {% for field, errors in form.errors.items %}
+                            <p>{{ field }}: {{ errors|join:", " }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        {% if not is_edit %}
+                        <!-- Procedure Selection (only for create) -->
+                        <div class="md:col-span-2">
+                            {{ form.procedure|as_crispy_field }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Witness Information -->
+                        <div class="md:col-span-2">
+                            {{ form.witness_name|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <!-- Document Upload -->
+                    <div class="space-y-4">
+                        <div class="border rounded-lg p-4 bg-gray-50">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Consent Document</h3>
+                            {{ form.scanned_document|as_crispy_field }}
+                            {% if form.instance.scanned_document %}
+                            <div class="mt-2 flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                                    <span class="text-sm text-gray-600">Current file: {{ form.instance.scanned_document.name }}</span>
+                                </div>
+                                <a href="{{ form.instance.scanned_document.url }}" target="_blank"
+                                   class="text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-external-link-alt mr-1"></i>View
+                                </a>
+                            </div>
+                            {% endif %}
+                            <p class="mt-2 text-xs text-gray-500">Allowed formats: PDF, JPG, PNG. Maximum size: 5MB</p>
+                        </div>
+                    </div>
+
+                    <!-- Additional Notes -->
+                    <div>
+                        {{ form.notes|as_crispy_field }}
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t">
+                        <a href="{% if is_edit %}{% url 'procedure_management:consent_detail' consent_form.pk %}{% else %}{% url 'procedure_management:consent_list' %}{% endif %}" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                            {% if is_edit %}Update{% else %}Create{% endif %} Consent Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if is_edit %}
+        <!-- Related Information -->
+        <div class="mt-6">
+            <div class="bg-white border rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Procedure Information</h3>
+                <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Procedure Type</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.procedure.procedure_type.name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Patient</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.procedure.patient.get_full_name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Scheduled Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.procedure.scheduled_date|date:"F d, Y" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Primary Doctor</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.procedure.primary_doctor.get_full_name }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('id_scanned_document');
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    // Validate file size
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    if (file.size > maxSize) {
+                        alert('File size must be less than 5MB');
+                        this.value = '';
+                        return;
+                    }
+
+                    // Validate file type
+                    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+                    if (!allowedTypes.includes(file.type)) {
+                        alert('Please upload a PDF, JPG, or PNG file');
+                        this.value = '';
+                        return;
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

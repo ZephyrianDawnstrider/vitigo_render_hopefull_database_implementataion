@@ -1,0 +1,365 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-6 mt-14 sm:ml-64 bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Create New User</h1>
+                    <p class="mt-2 text-lg text-gray-600">Add a new user to the system</p>
+                </div>
+                <a href="{% url 'user_management' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Users
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-8">
+                {% if form.errors %}
+                <div class="mb-6 p-4 rounded-lg bg-red-50 border-l-4 border-red-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+                            <div class="mt-2 text-sm text-red-700">{{ form.errors }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" class="space-y-8" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Profile Picture Section -->
+                    <div class="flex justify-center mb-8">
+                        <div class="text-center">
+                            <div class="relative group">
+                                <div class="w-32 h-32 rounded-full bg-gray-200 mx-auto mb-4 overflow-hidden flex items-center justify-center border-4 border-blue-100 group-hover:border-blue-200 transition-all duration-200">
+                                    <img id="preview-image" src="/api/placeholder/128/128" alt="Profile Preview" class="w-full h-full object-cover hidden">
+                                    <i class="fas fa-user text-gray-400 text-4xl" id="default-icon"></i>
+                                </div>
+                                <label for="{{ form.profile_picture.id_for_label }}" class="cursor-pointer">
+                                    <div class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                                        <i class="fas fa-camera mr-2"></i>Upload Photo
+                                    </div>
+                                </label>
+                                {{ form.profile_picture }}
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">{{ form.profile_picture.help_text }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Left Column -->
+                        <div class="space-y-6">
+                            <!-- Basic Information -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                                
+                                <!-- Email Field -->
+                                <div class="mb-4">
+                                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-envelope text-gray-400"></i>
+                                        </div>
+                                        {{ form.email }}
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-500">{{ form.email.help_text }}</p>
+                                </div>
+
+                                <!-- Name Fields -->
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fas fa-user text-gray-400"></i>
+                                            </div>
+                                            {{ form.first_name }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                        {{ form.last_name }}
+                                    </div>
+                                </div>
+
+                                <!-- Gender Field -->
+                                <div class="mb-4">
+                                    <label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                    {{ form.gender }}
+                                    <p class="mt-1 text-sm text-gray-500">{{ form.gender.help_text }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-6">
+                            <!-- Contact Information -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+                                
+                                <!-- Phone Fields -->
+                                <div class="grid grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label for="{{ form.country_code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Country Code</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fas fa-globe text-gray-400"></i>
+                                            </div>
+                                            {{ form.country_code }}
+                                        </div>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fas fa-phone text-gray-400"></i>
+                                            </div>
+                                            {{ form.phone_number }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fas fa-lock text-gray-400"></i>
+                                            </div>
+                                            {{ form.password }}
+                                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('{{ form.password.id_for_label }}', this)">
+                                                <i class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                                            </button>
+                                        </div>
+                                        <div class="mt-2">
+                                            <ul class="text-sm space-y-1">
+                                                <li id="length-check" class="flex items-center text-gray-500">
+                                                    <i class="fas fa-circle text-xs mr-2"></i>
+                                                    At least 8 characters
+                                                </li>
+                                                <li id="uppercase-check" class="flex items-center text-gray-500">
+                                                    <i class="fas fa-circle text-xs mr-2"></i>
+                                                    Contains uppercase letter
+                                                </li>
+                                                <li id="lowercase-check" class="flex items-center text-gray-500">
+                                                    <i class="fas fa-circle text-xs mr-2"></i>
+                                                    Contains lowercase letter
+                                                </li>
+                                                <li id="number-check" class="flex items-center text-gray-500">
+                                                    <i class="fas fa-circle text-xs mr-2"></i>
+                                                    Contains number
+                                                </li>
+                                                <li id="special-check" class="flex items-center text-gray-500">
+                                                    <i class="fas fa-circle text-xs mr-2"></i>
+                                                    Contains special character
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.confirm_password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fas fa-lock text-gray-400"></i>
+                                            </div>
+                                            {{ form.confirm_password }}
+                                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('{{ form.confirm_password.id_for_label }}', this)">
+                                                <i class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                                            </button>
+                                        </div>
+                                        <div id="password-match" class="mt-1 text-sm hidden">
+                                            <span class="flex items-center">
+                                                <i class="fas fa-circle text-xs mr-2"></i>
+                                                Passwords match
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Role and Status -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Role & Status</h3>
+                                
+                                <div class="mb-4">
+                                    <label for="{{ form.role.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">User Role</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-user-tag text-gray-400"></i>
+                                        </div>
+                                        {{ form.role }}
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-500">{{ form.role.help_text }}</p>
+                                </div>
+
+                                <div>
+                                    <label class="flex items-center space-x-3">
+                                        {{ form.is_active }}
+                                        <span class="text-sm font-medium text-gray-700">Active Account</span>
+                                    </label>
+                                    <p class="mt-1 text-sm text-gray-500 ml-6">{{ form.is_active.help_text }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-6">
+                        <button type="submit" class="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            <i class="fas fa-user-plus mr-2"></i>Create User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('preview-image');
+    const defaultIcon = document.getElementById('default-icon');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            defaultIcon.classList.add('hidden');
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.classList.add('hidden');
+        defaultIcon.classList.remove('hidden');
+    }
+}
+
+// Add event listener to profile picture input
+document.getElementById('{{ form.profile_picture.id_for_label }}').addEventListener('change', function() {
+    previewImage(this);
+});
+</script>
+<script>
+    // Function to toggle password visibility
+    function togglePasswordVisibility(inputId, button) {
+        const input = document.getElementById(inputId);
+        const icon = button.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+    
+    // Function to validate password strength
+    function validatePassword(password) {
+        const checks = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+    
+        // Update validation indicators
+        Object.keys(checks).forEach(check => {
+            const element = document.getElementById(`${check}-check`);
+            const icon = element.querySelector('i');
+            
+            if (checks[check]) {
+                element.classList.remove('text-gray-500');
+                element.classList.add('text-green-500');
+                icon.classList.remove('fa-circle');
+                icon.classList.add('fa-check-circle');
+            } else {
+                element.classList.remove('text-green-500');
+                element.classList.add('text-gray-500');
+                icon.classList.remove('fa-check-circle');
+                icon.classList.add('fa-circle');
+            }
+        });
+    
+        return Object.values(checks).every(Boolean);
+    }
+    
+    // Function to check if passwords match
+    function checkPasswordsMatch() {
+        const password = document.getElementById('{{ form.password.id_for_label }}').value;
+        const confirmPassword = document.getElementById('{{ form.confirm_password.id_for_label }}').value;
+        const matchIndicator = document.getElementById('password-match');
+        const icon = matchIndicator.querySelector('i');
+        
+        if (confirmPassword) {
+            matchIndicator.classList.remove('hidden');
+            
+            if (password === confirmPassword) {
+                matchIndicator.classList.remove('text-red-500');
+                matchIndicator.classList.add('text-green-500');
+                icon.classList.remove('fa-circle', 'fa-times-circle');
+                icon.classList.add('fa-check-circle');
+            } else {
+                matchIndicator.classList.remove('text-green-500');
+                matchIndicator.classList.add('text-red-500');
+                icon.classList.remove('fa-circle', 'fa-check-circle');
+                icon.classList.add('fa-times-circle');
+            }
+        } else {
+            matchIndicator.classList.add('hidden');
+        }
+    }
+    
+    // Add event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('{{ form.password.id_for_label }}');
+        const confirmPasswordInput = document.getElementById('{{ form.confirm_password.id_for_label }}');
+    
+        passwordInput.addEventListener('input', function() {
+            validatePassword(this.value);
+            checkPasswordsMatch();
+        });
+    
+        confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
+    
+        // Initial validation
+        validatePassword(passwordInput.value);
+        checkPasswordsMatch();
+    });
+    
+    // Update your form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const password = document.getElementById('{{ form.password.id_for_label }}').value;
+        const confirmPassword = document.getElementById('{{ form.confirm_password.id_for_label }}').value;
+    
+        if (!validatePassword(password)) {
+            e.preventDefault();
+            alert('Please ensure your password meets all requirements.');
+            return;
+        }
+    
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match.');
+            return;
+        }
+    });
+    </script>
+{% endblock %}

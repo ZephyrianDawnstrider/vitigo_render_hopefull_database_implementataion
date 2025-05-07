@@ -1,0 +1,65 @@
+<div id="rescheduleModal{{ appointment.id }}" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-2xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="rescheduleModal{{ appointment.id }}">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="p-6">
+                <h3 class="mb-4 text-xl font-semibold text-gray-900">Reschedule Appointment</h3>
+                
+                <!-- Current Appointment Info -->
+                <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                    <h4 class="text-md font-medium text-gray-700 mb-3">Current Appointment Details</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-user-md mr-2"></i>
+                                <span class="font-medium">Doctor:</span> {{ appointment.doctor.get_full_name }}
+                            </p>
+                            <p class="text-sm text-gray-600 mt-2">
+                                <i class="fas fa-user mr-2"></i>
+                                <span class="font-medium">Patient:</span> {{ appointment.patient.get_full_name }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-calendar mr-2"></i>
+                                <span class="font-medium">Current Date:</span> {{ appointment.date|date:"M d, Y" }}
+                            </p>
+                            <p class="text-sm text-gray-600 mt-2">
+                                <i class="fas fa-clock mr-2"></i>
+                                <span class="font-medium">Current Time:</span> {{ appointment.time_slot.start_time|time:"g:i A" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reschedule Form -->
+                <form method="POST" action="{% url 'appointment_reschedule' appointment.id %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label for="new_date_{{ appointment.id }}" class="block text-sm font-medium text-gray-700 mb-1">New Date</label>
+                        <input type="date" id="new_date_{{ appointment.id }}" name="date" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" min="{{ today|date:'Y-m-d' }}" required>
+                    </div>
+
+                    <!-- Timeslots Container -->
+                    <div id="timeslotsContainer_{{ appointment.id }}" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Available Time Slots</label>
+                        <div id="timeslots_{{ appointment.id }}" class="grid grid-cols-4 gap-2"></div>
+                    </div>
+
+                    <input type="hidden" id="selected_timeslot_{{ appointment.id }}" name="timeslot_id">
+
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50" data-modal-hide="rescheduleModal{{ appointment.id }}">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none">
+                            Reschedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

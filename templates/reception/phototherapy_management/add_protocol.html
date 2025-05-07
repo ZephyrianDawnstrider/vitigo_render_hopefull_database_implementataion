@@ -1,0 +1,351 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'protocol_management' %}" class="hover:text-blue-600">Protocol Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Add Protocol</li>
+        </ol>
+    </nav>
+
+    <div class="w-full mx-auto bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-semibold text-gray-800">Add New Protocol</h1>
+                <div class="relative ml-2 group">
+                    <i class="fas fa-info-circle text-gray-400 hover:text-blue-500 cursor-help text-lg"></i>
+                    <div class="hidden group-hover:block absolute left-0 top-6 w-96 p-4 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <div class="text-sm text-gray-600 space-y-2">
+                            <p class="font-medium text-gray-700 mb-2">About Protocol Creation</p>
+                            <p>Create a new phototherapy protocol by:</p>
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li>Selecting appropriate phototherapy type</li>
+                                <li>Setting initial and maximum doses</li>
+                                <li>Defining dose increment strategy</li>
+                                <li>Specifying frequency and duration</li>
+                                <li>Documenting safety guidelines and contraindications</li>
+                            </ul>
+                            <p class="mt-2 text-blue-600">Note: All doses are in mJ/cm². All fields marked with * are required.</p>
+                        </div>
+                        <div class="absolute -top-2 left-2 w-4 h-4 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'protocol_management' %}" class="text-blue-500 hover:text-blue-600">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Protocols
+            </a>
+        </div>
+
+            <form method="POST" class="space-y-6" novalidate>
+                {% csrf_token %}
+                
+                <!-- Display form-wide errors -->
+                {% if form.non_field_errors or messages %}
+                <div class="p-4 mb-4 rounded-lg bg-red-100">
+                    <div class="font-medium text-red-800">Please correct the following errors:</div>
+                    <ul class="mt-2 list-disc list-inside text-sm text-red-700">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                        {% for message in messages %}
+                            {% if message.tags == 'error' %}
+                                <li>{{ message }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Display field-specific errors -->
+                {% for field in form %}
+                    {% if field.errors %}
+                    <div class="p-4 mb-4 rounded-lg bg-red-50 border border-red-200">
+                        <p class="font-medium text-red-700">{{ field.label }}:</p>
+                        <ul class="mt-1 list-disc list-inside text-sm text-red-600">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.name|as_crispy_field }}
+                        {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="{{ form.phototherapy_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Phototherapy Type*
+                        </label>
+                        <div class="relative">
+                            <input type="text" 
+                                id="type-search" 
+                                placeholder="Search phototherapy types..." 
+                                class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                            <select name="{{ form.phototherapy_type.html_name }}" 
+                                    id="{{ form.phototherapy_type.auto_id }}"
+                                    size="5"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base"
+                                    required>
+                                {% if form.phototherapy_type.field.choices %}
+                                    {% for value, label in form.phototherapy_type.field.choices %}
+                                        {% if value and label %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="" disabled>No phototherapy types available</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        {% if form.phototherapy_type.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.phototherapy_type.help_text }}</p>
+                        {% endif %}
+                        {% if form.phototherapy_type.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.phototherapy_type.errors.0 }}</p>
+                        {% endif %}
+
+                        <!-- Add Type Instructions -->
+                        <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p class="text-sm text-blue-700">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Need a different phototherapy type? 
+                                <a href="{% url 'add_therapy_type' %}" 
+                                   class="font-medium text-blue-600 hover:text-blue-800 underline">
+                                    Create new type
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dose Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="id_initial_dose" class="block text-sm font-medium text-gray-700">Initial Dose (joules/cm²)*</label>
+                        <div class="mt-1">
+                            <input type="number" 
+                                name="initial_dose" 
+                                id="id_initial_dose"
+                                step="0.001"
+                                min="0"
+                                value="{{ form.initial_dose.value|default:'' }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                required>
+                            {% if form.initial_dose.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.initial_dose.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">{{ form.initial_dose.help_text }}</p>
+                        
+                        <div class="mt-2">
+                            <label class="text-sm font-medium text-gray-700 mb-2">Quick Select Initial Dose</label>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                <a href="javascript:void(0)" onclick="setDose('id_initial_dose', '0.280')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.280</a>
+                                <a href="javascript:void(0)" onclick="setDose('id_initial_dose', '0.320')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.320</a>
+                                <a href="javascript:void(0)" onclick="setDose('id_initial_dose', '0.360')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.360</a>
+                                <a href="javascript:void(0)" onclick="setDose('id_initial_dose', '0.420')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.420</a>
+                                <a href="javascript:void(0)" onclick="setDose('id_initial_dose', '0.500')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">0.500</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_max_dose" class="block text-sm font-medium text-gray-700">Maximum Dose (joules/cm²)*</label>
+                        <div class="mt-1">
+                            <input type="number" 
+                                name="max_dose" 
+                                id="id_max_dose"
+                                step="0.001"
+                                min="0"
+                                value="{{ form.max_dose.value|default:'' }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                required>
+                            {% if form.max_dose.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.max_dose.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">{{ form.max_dose.help_text }}</p>
+                        
+                        <div class="mt-2">
+                            <label class="text-sm font-medium text-gray-700 mb-2">Quick Select Max Dose</label>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                <a href="javascript:void(0)" onclick="setDose('id_max_dose', '1.000')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">1.000</a>
+                                <a href="javascript:void(0)" onclick="setDose('id_max_dose', '1.500')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">1.500</a>
+                                <a href="javascript:void(0)" onclick="setDose('id_max_dose', '2.000')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">2.000</a>
+                                <a href="javascript:void(0)" onclick="setDose('id_max_dose', '2.500')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">2.500</a>
+                                <a href="javascript:void(0)" onclick="setDose('id_max_dose', '3.000')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">3.000</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Increment Percentage -->
+                <div class="mt-4">
+                    <label for="id_increment_percentage" class="block text-sm font-medium text-gray-700">Increment Percentage (%)*</label>
+                    <div class="mt-1">
+                        <input type="number" 
+                            name="increment_percentage" 
+                            id="id_increment_percentage"
+                            step="0.1"
+                            min="0"
+                            max="100"
+                            value="{{ form.increment_percentage.value|default:'10.0' }}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            required>
+                        {% if form.increment_percentage.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.increment_percentage.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">{{ form.increment_percentage.help_text }}</p>
+                    
+                    <!-- Quick select for increment percentage -->
+                    <div class="mt-2">
+                        <label class="text-sm font-medium text-gray-700 mb-2">Quick Select Increment</label>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            <a href="javascript:void(0)" onclick="setDose('id_increment_percentage', '5')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">5%</a>
+                            <a href="javascript:void(0)" onclick="setDose('id_increment_percentage', '10')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">10%</a>
+                            <a href="javascript:void(0)" onclick="setDose('id_increment_percentage', '15')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">15%</a>
+                            <a href="javascript:void(0)" onclick="setDose('id_increment_percentage', '20')" class="px-3 py-1 text-sm rounded-md bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-600">20%</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.frequency_per_week|as_crispy_field }}
+                        {% if form.frequency_per_week.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.frequency_per_week.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.duration_weeks|as_crispy_field }}
+                        {% if form.duration_weeks.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.duration_weeks.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    {{ form.description|as_crispy_field }}
+                    {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Safety Information -->
+                <div>
+                    {{ form.contraindications|as_crispy_field }}
+                    {% if form.contraindications.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.contraindications.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.safety_guidelines|as_crispy_field }}
+                    {% if form.safety_guidelines.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.safety_guidelines.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Status -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">Protocol Status</label>
+                            <p class="text-sm text-gray-500 mt-1">Enable or disable this protocol</p>
+                        </div>
+                        <div class="flex items-center">
+                            {{ form.is_active|as_crispy_field }}
+                            {% if form.is_active.errors %}
+                            <p class="ml-2 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="window.location='{% url 'protocol_management' %}'" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Create Protocol
+                    </button>
+                </div>
+            </form>
+    </div>
+</div>
+
+<script>
+    // Simple function to set dose value
+    function setDose(fieldId, value) {
+        const field = document.getElementById(fieldId);
+        field.value = value;
+        console.log(`Setting ${fieldId} to ${value}`);
+        return false; // Prevent default anchor behavior
+    }
+
+    // Make sure function is defined in global scope
+    window.setDose = function(fieldId, value) {
+        console.log('setDose called with:', fieldId, value);
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = value;
+            console.log('Value set:', field.value);
+        } else {
+            console.error('Field not found:', fieldId);
+        }
+    };
+
+    // Basic validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const initialDose = parseFloat(document.getElementById('id_initial_dose').value);
+        const maxDose = parseFloat(document.getElementById('id_max_dose').value);
+        
+        if (initialDose > maxDose) {
+            e.preventDefault();
+            alert('Initial dose cannot exceed maximum dose');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Phototherapy Type search functionality
+        const typeSearchInput = document.getElementById('type-search');
+        const typeSelectElement = document.getElementById('{{ form.phototherapy_type.auto_id }}');
+        const originalTypeOptions = Array.from(typeSelectElement.options);
+        
+        typeSearchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            typeSelectElement.innerHTML = '';
+            
+            originalTypeOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    typeSelectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            if (typeSelectElement.options.length === 0) {
+                const noResults = new Option('No types found', '');
+                noResults.disabled = true;
+                typeSelectElement.appendChild(noResults);
+            }
+        });
+    });
+</script>
+{% endblock %}

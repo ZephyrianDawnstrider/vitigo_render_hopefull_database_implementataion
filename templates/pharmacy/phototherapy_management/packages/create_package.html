@@ -1,0 +1,106 @@
+{% extends "../../base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600">
+                <i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a>
+            </li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'package_list' %}" class="hover:text-blue-600">Packages</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Create Package</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Create New Package</h1>
+            <p class="text-sm text-gray-600">Create a new phototherapy treatment package</p>
+        </div>
+        <div>
+            <a href="{% url 'package_list' %}" 
+               class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="post" class="space-y-6" novalidate>
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+                        {{ form.errors }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Basic Information -->
+                <div class="space-y-4">
+                    <div>
+                        {{ form.name|as_crispy_field }}
+                    </div>
+                    <div>
+                        {{ form.therapy_type|as_crispy_field }}
+                    </div>
+                </div>
+
+                <!-- Package Details -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            {{ form.number_of_sessions|as_crispy_field }}
+                        </div>
+                        <div>
+                            {{ form.total_cost|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div>
+                            {{ form.is_featured|as_crispy_field }}
+                        </div>
+                        <div>
+                            {{ form.is_active|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Width Fields -->
+                <div class="md:col-span-2">
+                    {{ form.description|as_crispy_field }}
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end mt-6">
+                <button type="submit" 
+                        class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Create Package
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any JavaScript for form validation or dynamic behavior here
+</script>
+{% endblock %}

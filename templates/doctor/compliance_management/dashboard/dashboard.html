@@ -1,0 +1,493 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+
+{% block title %}Compliance Management Dashboard{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white mb-6 border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Compliance Management</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section with Quick Actions -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Compliance Management</h1>
+                <p class="mt-1 text-sm text-gray-600">Administrative Dashboard</p>
+            </div>
+            <div class="flex space-x-3">
+                <!-- Quick Links Dropdown -->
+                <button id="quickLinksDropdown" data-dropdown-toggle="quickLinks" class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors">
+                    <i class="fas fa-bolt mr-2"></i>
+                    Quick Links
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="quickLinks" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-56">
+                    <ul class="py-2 text-sm text-gray-700">
+                        <li>
+                            <a href="{% url 'compliance_management:schedule_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-calendar-alt w-5"></i>
+                                View All Schedules
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:issue_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-exclamation-circle w-5"></i>
+                                Manage Issues
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:metric_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-chart-bar w-5"></i>
+                                View Metrics
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:report_create' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-file-alt w-5"></i>
+                                Generate Reports
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:compliance_notes_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-sticky-note w-5"></i>
+                                View Notes
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Quick Actions Dropdown -->
+                <button id="quickActionsDropdown" data-dropdown-toggle="quickActions" class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Quick Actions
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="quickActions" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-56">
+                    <ul class="py-2 text-sm text-gray-700">
+                        <li>
+                            <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-calendar-plus w-5"></i>
+                                New Schedule
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:issue_create' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-plus-circle w-5"></i>
+                                Create Issue
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:reminder_create' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-bell w-5"></i>
+                                Set Reminder
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:group_create' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-users w-5"></i>
+                                Create Patient Group
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:compliance_note_create' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-plus-square w-5"></i>
+                                Add Note
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Export Dropdown -->
+                <button id="exportDropdown" data-dropdown-toggle="exportOptions" class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-download mr-2"></i>
+                    Export
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="exportOptions" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-44">
+                    <ul class="py-2 text-sm text-gray-700">
+                        <li>
+                            <a href="{% url 'compliance_management:dashboard_export' %}?format=pdf" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-file-pdf w-5"></i>
+                                Export as PDF
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:dashboard_export' %}?format=excel" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-file-excel w-5"></i>
+                                Export as Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'compliance_management:dashboard_export' %}?format=csv" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-file-csv w-5"></i>
+                                Export as CSV
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Active Schedules -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-calendar-check text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Active Schedules</p>
+                        <p class="text-white text-2xl font-bold">{{ active_schedules_count }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'compliance_management:schedule_list' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        View Schedules <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Open Issues -->
+            <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-exclamation-circle text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Open Issues</p>
+                        <p class="text-white text-2xl font-bold">{{ open_issues_count }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'compliance_management:issue_list' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        Manage Issues <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pending Reminders -->
+            <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-bell text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Pending Reminders</p>
+                        <p class="text-white text-2xl font-bold">{{ pending_reminders }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'compliance_management:reminder_list' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        View Reminders <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Active Alerts -->
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-flag text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Active Alerts</p>
+                        <p class="text-white text-2xl font-bold">{{ active_alerts }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'compliance_management:alert_list' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        View Alerts <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Notes Summary -->
+            <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-sticky-note text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Recent Notes</p>
+                        <p class="text-white text-2xl font-bold">{{ recent_notes_count }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'compliance_management:compliance_notes_list' %}" 
+                       class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        View Notes <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-file-alt text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Recent Reports</p>
+                        <p class="text-white text-2xl font-bold">{{ recent_reports_count }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'compliance_management:report_list' %}" 
+                       class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        View Reports <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-users text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Patient Groups</p>
+                        <p class="text-white text-2xl font-bold">{{ patient_groups_count }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'compliance_management:group_list' %}" 
+                       class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        View Groups <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Metrics -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Medication Compliance -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-pills text-blue-600 mr-2"></i>
+                    Medication Compliance
+                </h3>
+                <div class="flex items-center justify-between">
+                    <div class="text-3xl font-bold text-blue-600">{{ compliance_metrics.medication }}%</div>
+                    <div class="text-sm text-gray-500">Current Score</div>
+                </div>
+            </div>
+
+            <!-- Appointment Compliance -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-calendar-check text-green-600 mr-2"></i>
+                    Appointment Compliance
+                </h3>
+                <div class="flex items-center justify-between">
+                    <div class="text-3xl font-bold text-green-600">{{ compliance_metrics.appointment }}%</div>
+                    <div class="text-sm text-gray-500">Current Score</div>
+                </div>
+            </div>
+
+            <!-- Overall Compliance -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-purple-600 mr-2"></i>
+                    Overall Compliance
+                </h3>
+                <div class="flex items-center justify-between">
+                    <div class="text-3xl font-bold text-purple-600">{{ compliance_metrics.overall }}%</div>
+                    <div class="text-sm text-gray-500">Average Score</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Issues and Schedule Summary -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Recent Issues -->
+            <div class="border rounded-lg shadow-sm">
+                <div class="p-4 border-b flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-exclamation-circle text-red-600 mr-2"></i>
+                        Recent Issues
+                    </h2>
+                    <a href="{% url 'compliance_management:issue_list' %}" class="text-sm text-blue-600 hover:text-blue-700">View All</a>
+                </div>
+                <div class="p-4">
+                    <div class="space-y-4">
+                        {% for issue in recent_issues %}
+                        <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0">
+                                <span class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                                    <i class="fas fa-exclamation text-red-600"></i>
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900">{{ issue.title }}</p>
+                                <p class="text-sm text-gray-500">{{ issue.patient.get_full_name }}</p>
+                                <p class="text-xs text-gray-400">Assigned to: {{ issue.assigned_to.get_full_name }}</p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if issue.severity == 'HIGH' %}bg-red-100 text-red-800
+                                    {% elif issue.severity == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    {{ issue.severity }}
+                                </span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-gray-500 py-4">
+                            No recent issues found
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Summary -->
+            <div class="border rounded-lg shadow-sm">
+                <div class="p-4 border-b flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-calendar text-green-600 mr-2"></i>
+                        Today's Schedule Summary
+                    </h2>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-700">View Calendar</a>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        {% for status in schedule_summary %}
+                        <div class="p-4 rounded-lg {% if status.status == 'COMPLETED' %}bg-green-50{% elif status.status == 'MISSED' %}bg-red-50{% else %}bg-blue-50{% endif %}">
+                            <div class="text-2xl font-bold {% if status.status == 'COMPLETED' %}text-green-600{% elif status.status == 'MISSED' %}text-red-600{% else %}text-blue-600{% endif %}">
+                                {{ status.count }}
+                            </div>
+                            <div class="text-sm text-gray-600">{{ status.status|title }}</div>
+                        </div>
+                        {% empty %}
+                        <div class="col-span-2 text-center text-gray-500 py-4">
+                            No schedules found for today
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Distribution and Weekly Trends -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Alert Distribution -->
+            <div class="border rounded-lg shadow-sm">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-bell text-amber-600 mr-2"></i>
+                        Alert Distribution
+                    </h2>
+                </div>
+                <div class="p-4">
+                    <div class="space-y-4">
+                        {% for alert in alerts_distribution %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-8 h-8 rounded-full {% if alert.severity == 'HIGH' %}bg-red-100{% elif alert.severity == 'MEDIUM' %}bg-yellow-100{% else %}bg-blue-100{% endif %} flex items-center justify-center">
+                                    <i class="fas fa-exclamation {% if alert.severity == 'HIGH' %}text-red-600{% elif alert.severity == 'MEDIUM' %}text-yellow-600{% else %}text-blue-600{% endif %}"></i>
+                                </span>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ alert.alert_type|title|replace_underscore }}</p>
+                                    <p class="text-xs text-gray-500">{{ alert.severity }} Priority</p>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold {% if alert.severity == 'HIGH' %}text-red-600{% elif alert.severity == 'MEDIUM' %}text-yellow-600{% else %}text-blue-600{% endif %}">
+                                {{ alert.count }}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-gray-500 py-4">
+                            No active alerts
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Compliance Trend -->
+            <div class="border rounded-lg shadow-sm">
+                <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-chart-line text-indigo-600 mr-2"></i>
+                        Weekly Compliance Trend
+                    </h2>
+                </div>
+                <div class="p-4">
+                    <canvas id="weeklyTrendChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Scripts -->
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const weeklyMetrics = {{ weekly_metrics|safe }};
+    
+    const ctx = document.getElementById('weeklyTrendChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: weeklyMetrics.map(m => m.date),
+            datasets: [{
+                label: 'Compliance Score',
+                data: weeklyMetrics.map(m => m.score),
+                borderColor: '#4f46e5',
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+</div>
+{% endblock %}

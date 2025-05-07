@@ -1,0 +1,189 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block title %}VitiGo Dashboard{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Welcome Section -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-800">
+                    {{ greeting }}, {{ request.user.get_full_name }}
+                </h1>
+                <p class="text-gray-600">
+                    {{ current_datetime|date:"l, j F Y" }} • 
+                    <span id="live-time" class="font-medium">{{ current_datetime|date:"H:i" }}</span>
+                </p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-600">Last updated:</p>
+                <p class="font-medium">{{ metrics.last_updated|date:"H:i" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-white/80 text-sm">Total Appointments Today</p>
+                    <h3 class="text-3xl font-bold mt-1">{{ metrics.appointments.today }}</h3>
+                    <p class="text-sm mt-2">
+                        {% with change=metrics.appointments.change %}
+                        <span class="{% if change > 0 %}text-green-300{% else %}text-red-300{% endif %}">
+                            {{ change }}% vs yesterday
+                        </span>
+                        {% endwith %}
+                    </p>
+                </div>
+                <div class="p-3 bg-white/20 rounded-lg">
+                    <i class="fas fa-calendar-check text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-white/80 text-sm">Patient Check-ins</p>
+                    <h3 class="text-3xl font-bold mt-1">{{ metrics.checkins.today }}</h3>
+                    <p class="text-sm mt-2">
+                        {{ metrics.checkins.pending }} pending arrivals
+                    </p>
+                </div>
+                <div class="p-3 bg-white/20 rounded-lg">
+                    <i class="fas fa-user-check text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-white/80 text-sm">Active Treatments</p>
+                    <h3 class="text-3xl font-bold mt-1">{{ metrics.active_treatments }}</h3>
+                    <p class="text-sm mt-2">
+                        {{ metrics.treatment_completion_rate }}% completion rate
+                    </p>
+                </div>
+                <div class="p-3 bg-white/20 rounded-lg">
+                    <i class="fas fa-clinic-medical text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-white/80 text-sm">Urgent Attention</p>
+                    <h3 class="text-3xl font-bold mt-1">{{ metrics.urgent_matters }}</h3>
+                    <p class="text-sm mt-2">
+                        Requires immediate action
+                    </p>
+                </div>
+                <div class="p-3 bg-white/20 rounded-lg">
+                    <i class="fas fa-exclamation-circle text-2xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Timeline & Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Activity Timeline -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-lg">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
+                <div class="space-y-4">
+                    {% for activity in metrics.recent_activities %}
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="p-2 rounded-full 
+                                {% if activity.type == 'APPOINTMENT' %}bg-blue-100 text-blue-600
+                                {% elif activity.type == 'QUERY' %}bg-yellow-100 text-yellow-600
+                                {% elif activity.type == 'TREATMENT' %}bg-green-100 text-green-600
+                                {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                <i class="fas fa-{{ activity.icon }} text-sm"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-900">{{ activity.description }}</p>
+                            <p class="text-xs text-gray-500">{{ activity.time|timesince }} ago</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-center py-4">No recent activity to display</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Stats -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+            <div class="space-y-4">
+                <a href="{% url 'appointment_create' %}" class="block p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <i class="fas fa-plus text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="font-medium text-blue-900">New Appointment</p>
+                            <p class="text-sm text-blue-700">Schedule a new appointment</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="{% url 'query_create' %}" class="block p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <i class="fas fa-question-circle text-green-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="font-medium text-green-900">New Query</p>
+                            <p class="text-sm text-green-700">Create a new query</p>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="mt-6">
+                    <h4 class="text-sm font-semibold text-gray-600 mb-2">TODAY'S SUMMARY</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Appointments Completed</span>
+                            <span class="font-medium">{{ metrics.appointments.completed }}/{{ metrics.appointments.today }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Queries Resolved</span>
+                            <span class="font-medium">{{ metrics.queries.resolved }}/{{ metrics.queries.total }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Treatment Success Rate</span>
+                            <span class="font-medium">{{ metrics.treatment_success_rate }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Live Time Update Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function updateTime() {
+        const now = new Date();
+        const timeElement = document.getElementById('live-time');
+        timeElement.textContent = now.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+    }
+    setInterval(updateTime, 1000);
+});
+</script>
+{% endblock %}

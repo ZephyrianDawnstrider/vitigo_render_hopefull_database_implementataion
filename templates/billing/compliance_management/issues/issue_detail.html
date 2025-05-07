@@ -1,0 +1,188 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+
+{% block title %}Issue Details - {{ issue.title }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:issue_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Issues
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Issue Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'compliance_management:issue_edit' issue.pk %}" class="text-blue-600 hover:text-blue-700">
+                        <i class="fas fa-edit mr-1"></i> Edit
+                    </a>
+                    <button type="button" data-modal-target="deleteModal-{{ issue.id }}" data-modal-toggle="deleteModal-{{ issue.id }}" 
+                            class="text-red-600 hover:text-red-700">
+                        <i class="fas fa-trash-alt mr-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-6 flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">{{ issue.title }}</h1>
+                <p class="mt-1 text-sm text-gray-600">Patient: {{ issue.patient.get_full_name }}</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                {{ issue.get_status_display|format_schedule_status }}
+                {{ issue.get_severity_display|format_priority }}
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Issue Details -->
+            <div class="lg:col-span-2">
+                <!-- Description Card -->
+                <div class="bg-white border rounded-lg shadow-sm mb-6">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Issue Description</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ issue.description }}</p>
+                    </div>
+                </div>
+
+                <!-- Resolution Card (if resolved) -->
+                {% if issue.resolution %}
+                <div class="bg-white border rounded-lg shadow-sm mb-6">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Resolution</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ issue.resolution }}</p>
+                        {% if issue.resolved_by %}
+                        <p class="mt-2 text-xs text-gray-500">
+                            Resolved by {{ issue.resolved_by.get_full_name }} • {{ issue.resolved_at|timesince }} ago
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Related Schedules -->
+                {% if related_schedules %}
+                <div class="bg-white border rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Related Schedules</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <div class="space-y-4">
+                            {% for schedule in related_schedules %}
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">{{ schedule.scheduled_date|date:"M d, Y" }} at {{ schedule.scheduled_time|time:"H:i" }}</p>
+                                    <p class="text-xs text-gray-500">{{ schedule.get_status_display }}</p>
+                                </div>
+                                <a href="{% url 'compliance_management:schedule_detail' schedule.pk %}" 
+                                   class="text-sm text-blue-600 hover:text-blue-700">
+                                    View
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Issue Information -->
+                <div class="bg-white border rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Issue Information</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <dl class="space-y-4">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Created</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ issue.created_at|date:"M d, Y H:i" }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Assigned To</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ issue.assigned_to.get_full_name }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ issue.updated_at|timesince }} ago</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Patient Information -->
+                <div class="bg-white border rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b">
+                        <h2 class="text-lg font-medium text-gray-900">Patient Information</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <dl class="space-y-4">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ issue.patient.get_full_name }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">ID</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ issue.patient.id }}</dd>
+                            </div>
+                            {% if patient_metrics %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Compliance Score</dt>
+                                <dd class="mt-1 text-sm font-semibold {% if patient_metrics.compliance_score >= 80 %}text-green-600{% elif patient_metrics.compliance_score >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                    {{ patient_metrics.compliance_score }}%
+                                </dd>
+                            </div>
+                            {% endif %}
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include './modals/issue_delete.html' with issue=issue %}
+{% endblock %}

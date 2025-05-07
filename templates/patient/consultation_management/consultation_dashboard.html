@@ -1,0 +1,44 @@
+{% extends '../base.html' %}
+
+{% block title %}My Consultations{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800">My Consultations</h1>
+        <a href="{% url 'consultation_create' %}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Create New Consultation</a>
+    </div>
+    {% if consultations %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chief Complaint</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for consultation in consultations %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ consultation.scheduled_datetime|date:"M d, Y H:i" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ consultation.get_consultation_type_display }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ consultation.get_status_display }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">Dr. {{ consultation.doctor.get_full_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ consultation.chief_complaint }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No consultations found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-500">You have no consultations scheduled.</p>
+    {% endif %}
+</div>
+{% endblock %}

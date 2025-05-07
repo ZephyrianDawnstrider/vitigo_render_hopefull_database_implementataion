@@ -1,0 +1,172 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Checklist Details - {{ checklist.template.name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:checklist_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Checklists
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ checklist.template.name }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100">
+                            <i class="fas fa-clipboard-check text-xl text-indigo-600"></i>
+                        </span>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+                            {{ checklist.template.name }}
+                        </h2>
+                        <div class="mt-1 flex items-center">
+                            <p class="text-sm text-gray-500">
+                                Procedure: {{ checklist.procedure.procedure_type.name }}
+                            </p>
+                            <span class="ml-2 text-sm text-gray-500">•</span>
+                            <p class="ml-2 text-sm text-gray-500">
+                                Created {{ checklist.completed_at|timesince }} ago
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                <a href="{% url 'procedure_management:checklist_update' checklist.id %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit
+                </a>
+                <button type="button"
+                        data-modal-target="deleteModal-{{ checklist.id }}" 
+                        data-modal-toggle="deleteModal-{{ checklist.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <!-- Checklist Information -->
+            <div class="lg:col-span-1 bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Checklist Information</h3>
+                <dl class="grid grid-cols-1 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Procedure</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <a href="{% url 'procedure_management:procedure_detail' checklist.procedure.id %}" 
+                               class="text-indigo-600 hover:text-indigo-900">
+                                {{ checklist.procedure }}
+                            </a>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Completed By</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ checklist.completed_by.get_full_name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Notes</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ checklist.notes|linebreaks|default:"No notes provided" }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Checklist Items -->
+            <div class="lg:col-span-2 bg-white shadow rounded-lg">
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                    <h3 class="text-lg font-medium text-gray-900">Checklist Items</h3>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    {% for completed_item in completed_items %}
+                    <li class="px-4 py-4 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full
+                                        {% if completed_item.is_completed %}bg-green-100{% else %}bg-gray-100{% endif %}">
+                                        <i class="fas {% if completed_item.is_completed %}fa-check text-green-600{% else %}fa-hourglass text-gray-400{% endif %}"></i>
+                                    </span>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ completed_item.item.description }}
+                                    </p>
+                                    {% if completed_item.notes %}
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        {{ completed_item.notes }}
+                                    </p>
+                                    {% endif %}
+                                    {% if completed_item.is_completed and completed_item.completed_by %}
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Completed by {{ completed_item.completed_by.get_full_name }}
+                                        {% if completed_item.completed_at %}
+                                        {{ completed_item.completed_at|timesince }} ago
+                                        {% endif %}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if completed_item.item.is_mandatory %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Required
+                            </span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="px-4 py-8 text-center text-gray-500">
+                        <p>No checklist items found</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include './modals/delete.html' with checklist=checklist %}
+
+{% endblock %}

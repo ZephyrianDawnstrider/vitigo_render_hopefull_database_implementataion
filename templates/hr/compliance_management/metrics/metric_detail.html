@@ -1,0 +1,164 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+
+{% block title %}Metric Details - {{ metric.patient.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar with Breadcrumbs -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" 
+                                       class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Compliance Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:metric_list' %}" 
+                                       class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Metrics</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Metric Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">
+                    {{ metric.get_metric_type_display }} - {{ metric.patient.get_full_name }}
+                </h1>
+                <p class="mt-1 text-sm text-gray-600">
+                    Evaluation Period: {{ metric.evaluation_period_start|date:"M d, Y" }} - {{ metric.evaluation_period_end|date:"M d, Y" }}
+                </p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'compliance_management:metric_edit' metric.pk %}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit Metric
+                </a>
+                <button type="button"
+                        data-modal-target="deleteModal-{{ metric.id }}" 
+                        data-modal-toggle="deleteModal-{{ metric.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-trash mr-2"></i>
+                    Delete Metric
+                </button>
+            </div>
+        </div>
+
+        <!-- Metric Score Card -->
+        <div class="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Score -->
+            <div class="bg-white rounded-lg border shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Compliance Score</h3>
+                <div class="flex items-center justify-between">
+                    <div class="w-24 h-24 relative">
+                        <svg class="w-full h-full" viewBox="0 0 36 36">
+                            <path d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#E5E7EB"
+                                stroke-width="3"
+                            />
+                            <path d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="{% if metric.compliance_score >= 80 %}#059669{% elif metric.compliance_score >= 60 %}#D97706{% else %}#DC2626{% endif %}"
+                                stroke-width="3"
+                                stroke-dasharray="{{ metric.compliance_score }}, 100"
+                            />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-2xl font-semibold">{{ metric.compliance_score }}%</span>
+                        </div>
+                    </div>
+                    {% if improvement %}
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500">From Previous</p>
+                            <p class="text-lg font-medium {% if improvement.is_positive %}text-green-600{% else %}text-red-600{% endif %}">
+                                {% if improvement.is_positive %}+{% endif %}{{ improvement.value }}%
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Historical Trend -->
+            <div class="bg-white rounded-lg border shadow-sm p-6 lg:col-span-2">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Historical Trend</h3>
+                <div class="space-y-4">
+                    {% for hist_metric in historical_metrics %}
+                    <div class="flex items-center">
+                        <span class="text-sm text-gray-500 w-24">{{ hist_metric.evaluation_date|date:"M d, Y" }}</span>
+                        <div class="flex-grow mx-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="h-2.5 rounded-full {% if hist_metric.compliance_score >= 80 %}bg-green-600{% elif hist_metric.compliance_score >= 60 %}bg-yellow-500{% else %}bg-red-600{% endif %}"
+                                     style="width: {{ hist_metric.compliance_score }}%"></div>
+                            </div>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">{{ hist_metric.compliance_score }}%</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-sm">No historical data available</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Notes Section -->
+            <div class="bg-white rounded-lg border shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Evaluation Notes</h3>
+                <div class="prose max-w-none">
+                    {{ metric.notes|linebreaks|default:"No notes provided." }}
+                </div>
+            </div>
+
+            <!-- Related Issues -->
+            <div class="bg-white rounded-lg border shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Related Issues</h3>
+                <div class="space-y-4">
+                    {% for issue in related_issues %}
+                    <div class="border-l-4 {% if issue.severity == 'HIGH' %}border-red-500{% elif issue.severity == 'MEDIUM' %}border-yellow-500{% else %}border-blue-500{% endif %} pl-4">
+                        <h4 class="text-sm font-medium text-gray-900">{{ issue.title }}</h4>
+                        <p class="text-sm text-gray-500">{{ issue.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 text-sm">No related issues found</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include './modals/metric_delete.html' with metric=metric %}
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Audit Details - {{ audit.asset.name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'asset_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Asset Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'total_audits' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Asset Audits</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Audit Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center space-x-4">
+                    {% if audit.status != 'COMPLETED' %}
+                    <button type="button" onclick="window.location='{% url 'update_audit' audit.id %}'" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+                        <i class="mr-2 fas fa-edit"></i> Update Status
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Audit Information -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Audit Information</h3>
+                    <div class="mt-6 border-t border-gray-200">
+                        <dl class="divide-y divide-gray-200">
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Asset</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ audit.asset.name }}<br>
+                                    <span class="text-sm text-gray-500">{{ audit.asset.asset_id }}</span>
+                                </dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Audit Date</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ audit.audit_date }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if audit.status == 'PLANNED' %}bg-blue-100 text-blue-800
+                                        {% elif audit.status == 'IN_PROGRESS' %}bg-yellow-100 text-yellow-800
+                                        {% elif audit.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ audit.get_status_display }}
+                                    </span>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verification Details -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Verification Details</h3>
+                    <div class="mt-6 border-t border-gray-200">
+                        <dl class="divide-y divide-gray-200">
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Location Verified</dt>
+                                <dd class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if audit.location_verified %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ audit.location_verified|yesno:"Verified,Not Verified" }}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Condition Verified</dt>
+                                <dd class="mt-1 sm:mt-0 sm:col-span-2">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if audit.condition_verified %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ audit.condition_verified|yesno:"Verified,Not Verified" }}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Conducted By</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ audit.conducted_by }}</dd>
+                            </div>
+                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+                                <dt class="text-sm font-medium text-gray-500">Verified By</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ audit.verified_by|default:"-" }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discrepancies and Notes -->
+            <div class="bg-white rounded-lg shadow-sm lg:col-span-2">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Discrepancies and Notes</h3>
+                    <div class="mt-6 border-t border-gray-200">
+                        <dl class="divide-y divide-gray-200">
+                            <div class="py-4">
+                                <dt class="text-sm font-medium text-gray-500 mb-2">Discrepancies Found</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ audit.discrepancies|default:"No discrepancies reported" }}</dd>
+                            </div>
+                            <div class="py-4">
+                                <dt class="text-sm font-medium text-gray-500 mb-2">Additional Notes</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ audit.notes|default:"No additional notes" }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Photos -->
+            {% if audit.photos %}
+            <div class="bg-white rounded-lg shadow-sm lg:col-span-2">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900">Audit Photos</h3>
+                    <div class="mt-6 border-t border-gray-200">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
+                            {% for photo in audit.photos %}
+                            <div class="aspect-w-1 aspect-h-1">
+                                <img src="{{ photo }}" alt="Audit photo" class="object-cover rounded-lg">
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

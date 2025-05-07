@@ -1,0 +1,27 @@
+<div id="dropdownDots{{ appointment.id }}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-56">
+    <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownMenuIconButton{{ appointment.id }}">
+        <li>
+            <a href="{% url 'appointment_detail' appointment.id %}" class="block px-4 py-2 hover:bg-gray-100">
+                <i class="fas fa-user text-blue-500"></i> View Appointment
+            </a>
+        </li>
+        <li>
+            <button type="button" data-modal-target="exportModal{{ appointment.id }}" data-modal-toggle="exportModal{{ appointment.id }}" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                <i class="fas fa-file-export text-purple-500"></i> Export Data
+            </button>
+        </li>
+        <li>
+            <button type="button" data-modal-target="rescheduleModal{{ appointment.id }}" data-modal-toggle="rescheduleModal{{ appointment.id }}" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                <i class="fas fa-calendar-alt text-orange-500"></i> Reschedule Appointment
+            </button>
+        </li>
+        <li>
+            <button type="button"
+                    data-modal-target="deleteModal{{ appointment.id }}" 
+                    data-modal-toggle="deleteModal{{ appointment.id }}"
+                    class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">
+                <i class="fas fa-trash-alt text-red-500"></i> Delete Appointment
+            </button>
+        </li>
+    </ul>
+</div>

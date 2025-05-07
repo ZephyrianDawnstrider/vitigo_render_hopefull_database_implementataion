@@ -1,0 +1,183 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Prerequisite Details - {{ prerequisite.name }}{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:prerequisite_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Prerequisites
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{{ prerequisite.name }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center justify-center h-12 w-12 rounded-full 
+                            {% if prerequisite.is_mandatory %}bg-red-100{% else %}bg-blue-100{% endif %}">
+                            <i class="fas fa-clipboard-check text-xl 
+                                {% if prerequisite.is_mandatory %}text-red-600{% else %}text-blue-600{% endif %}">
+                            </i>
+                        </span>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+                            {{ prerequisite.name }}
+                        </h2>
+                        <div class="mt-1 flex items-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if prerequisite.is_mandatory %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ prerequisite.is_mandatory|yesno:"Mandatory,Optional" }}
+                            </span>
+                            <span class="ml-2 text-sm text-gray-500">
+                                Order: {{ prerequisite.order }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                <a href="{% url 'procedure_management:prerequisite_update' prerequisite.id %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit
+                </a>
+                <button type="button"
+                        data-modal-target="deleteModal-{{ prerequisite.id }}" 
+                        data-modal-toggle="deleteModal-{{ prerequisite.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Description -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Description</h3>
+                <div class="prose max-w-none">
+                    {{ prerequisite.description|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Associated Procedure Type -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Procedure Type Information</h3>
+                <dl class="grid grid-cols-1 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Name</dt>
+                        <dd class="mt-1">
+                            <a href="{% url 'procedure_management:type_detail' prerequisite.procedure_type.id %}"
+                               class="text-sm text-indigo-600 hover:text-indigo-900">
+                                {{ prerequisite.procedure_type.name }}
+                            </a>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Category</dt>
+                        <dd class="mt-1">
+                            <a href="{% url 'procedure_management:category_detail' prerequisite.procedure_type.category.id %}"
+                               class="text-sm text-indigo-600 hover:text-indigo-900">
+                                {{ prerequisite.procedure_type.category.name }}
+                            </a>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Risk Level</dt>
+                        <dd class="mt-1">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if prerequisite.procedure_type.risk_level == 'HIGH' %}bg-red-100 text-red-800
+                                {% elif prerequisite.procedure_type.risk_level == 'MODERATE' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ prerequisite.procedure_type.get_risk_level_display }}
+                            </span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Other Prerequisites -->
+        <div class="mt-6 bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                <h3 class="text-lg font-medium text-gray-900">Other Prerequisites for this Procedure Type</h3>
+            </div>
+            <ul class="divide-y divide-gray-200">
+                {% for other_prerequisite in prerequisite.procedure_type.prerequisites.all %}
+                    {% if other_prerequisite != prerequisite %}
+                    <li class="px-4 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full 
+                                    {% if other_prerequisite.is_mandatory %}bg-red-100{% else %}bg-blue-100{% endif %}">
+                                    <i class="fas fa-clipboard-check text-sm 
+                                        {% if other_prerequisite.is_mandatory %}text-red-600{% else %}text-blue-600{% endif %}">
+                                    </i>
+                                </span>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">{{ other_prerequisite.name }}</p>
+                                    <p class="text-sm text-gray-500">Order: {{ other_prerequisite.order }}</p>
+                                </div>
+                            </div>
+                            <a href="{% url 'procedure_management:prerequisite_detail' other_prerequisite.id %}"
+                               class="text-indigo-600 hover:text-indigo-900">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </li>
+                    {% endif %}
+                {% empty %}
+                    <li class="px-4 py-8 text-center text-gray-500">
+                        <p>No other prerequisites for this procedure type</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% include './modals/delete.html' with prerequisite=prerequisite %}
+
+{% endblock %}

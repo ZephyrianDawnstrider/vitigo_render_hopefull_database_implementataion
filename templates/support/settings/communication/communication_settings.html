@@ -1,0 +1,293 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Communication Settings{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-white rounded-lg shadow-md">
+    <!-- Display messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-4 mb-2 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'settings:settings_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-cogs mr-2"></i>Settings</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Communication Settings</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Communication Settings</h1>
+        <p class="text-gray-600">Configure email, SMS, and notification providers</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-4 border-b border-gray-200">
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="communicationTabs" data-tabs-toggle="#communicationTabContent" role="tablist">
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                        id="email-tab" 
+                        data-tabs-target="#email" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="email" 
+                        aria-selected="true">
+                    <i class="fas fa-envelope mr-2"></i>Email Configuration
+                </button>
+            </li>
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                        id="sms-tab" 
+                        data-tabs-target="#sms" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="sms" 
+                        aria-selected="false">
+                    <i class="fas fa-sms mr-2"></i>SMS Providers
+                </button>
+            </li>
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                        id="notifications-tab" 
+                        data-tabs-target="#notifications" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="notifications" 
+                        aria-selected="false">
+                    <i class="fas fa-bell mr-2"></i>Notification Providers
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="communicationTabContent">
+        <!-- Email Configuration Tab -->
+        <div class="hidden p-4 rounded-lg" 
+             id="email" 
+             role="tabpanel" 
+             aria-labelledby="email-tab">
+            <!-- Add New Email Configuration Form -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-plus-circle mr-2"></i>Add New Email Configuration
+                </h3>
+                <form method="post" action="{% url 'settings:communication_settings' %}" class="bg-white p-6 rounded-lg shadow-sm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_email_config">
+                    {{ email_form|crispy }}
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-save mr-2"></i>Save Configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Email Configurations -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-envelope-open mr-2"></i>Existing Email Configurations
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for config in email_configs %}
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-lg font-medium text-gray-800">
+                                {{ config.name }}
+                            </h4>
+                            <span class="text-sm px-2 py-1 rounded-full {% if config.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ config.is_active|yesno:"Active,Inactive" }}
+                                {% if config.is_default %}<span class="ml-2 text-blue-600">(Default)</span>{% endif %}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Provider: {{ config.get_provider_display }}</p>
+                        <div class="text-sm text-gray-500">
+                            <p>Host: {{ config.host }}</p>
+                            <p>Port: {{ config.port }}</p>
+                            <p>From: {{ config.from_name }} &lt;{{ config.from_email }}&gt;</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full bg-gray-50 p-8 text-center rounded-lg">
+                        <p class="text-gray-600">No email configurations found. Add your first configuration above.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS Providers Tab -->
+        <div class="hidden p-4 rounded-lg bg-gray-50" 
+             id="sms" 
+             role="tabpanel" 
+             aria-labelledby="sms-tab">
+            <!-- Add New SMS Provider Form -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-plus-circle mr-2"></i>Add New SMS Provider
+                </h3>
+                <form method="post" action="{% url 'settings:communication_settings' %}" class="bg-white p-6 rounded-lg shadow-sm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_sms_provider">
+                    {{ sms_form|crispy }}
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-save mr-2"></i>Save Provider
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing SMS Providers -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-comments mr-2"></i>Existing SMS Providers
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for provider in sms_providers %}
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-lg font-medium text-gray-800">
+                                {{ provider.name }}
+                            </h4>
+                            <span class="text-sm px-2 py-1 rounded-full {% if provider.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ provider.is_active|yesno:"Active,Inactive" }}
+                                {% if provider.is_default %}<span class="ml-2 text-blue-600">(Default)</span>{% endif %}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Type: {{ provider.get_provider_type_display }}</p>
+                        <div class="text-sm text-gray-500">
+                            <p>Sender ID: {{ provider.sender_id }}</p>
+                            <p>Message Length: {{ provider.max_message_length }}</p>
+                            <p>Unicode Support: {{ provider.supports_unicode|yesno:"Yes,No" }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full bg-gray-50 p-8 text-center rounded-lg">
+                        <p class="text-gray-600">No SMS providers found. Add your first provider above.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Providers Tab -->
+        <div class="hidden p-4 rounded-lg bg-gray-50" 
+             id="notifications" 
+             role="tabpanel" 
+             aria-labelledby="notifications-tab">
+            <!-- Add New Notification Provider Form -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-plus-circle mr-2"></i>Add New Notification Provider
+                </h3>
+                <form method="post" action="{% url 'settings:communication_settings' %}" class="bg-white p-6 rounded-lg shadow-sm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_notification_provider">
+                    {{ notification_form|crispy }}
+                    <div class="flex justify-end mt-6">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-save mr-2"></i>Save Provider
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Notification Providers -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-bell mr-2"></i>Existing Notification Providers
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for provider in notification_providers %}
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-lg font-medium text-gray-800">
+                                {{ provider.name }}
+                            </h4>
+                            <span class="text-sm px-2 py-1 rounded-full {% if provider.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ provider.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Type: {{ provider.get_provider_type_display }}</p>
+                        <div class="text-sm text-gray-500">
+                            <p>Environment: {{ provider.get_environment_display }}</p>
+                            <p>Rich Media Support: {{ provider.supports_rich_media|yesno:"Yes,No" }}</p>
+                            <p>Max Payload: {{ provider.max_payload_size }} bytes</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full bg-gray-50 p-8 text-center rounded-lg">
+                        <p class="text-gray-600">No notification providers found. Add your first provider above.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Initialize Flowbite tabs
+    const tabElements = [
+        {
+            id: 'email-tab',
+            triggerEl: document.querySelector('#email-tab'),
+            targetEl: document.querySelector('#email')
+        },
+        {
+            id: 'sms-tab',
+            triggerEl: document.querySelector('#sms-tab'),
+            targetEl: document.querySelector('#sms')
+        },
+        {
+            id: 'notifications-tab',
+            triggerEl: document.querySelector('#notifications-tab'),
+            targetEl: document.querySelector('#notifications')
+        }
+    ];
+
+    // Create array for the Tab instances
+    const tabs = [];
+
+    // Setup each tab
+    tabElements.forEach(tab => {
+        if (tab.triggerEl && tab.targetEl) {
+            tabs.push(new Tabs(tab.triggerEl.parentElement, [
+                {
+                    id: tab.id,
+                    triggerEl: tab.triggerEl,
+                    targetEl: tab.targetEl
+                }
+            ]));
+        }
+    });
+
+    // Set first tab as active
+    if (tabs.length > 0) {
+        tabs[0].show();
+    }
+
+    // Show/Hide messages after 5 seconds
+    setTimeout(function() {
+        const messages = document.querySelectorAll('.alert');
+        messages.forEach(function(message) {
+            message.style.display = 'none';
+        });
+    }, 5000);
+</script>
+{% endblock %}
+{% endblock %}

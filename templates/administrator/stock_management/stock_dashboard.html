@@ -1,0 +1,378 @@
+{% extends '../base.html' %}
+
+{% load stock_filters %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Stock Management</h1>
+            <p class="mt-1 text-sm text-gray-600">Monitor inventory levels and stock movements</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="#" class="flex items-center bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-plus mr-2"></i>
+                Add Stock Item
+            </a>
+            <a href="#" class="flex items-center bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors">
+                <i class="fas fa-file-export mr-2"></i>
+                Export Inventory
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Total Items -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-blue-100 p-3">
+                    <i class="fas fa-box text-blue-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Total</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ total_items }}</h3>
+                <span class="text-base font-medium text-gray-500">Stock Items</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-blue-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>5%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+
+        <!-- Low Stock Items -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-red-100 p-3">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Alert</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ low_stock_count }}</h3>
+                <span class="text-base font-medium text-gray-500">Low Stock Items</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-red-500">Needs Attention</span>
+                <i class="fas fa-circle ml-2 text-red-500 text-xs"></i>
+            </div>
+        </div>
+
+        <!-- Monthly Transactions -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-purple-100 p-3">
+                    <i class="fas fa-exchange-alt text-purple-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">This Month</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ monthly_transactions }}</h3>
+                <span class="text-base font-medium text-gray-500">Stock Movements</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-purple-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>12%
+                </span>
+                <span class="text-gray-400 ml-2">increase</span>
+            </div>
+        </div>
+
+        <!-- Stock Value -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-green-100 p-3">
+                    <i class="fas fa-dollar-sign text-green-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Current</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">₹{{ total_stock_value }}</h3>
+                <span class="text-base font-medium text-gray-500">Stock Value</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-500 flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>8%
+                </span>
+                <span class="text-gray-400 ml-2">vs last month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Category Filter -->
+                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Stock Status Filter -->
+                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Status</option>
+                    <option value="in_stock">In Stock</option>
+                    <option value="low_stock">Low Stock</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                </select>
+
+                <!-- Unit Filter -->
+                <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Units</option>
+                    <option value="PIECE">Piece</option>
+                    <option value="BOX">Box</option>
+                    <option value="PACK">Pack</option>
+                    <option value="KG">Kilogram</option>
+                    <option value="LITER">Liter</option>
+                </select>
+            </div>
+
+            <!-- Search -->
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" placeholder="Search items...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Items Table -->
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="p-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">Item</th>
+                        <th scope="col" class="px-6 py-3">Category</th>
+                        <th scope="col" class="px-6 py-3">Current Stock</th>
+                        <th scope="col" class="px-6 py-3">Unit Price</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
+                        <th scope="col" class="px-6 py-3">Last Movement</th>
+                        <th scope="col" class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="w-4 p-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
+                                    <div class="text-xs text-gray-500">ID: {{ item.id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                {{ item.category.name }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ item.current_quantity }} {{ item.get_unit_display }}</div>
+                            <div class="text-xs text-gray-500">Min: {{ item.reorder_point }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">₹{{ item.unit_price }}</div>
+                            <div class="text-xs text-gray-500">Total: ₹{{ item.current_quantity|multiply:item.unit_price }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {% if item.current_quantity > item.reorder_point %}
+                                    bg-green-100 text-green-800
+                                {% elif item.current_quantity == 0 %}
+                                    bg-red-100 text-red-800
+                                {% else %}
+                                    bg-yellow-100 text-yellow-800
+                                {% endif %}">
+                                {% if item.current_quantity > item.reorder_point %}
+                                    In Stock
+                                {% elif item.current_quantity == 0 %}
+                                    Out of Stock
+                                {% else %}
+                                    Low Stock
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% with last_movement=item.movements.last %}
+                            {% if last_movement %}
+                            <div class="text-sm text-gray-900">
+                                {{ last_movement.get_movement_type_display }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ last_movement.date|date:"M d, Y" }}
+                            </div>
+                            {% else %}
+                            <div class="text-sm text-gray-500">No movements</div>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button id="dropdownMenuIconButton{{ item.id }}" data-dropdown-toggle="dropdownDots{{ item.id }}" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Dropdown Menu -->
+                    <div id="dropdownDots{{ item.id }}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-56">
+                        <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownMenuIconButton{{ item.id }}">
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-plus-circle text-green-500 mr-2"></i> Stock In
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-minus-circle text-red-500 mr-2"></i> Stock Out
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-history text-blue-500 mr-2"></i> Movement History
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-edit text-yellow-500 mr-2"></i> Edit Item
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-trash text-red-500 mr-2"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+            <div class="flex flex-1 justify-between sm:hidden">
+                <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+                <a href="#" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
+            </div>
+            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">{{ page_obj.start_index }}</span>
+                        to
+                        <span class="font-medium">{{ page_obj.end_index }}</span>
+                        of
+                        <span class="font-medium">{{ paginator.count }}</span>
+                        results
+                    </p>
+                </div>
+                <div>
+                    <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                            <span class="sr-only">Previous</span>
+                            <i class="fas fa-chevron-left h-5 w-5"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                        <a href="?page={{ num }}" aria-current="page" class="relative inline-flex items-center {% if page_obj.number == num %}bg-blue-600 text-white{% else %}text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50{% endif %} px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">
+                            {{ num }}
+                        </a>
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                            <span class="sr-only">Next</span>
+                            <i class="fas fa-chevron-right h-5 w-5"></i>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize dropdowns
+        const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
+        dropdownButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const targetId = this.getAttribute('data-dropdown-toggle');
+                const dropdown = document.getElementById(targetId);
+                
+                // Close all other dropdowns first
+                document.querySelectorAll('[id^="dropdownDots"]').forEach(d => {
+                    if (d.id !== targetId) {
+                        d.classList.add('hidden');
+                    }
+                });
+                
+                if (dropdown) {
+                    dropdown.classList.toggle('hidden');
+                }
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function() {
+            document.querySelectorAll('[id^="dropdownDots"]').forEach(dropdown => {
+                if (!dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        });
+
+        // Initialize checkboxes
+        const mainCheckbox = document.querySelector('thead input[type="checkbox"]');
+        const rowCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+
+        if (mainCheckbox) {
+            mainCheckbox.addEventListener('change', function() {
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = [...rowCheckboxes].every(c => c.checked);
+                const someChecked = [...rowCheckboxes].some(c => c.checked);
+                
+                if (mainCheckbox) {
+                    mainCheckbox.checked = allChecked;
+                    mainCheckbox.indeterminate = someChecked && !allChecked;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

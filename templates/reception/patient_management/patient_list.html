@@ -1,0 +1,385 @@
+{% extends '../base.html' %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+	<!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Patient Management</h1>
+            <p class="mt-1 text-sm text-gray-600">Manage and track patient information</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'patient_registration' %}" class="flex items-center bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-user-plus mr-2"></i>
+                Add New Patient
+            </a>
+            <!-- Replace the Export Data button with this dropdown -->
+            <div class="relative">
+                <button id="exportDropdownButton" 
+                        data-dropdown-toggle="exportDropdownMenu" 
+                        class="flex items-center bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-file-export mr-2"></i>
+                    Export Data
+                </button>
+                <div id="exportDropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-10">
+                    <div class="py-1">
+                        <a href="{% url 'export_patient_list' %}?format=excel{% if current_status %}&status={{ current_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-file-excel mr-2 text-green-600"></i>
+                            Excel Format
+                        </a>
+                        <a href="{% url 'export_patient_list' %}?format=pdf{% if current_status %}&status={{ current_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-file-pdf mr-2 text-red-600"></i>
+                            PDF Format
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Total Patients -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-blue-100 p-3">
+                    <i class="fas fa-users text-blue-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Total</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ total_patients }}</h3>
+                <span class="text-base font-medium text-gray-500">Total Patients</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-500 flex items-center">
+                    <i class="fas fa-chart-line mr-1"></i> Overall
+                </span>
+            </div>
+        </div>
+
+        <!-- Active Patients -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-green-100 p-3">
+                    <i class="fas fa-user-check text-green-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Active</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ active_patients }}</h3>
+                <span class="text-base font-medium text-gray-500">Active Patients</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-green-500 flex items-center">
+                    <i class="fas fa-check mr-1"></i> Current
+                </span>
+            </div>
+        </div>
+
+        <!-- Inactive Patients -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-red-100 p-3">
+                    <i class="fas fa-user-times text-red-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">Inactive</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ inactive_patients }}</h3>
+                <span class="text-base font-medium text-gray-500">Inactive Patients</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-red-500 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Attention Needed
+                </span>
+            </div>
+        </div>
+
+        <!-- New Patients -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="rounded-full bg-purple-100 p-3">
+                    <i class="fas fa-user-plus text-purple-500 text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-400">This Month</span>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-700">{{ new_patients_this_month }}</h3>
+                <span class="text-base font-medium text-gray-500">New Patients</span>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-purple-500 flex items-center">
+                    <i class="fas fa-calendar mr-1"></i> Monthly
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <form method="GET" class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Status Filter -->
+                <select name="status" 
+                        onchange="this.form.submit()" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="">All Status</option>
+                    <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+                
+                <!-- Items per page -->
+                <select name="page_size" 
+                        onchange="this.form.submit()" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                    <option value="10" {% if page_size == 10 %}selected{% endif %}>10 per page</option>
+                    <option value="25" {% if page_size == 25 %}selected{% endif %}>25 per page</option>
+                    <option value="50" {% if page_size == 50 %}selected{% endif %}>50 per page</option>
+                    <option value="100" {% if page_size == 100 %}selected{% endif %}>100 per page</option>
+                </select>
+            </div>
+
+            <!-- Search -->
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input type="text" 
+                       name="search" 
+                       value="{{ search_query }}"
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" 
+                       placeholder="Search patients...">
+            </div>
+        </form>
+    </div>
+
+    <!-- Patient List Table -->
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+				<tr>
+					<th scope="col" class="p-4">
+						<div class="flex items-center">
+							<input id="checkbox-all-search" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+							<label for="checkbox-all-search" class="sr-only">checkbox</label>
+						</div>
+					</th>
+					<th scope="col" class="px-6 py-3">
+						Name
+					</th>
+					<th scope="col" class="px-6 py-3">
+						Date Joined
+					</th>
+					<th scope="col" class="px-6 py-3">
+						Status
+					</th>
+					<th scope="col" class="px-6 py-3">
+						Action
+					</th>
+				</tr>
+			</thead>
+            <tbody>
+            {% for patient in patients %}
+                <tr class="bg-white hover:bg-gray-50">
+					<td class="w-4 p-4">
+						<div class="flex items-center">
+							<input id="checkbox-table-search-3" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+							<label for="checkbox-table-search-3" class="sr-only">checkbox</label>
+						</div>
+					</td>
+					<th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+						{% if patient.profile_picture %}
+							<img class="w-10 h-10 rounded-full" src="{{ patient.profile_picture.url }}" alt="Profile picture">
+						{% else %}
+							<i class="fas fa-user-circle fa-3x"></i>
+						{% endif %}
+						<div class="ps-3">
+							<div class="text-base font-semibold">
+								<a href="#">{{ patient.first_name }} {{ patient.last_name }}</a>
+							</div>
+							<div class="font-normal text-gray-500">
+								<a href="#">{{ patient.email }}</a>
+							</div>
+						</div>
+					</th>
+					<td class="px-6 py-4">
+						{{ patient.date_joined }}
+					</td>
+					<td class="px-6 py-4">
+						<div class="flex items-center">
+						{% if patient.is_active %}
+							<div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Active
+						{% else %}
+							<div class="h-2.5 w-2.5 rounded-full bg-red-500 me-2"></div> Inactive
+						{% endif %}
+						</div>
+					</td>
+					<td class="px-6 py-4 text-center">
+						<i class="fa-duotone fa-solid fa-ellipsis-vertical" id="dropdownMenuIconButton{{ patient.id }}" data-dropdown-toggle="dropdownDots{{ patient.id }}"></i>
+					</td>
+				</tr>
+                <!-- Dropdown menu -->
+                <div id="dropdownDots{{ patient.id }}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-56">
+					<ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownMenuIconButton{{ patient.id }}">
+						<li>
+							<a href="{% url 'patient_detail' user_id=patient.id %}" class="block px-4 py-2 hover:bg-gray-100">
+								<i class="fas fa-user text-blue-500"></i> View Profile
+							</a>
+						</li>
+						<li>
+							<a href="{% url 'edit_patient_profile' user_id=patient.id %}" class="block px-4 py-2 hover:bg-gray-100">
+								<i class="fas fa-edit text-green-500"></i> Edit Profile
+							</a>
+						</li>
+					</ul>
+					<div class="py-2">
+                        {% if patient.is_active %}
+                        <button data-modal-target="deactivateModal{{ patient.id }}" 
+                                data-modal-toggle="deactivateModal{{ patient.id }}"
+                                class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+                            <i class="fas fa-user-slash text-red-500"></i> Deactivate Patient
+                        </button>
+                        {% else %}
+                        <button data-modal-target="activateModal{{ patient.id }}" 
+                                data-modal-toggle="activateModal{{ patient.id }}"
+                                class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+                            <i class="fas fa-user-check text-green-500"></i> Activate Patient
+                        </button>
+                        {% endif %}
+                    </div>
+				</div>
+
+                <!-- Deactivate Patient Modal -->
+                <div id="deactivateModal{{ patient.id }}" tabindex="-1" aria-hidden="true" 
+                     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                    <div class="relative w-full max-w-md max-h-full">
+                        <div class="relative bg-white rounded-lg shadow">
+                            <div class="flex items-center justify-between p-4 border-b rounded-t">
+                                <h3 class="text-xl font-semibold text-gray-900">
+                                    Deactivate Patient
+                                </h3>
+                                <button type="button" 
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                        data-modal-hide="deactivateModal{{ patient.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="p-6">
+                                <p class="text-gray-700 mb-4">Are you sure you want to deactivate {{ patient.get_full_name }}? This will prevent them from logging in to the system.</p>
+                                <form action="{% url 'deactivate_patient' patient.id %}" method="post" class="flex justify-end space-x-3">
+                                    {% csrf_token %}
+                                    <button type="button" 
+                                            class="px-4 py-2 text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200" 
+                                            data-modal-hide="deactivateModal{{ patient.id }}">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" 
+                                            class="px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600">
+                                        Deactivate Patient
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activate Patient Modal -->
+                <div id="activateModal{{ patient.id }}" tabindex="-1" aria-hidden="true" 
+                     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                    <div class="relative w-full max-w-md max-h-full">
+                        <div class="relative bg-white rounded-lg shadow">
+                            <div class="flex items-center justify-between p-4 border-b rounded-t">
+                                <h3 class="text-xl font-semibold text-gray-900">
+                                    Activate Patient
+                                </h3>
+                                <button type="button" 
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                        data-modal-hide="activateModal{{ patient.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="p-6">
+                                <p class="text-gray-700 mb-4">Are you sure you want to activate {{ patient.get_full_name }}? This will allow them to login to the system again.</p>
+                                <form action="{% url 'activate_patient' patient.id %}" method="post" class="flex justify-end space-x-3">
+                                    {% csrf_token %}
+                                    <button type="button" 
+                                            class="px-4 py-2 text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200" 
+                                            data-modal-hide="activateModal{{ patient.id }}">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" 
+                                            class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600">
+                                        Activate Patient
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        {% if patients.has_other_pages %}
+        <div class="flex items-center justify-between p-4 bg-white border-t">
+            <div class="flex items-center text-sm text-gray-700">
+                <span class="mr-2">Showing</span>
+                <span class="font-medium">{{ patients.start_index }}</span>
+                <span class="mx-1">to</span>
+                <span class="font-medium">{{ patients.end_index }}</span>
+                <span class="mx-1">of</span>
+                <span class="font-medium">{{ paginator.count }}</span>
+                <span class="ml-1">entries</span>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                {% if patients.has_previous %}
+                    <a href="?page={{ patients.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}" 
+                       class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Previous
+                    </a>
+                {% else %}
+                    <span class="px-3 py-1 text-sm bg-gray-100 border border-gray-300 rounded-lg text-gray-400 cursor-not-allowed">
+                        Previous
+                    </span>
+                {% endif %}
+
+                {% for num in paginator.page_range %}
+                    {% if patients.number == num %}
+                        <span class="px-3 py-1 text-sm text-white bg-blue-600 border border-blue-600 rounded-lg">
+                            {{ num }}
+                        </span>
+                    {% elif num > patients.number|add:'-3' and num < patients.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}"
+                           class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            {{ num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if patients.has_next %}
+                    <a href="?page={{ patients.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}"
+                       class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Next
+                    </a>
+                {% else %}
+                    <span class="px-3 py-1 text-sm bg-gray-100 border border-gray-300 rounded-lg text-gray-400 cursor-not-allowed">
+                        Next
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

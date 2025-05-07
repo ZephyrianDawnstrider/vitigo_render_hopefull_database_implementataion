@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <system.webServer>
+    <handlers>
+      <add name="PythonHandler" path="*" verb="*" modules="FastCgiModule"
+           scriptProcessor="C:\Users\Ayush\AppData\Local\Programs\Python\Python313\python.exe|C:\Users\Ayush\AppData\Local\Programs\Python\Python313\Lib\site-packages\wfastcgi.py"
+           resourceType="Unspecified" requireAccess="Script" />
+    </handlers>
+    <rewrite>
+      <rules>
+        <rule name="DjangoApp" stopProcessing="true">
+          <match url=".*" />
+          <action type="Rewrite" url="handler.fcgi" />
+        </rule>
+      </rules>
+    </rewrite>
+  </system.webServer>
+  <appSettings>
+    <add key="WSGI_HANDLER" value="vitigo.wsgi.application" />
+    <add key="PYTHONPATH" value="C:\inetpub\wwwroot\vitigo" />
+  </appSettings>
+</configuration>
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <handlers>
+      <add name="PythonHandler" path="*" verb="*" modules="FastCgiModule" scriptProcessor="C:\Users\Ayush\AppData\Local\Programs\Python\Python313\python.exe|C:\Users\Ayush\AppData\Local\Programs\Python\Python313\Lib\site-packages\wfastcgi.py" resourceType="Unspecified" requireAccess="Script" />
+    </handlers>
+    <rewrite>
+      <rules>
+        <rule name="Static Files" stopProcessing="true">
+          <conditions>
+            <add input="true" pattern="false" />
+          </conditions>
+          <action type="None" />
+        </rule>
+        <rule name="Django App" stopProcessing="true">
+          <match url=".*" />
+          <action type="Rewrite" url="handler.wsgi" />
+        </rule>
+      </rules>
+    </rewrite>
+  </system.webServer>
+</configuration>

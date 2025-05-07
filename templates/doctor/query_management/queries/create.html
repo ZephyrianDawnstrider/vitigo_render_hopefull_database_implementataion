@@ -1,0 +1,95 @@
+{% extends '../../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Query{% endblock %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'query_management' %}" class="hover:text-blue-600">
+                <i class="fas fa-question-circle mr-2"></i>Queries</a>
+            </li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Create Query</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800">Create New Query</h1>
+        <p class="mt-1 text-sm text-gray-600">Create a new support query or ticket</p>
+    </div>
+
+    <!-- Query Form -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Basic Information -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-900">Basic Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>{{ form.subject|as_crispy_field }}</div>
+                    <div>{{ form.query_type|as_crispy_field }}</div>
+                </div>
+                <div>{{ form.description|as_crispy_field }}</div>
+            </div>
+
+            <!-- Assignment & Priority -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-900">Assignment & Priority</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>{{ form.priority|as_crispy_field }}</div>
+                    <div>{{ form.status|as_crispy_field }}</div>
+                    <div>{{ form.assigned_to|as_crispy_field }}</div>
+                </div>
+            </div>
+
+            <!-- Source & Response -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-900">Source & Response</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>{{ form.source|as_crispy_field }}</div>
+                    <div>{{ form.expected_response_date|as_crispy_field }}</div>
+                </div>
+            </div>
+
+            <!-- User Information -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-900">User Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>{{ form.user|as_crispy_field }}</div>
+                    <div class="space-y-4">
+                        <div>{{ form.is_anonymous|as_crispy_field }}</div>
+                        <div>{{ form.is_patient|as_crispy_field }}</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>{{ form.contact_email|as_crispy_field }}</div>
+                    <div>{{ form.contact_phone|as_crispy_field }}</div>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-medium text-gray-900">Tags</h3>
+                <div>{{ form.tags|as_crispy_field }}</div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex justify-end space-x-4 pt-4 border-t">
+                <a href="{% url 'query_management' %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Create Query
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

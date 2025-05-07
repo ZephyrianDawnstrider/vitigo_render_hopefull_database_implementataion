@@ -1,0 +1,129 @@
+{% extends "../../base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600">
+                <i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a>
+            </li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'package_list' %}" class="hover:text-blue-600">Packages</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Edit Package</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800">Edit Package</h1>
+        <p class="text-sm text-gray-600">Update package details</p>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Form Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Package Name -->
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Package Name
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.name.help_text %}
+                    <p class="mt-2 text-sm text-gray-500">{{ form.name.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Therapy Type -->
+                <div>
+                    <label for="{{ form.therapy_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Therapy Type
+                    </label>
+                    {{ form.therapy_type }}
+                    {% if form.therapy_type.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.therapy_type.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.therapy_type.help_text %}
+                    <p class="mt-2 text-sm text-gray-500">{{ form.therapy_type.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Description
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                {% endif %}
+                {% if form.description.help_text %}
+                <p class="mt-2 text-sm text-gray-500">{{ form.description.help_text }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Number of Sessions -->
+                <div>
+                    <label for="{{ form.number_of_sessions.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Number of Sessions
+                    </label>
+                    {{ form.number_of_sessions }}
+                    {% if form.number_of_sessions.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.number_of_sessions.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Total Cost -->
+                <div>
+                    <label for="{{ form.total_cost.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Total Cost (₹)
+                    </label>
+                    {{ form.total_cost }}
+                    {% if form.total_cost.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.total_cost.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Checkboxes -->
+            <div class="flex space-x-6">
+                <div class="flex items-center">
+                    {{ form.is_featured }}
+                    <label for="{{ form.is_featured.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                        Featured Package
+                    </label>
+                </div>
+                <div class="flex items-center">
+                    {{ form.is_active }}
+                    <label for="{{ form.is_active.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                        Active
+                    </label>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-4 border-t">
+                <a href="{% url 'package_list' %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

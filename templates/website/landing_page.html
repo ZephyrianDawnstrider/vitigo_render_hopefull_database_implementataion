@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VitiGo PMS - Advanced Vitiligo Practice Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .custom-shape-divider-bottom-1697465392 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg);
+        }
+        .custom-shape-divider-bottom-1697465392 svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 150px;
+        }
+        .custom-shape-divider-bottom-1697465392 .shape-fill {
+            fill: #FFFFFF;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-md fixed w-full z-50">
+        <nav class="container mx-auto px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-[#1a365d] ml-2">VitiGo PMS</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-[#4a5568] hover:text-[#1a365d] transition duration-300">Features</a>
+                    <a href="#benefits" class="text-[#4a5568] hover:text-[#1a365d] transition duration-300">Benefits</a>
+                    <a href="#testimonials" class="text-[#4a5568] hover:text-[#1a365d] transition duration-300">Testimonials</a>
+                    <a href="#pricing" class="text-[#4a5568] hover:text-[#1a365d] transition duration-300">Pricing</a>
+                    <a href="#contact" class="text-[#4a5568] hover:text-[#1a365d] transition duration-300">Contact</a>
+                    <a href="{% url 'login' %}" class="bg-[#1a365d] text-white px-4 py-2 rounded-full hover:bg-[#2c5282] transition duration-300">Get Started</a>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-[#4a5568] hover:text-[#1a365d]">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="pt-24 pb-40 bg-gradient-to-br from-[#1a365d] to-[#7dd3fc] text-white relative">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-12 md:mb-0">
+                        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">Revolutionize Your Vitiligo Practice Management</h1>
+                        <p class="text-xl mb-8">VitiGo PMS: The all-in-one solution for streamlined practice operations, enhanced clinic efficiency, and optimized treatment outcomes.</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="bg-white text-[#1a365d] px-6 py-3 rounded-full font-semibold hover:bg-[#f8fafc] transition duration-300">Start Free Trial</a>
+                            <a href="#" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-[#1a365d] transition duration-300">Schedule Demo</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="custom-shape-divider-bottom-1697465392">
+                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+                </svg>
+            </div>
+        </section>
+
+        <section id="features" class="py-20 bg-[#f7fafc]">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-[#1a365d] mb-12">Powerful Features for Comprehensive Care</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                        <i class="fas fa-user-md text-4xl text-[#1a365d] mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Advanced Patient Management</h3>
+                        <p class="text-[#4a5568]">Streamline patient records, appointments, and treatment plans with our intuitive interface.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                        <i class="fas fa-pills text-4xl text-[#1a365d] mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Integrated Pharmacy System</h3>
+                        <p class="text-[#4a5568]">Seamlessly manage medications, prescriptions, and inventory with our pharmacy module.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                        <i class="fas fa-chart-line text-4xl text-[#1a365d] mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Comprehensive Analytics</h3>
+                        <p class="text-[#4a5568]">Gain valuable insights with advanced reporting tools and customizable dashboards.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                        <i class="fas fa-calendar-alt text-4xl text-[#1a365d] mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Smart Scheduling</h3>
+                        <p class="text-[#4a5568]">Optimize your clinic's efficiency with our intelligent appointment management system.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                        <i class="fas fa-comments text-4xl text-[#1a365d] mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Secure Patient Communication</h3>
+                        <p class="text-[#4a5568]">Enhance patient engagement with HIPAA-compliant messaging and telemedicine features.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                        <i class="fas fa-file-medical-alt text-4xl text-[#1a365d] mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Customizable Treatment Plans</h3>
+                        <p class="text-[#4a5568]">Create and manage personalized treatment protocols for each patient with ease.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="benefits" class="py-20 bg-[#edf2f7]">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-[#1a365d] mb-12">Benefits of Choosing VitiGo PMS</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mr-4">
+                            <i class="fas fa-clock text-3xl text-[#1a365d]"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Save Time and Increase Efficiency</h3>
+                            <p class="text-[#4a5568]">Automate routine tasks and streamline workflows to focus more on patient care.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mr-4">
+                            <i class="fas fa-chart-pie text-3xl text-[#1a365d]"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Improve Treatment Outcomes</h3>
+                            <p class="text-[#4a5568]">Leverage data-driven insights to make informed decisions and enhance patient care.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mr-4">
+                            <i class="fas fa-lock text-3xl text-[#1a365d]"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Ensure Data Security and Compliance</h3>
+                            <p class="text-[#4a5568]">Rest easy with our HIPAA-compliant system designed to protect sensitive patient information.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mr-4">
+                            <i class="fas fa-users text-3xl text-[#1a365d]"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Enhance Patient Satisfaction</h3>
+                            <p class="text-[#4a5568]">Provide a seamless experience for your patients with easy appointment booking and communication.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="py-20 bg-[#f7fafc]">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-[#1a365d] mb-12">What Our Users Say</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-[#4a5568] mb-4">"VitiGo PMS has transformed our clinic operations. We've seen a 30% increase in efficiency since implementing the system."</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-user-md text-3xl text-[#2d3748] mr-4"></i>
+                            <div>
+                                <h4 class="font-semibold text-[#2d3748]">Dr. Emily Johnson</h4>
+                                <p class="text-sm text-[#718096]">Dermatologist, New York</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-[#4a5568] mb-4">"The patient management features are outstanding. It's helped us provide more personalized care to our vitiligo patients."</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-user-md text-3xl text-[#2d3748] mr-4"></i>
+                            <div>
+                                <h4 class="font-semibold text-[#2d3748]">Dr. Michael Lee</h4>
+                                <p class="text-sm text-[#718096]">Clinic Owner, Los Angeles</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-[#4a5568] mb-4">"As a patient, I love how easy it is to book appointments and communicate with my doctor. VitiGo PMS has improved my care experience."</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-user text-3xl text-[#2d3748] mr-4"></i>
+                            <div>
+                                <h4 class="font-semibold text-[#2d3748]">Sarah Thompson</h4>
+                                <p class="text-sm text-[#718096]">Patient, Chicago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="py-20 bg-[#edf2f7]">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-[#1a365d] mb-12">Choose the Right Plan for Your Practice</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                        <h3 class="text-2xl font-semibold mb-4 text-[#2d3748]">Basic</h3>
+                        <p class="text-4xl font-bold mb-6 text-[#1a365d]">&#8377;99<span class="text-xl font-normal text-[#718096]">/month</span></p>
+                        <ul class="mb-8">
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Patient Management</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Appointment Scheduling</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Basic Reporting</span></li>
+                            <li class="flex items-center mb-2 text-[#a0aec0]"><i class="fas fa-times text-[#f56565] mr-2"></i> Pharmacy Integration</li>
+                            <li class="flex items-center mb-2 text-[#a0aec0]"><i class="fas fa-times text-[#f56565] mr-2"></i> Telemedicine Features</li>
+                        </ul>
+                        <a href="#" class="block text-center bg-[#1a365d] text-white py-2 px-4 rounded-full hover:bg-[#2c5282] transition duration-300">Get Started</a>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300 border-2 border-[#1a365d] relative">
+                        <div class="absolute top-0 right-0 bg-[#1a365d] text-white py-1 px-3 rounded-bl-lg text-sm">Most Popular</div>
+                        <h3 class="text-2xl font-semibold mb-4 text-[#2d3748]">Professional</h3>
+                        <p class="text-4xl font-bold mb-6 text-[#1a365d]">&#8377;199<span class="text-xl font-normal text-[#718096]">/month</span></p>
+                        <ul class="mb-8">
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Everything in Basic</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Pharmacy Integration</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Advanced Analytics</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Telemedicine Features</span></li>
+                            <li class="flex items-center mb-2 text-[#a0aec0]"><i class="fas fa-times text-[#f56565] mr-2"></i> Custom Branding</li>
+                        </ul>
+                        <a href="#" class="block text-center bg-[#1a365d] text-white py-2 px-4 rounded-full hover:bg-[#2c5282] transition duration-300">Get Started</a>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                        <h3 class="text-2xl font-semibold mb-4 text-[#2d3748]">Enterprise</h3>
+                        <p class="text-4xl font-bold mb-6 text-[#1a365d]">Custom<span class="text-xl font-normal text-[#718096]"> Pricing</span></p>
+                        <ul class="mb-8">
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Everything in Professional</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Custom Branding</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">API Access</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">Dedicated Support</span></li>
+                            <li class="flex items-center mb-2"><i class="fas fa-check text-[#48bb78] mr-2"></i> <span class="text-[#4a5568]">On-Premise Deployment</span></li>
+                        </ul>
+                        <a href="#" class="block text-center bg-[#1a365d] text-white py-2 px-4 rounded-full hover:bg-[#2c5282] transition duration-300">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="cta" class="py-20 bg-gradient-to-r from-[#1a365d] to-[#2c5282] text-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold mb-4">Ready to Transform Your Vitiligo Care Management?</h2>
+                <p class="text-xl mb-8">Join thousands of healthcare professionals who trust VitiGo PMS</p>
+                <a href="#" class="bg-white text-[#1a365d] px-8 py-3 rounded-full font-semibold hover:bg-[#f8fafc] transition duration-300 inline-block">Start Your Free Trial</a>
+            </div>
+        </section>
+
+        <section id="faq" class="py-20 bg-[#f7fafc]">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-[#1a365d] mb-12">Frequently Asked Questions</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Is VitiGo PMS HIPAA compliant?</h3>
+                        <p class="text-[#4a5568]">Yes, VitiGo PMS is fully HIPAA compliant, ensuring the security and privacy of your patients' data.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Can I integrate VitiGo PMS with my existing systems?</h3>
+                        <p class="text-[#4a5568]">VitiGo PMS offers various integration options. Our team can work with you to ensure smooth integration with your existing systems.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">How long does it take to implement VitiGo PMS?</h3>
+                        <p class="text-[#4a5568]">Implementation time varies depending on your clinic's size and needs. Typically, it takes 2-4 weeks for full implementation and staff training.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-[#2d3748]">Do you offer training and support?</h3>
+                        <p class="text-[#4a5568]">Yes, we provide comprehensive training and 24/7 support to ensure you get the most out of VitiGo PMS.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20 bg-[#edf2f7]">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-[#1a365d] mb-12">Get in Touch</h2>
+                <div class="max-w-lg mx-auto">
+                    <form>
+                        <div class="mb-4">
+                            <label for="name" class="block text-[#4a5568] font-semibold mb-2">Name</label>
+                            <input type="text" id="name" name="name" class="w-full px-3 py-2 border border-[#cbd5e0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a365d]" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="email" class="block text-[#4a5568] font-semibold mb-2">Email</label>
+                            <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-[#cbd5e0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a365d]" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="message" class="block text-[#4a5568] font-semibold mb-2">Message</label>
+                            <textarea id="message" name="message" rows="4" class="w-full px-3 py-2 border border-[#cbd5e0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a365d]" required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-[#1a365d] text-white py-2 px-4 rounded-md hover:bg-[#2c5282] transition duration-300">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#1a365d] text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">VitiGo PMS</h3>
+                    <p class="text-[#a0aec0]">Advanced Vitiligo Practice Management System for healthcare professionals.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
+                    <ul>
+                        <li><a href="#features" class="text-[#a0aec0] hover:text-[#7dd3fc]">Features</a></li>
+                        <li><a href="#pricing" class="text-[#a0aec0] hover:text-[#7dd3fc]">Pricing</a></li>
+                        <li><a href="#testimonials" class="text-[#a0aec0] hover:text-[#7dd3fc]">Testimonials</a></li>
+                        <li><a href="#faq" class="text-[#a0aec0] hover:text-[#7dd3fc]">FAQ</a></li>
+                        <li><a href="{% url 'privacy_policy' %}" class="text-[#a0aec0] hover:text-[#7dd3fc]">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Contact</h3>
+                    <ul class="text-[#a0aec0]">
+                        <li>Astra Tower, Newtown, Kolkata, West Bengal, India</li>
+                        <li>Phone: +91 9711689525</li>
+                        <li>Email: shipra@vitiligoholla.com</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-[#a0aec0] hover:text-[#7dd3fc]"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-[#a0aec0] hover:text-[#7dd3fc]"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-[#a0aec0] hover:text-[#7dd3fc]"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-[#a0aec0] hover:text-[#7dd3fc]"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-[#2c5282] mt-8 pt-8 text-center">
+                <p class="text-[#a0aec0]">&copy; 2024 VitiGo PMS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Add a scroll-to-top button
+    const scrollToTopButton = document.createElement('button');
+    scrollToTopButton.innerHTML = '↑';
+    scrollToTopButton.style.position = 'fixed';
+    scrollToTopButton.style.bottom = '20px';
+    scrollToTopButton.style.right = '20px';
+    scrollToTopButton.style.fontSize = '24px';
+    scrollToTopButton.style.backgroundColor = '#1a365d';
+    scrollToTopButton.style.color = 'white';
+    scrollToTopButton.style.border = 'none';
+    scrollToTopButton.style.borderRadius = '50%';
+    scrollToTopButton.style.width = '50px';
+    scrollToTopButton.style.height = '50px';
+    scrollToTopButton.style.cursor = 'pointer';
+    scrollToTopButton.style.display = 'none';
+
+    document.body.appendChild(scrollToTopButton);
+
+    window.addEventListener('scroll', () => {
+        scrollToTopButton.style.display = window.pageYOffset > 300 ? 'block' : 'none';
+    });
+
+    scrollToTopButton.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    </script>
+</body>
+</html>

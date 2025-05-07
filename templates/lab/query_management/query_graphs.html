@@ -1,0 +1,414 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Query Volume Trend -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Query Volume Trend</h3>
+            <select id="queryTrendPeriod" class="text-sm border-gray-300 rounded-lg">
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+            </select>
+        </div>
+        {% if query_trend_data %}
+        <div class="relative" style="height: 300px;">
+            <canvas id="queryTrendChart"></canvas>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center h-64">
+            <div class="rounded-full bg-gray-100 p-3">
+                <i class="fas fa-chart-line text-gray-400 text-xl"></i>
+            </div>
+            <p class="mt-4 text-gray-500">No trend data available</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Status Distribution -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Status Distribution</h3>
+            <div class="text-sm text-gray-500">Total: {{ total_queries }}</div>
+        </div>
+        {% if status_distribution %}
+        <div class="relative" style="height: 300px;">
+            <canvas id="statusDistributionChart"></canvas>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center h-64">
+            <div class="rounded-full bg-gray-100 p-3">
+                <i class="fas fa-chart-pie text-gray-400 text-xl"></i>
+            </div>
+            <p class="mt-4 text-gray-500">No status data available</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Response Time Analysis -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Response Time Analysis</h3>
+            <select id="responseTimePeriod" class="text-sm border-gray-300 rounded-lg">
+                <option value="day">By Day</option>
+                <option value="week">By Week</option>
+                <option value="month">By Month</option>
+            </select>
+        </div>
+        {% if response_time_data %}
+        <div class="relative" style="height: 300px;">
+            <canvas id="responseTimeChart"></canvas>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center h-64">
+            <div class="rounded-full bg-gray-100 p-3">
+                <i class="fas fa-clock text-gray-400 text-xl"></i>
+            </div>
+            <p class="mt-4 text-gray-500">No response time data available</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Query Source Analysis -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Query Sources</h3>
+            <div class="text-sm text-gray-500">Last 30 days</div>
+        </div>
+        {% if source_distribution %}
+        <div class="relative" style="height: 300px;">
+            <canvas id="sourceDistributionChart"></canvas>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center h-64">
+            <div class="rounded-full bg-gray-100 p-3">
+                <i class="fas fa-random text-gray-400 text-xl"></i>
+            </div>
+            <p class="mt-4 text-gray-500">No source data available</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Staff Performance & Conversion Metrics -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Staff Performance -->
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Staff Performance</h3>
+            <select id="staffPerfPeriod" class="text-sm border-gray-300 rounded-lg">
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+            </select>
+        </div>
+        {% if staff_performance %}
+        <div class="relative" style="height: 300px;">
+            <canvas id="staffPerformanceChart"></canvas>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center h-64">
+            <div class="rounded-full bg-gray-100 p-3">
+                <i class="fas fa-users text-gray-400 text-xl"></i>
+            </div>
+            <p class="mt-4 text-gray-500">No performance data available</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Conversion Metrics -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Conversion Metrics</h3>
+        {% if conversion_metrics %}
+        <div class="space-y-6">
+            <div class="text-center">
+                <div class="relative" style="height: 160px;">
+                    <canvas id="conversionRateChart"></canvas>
+                </div>
+                <p class="mt-2 text-sm text-gray-600">Conversion Rate</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">{{ conversion_metrics.total_converted }}</div>
+                    <p class="text-sm text-gray-600">Converted</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-600">{{ conversion_metrics.total_pending }}</div>
+                    <p class="text-sm text-gray-600">Pending</p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center h-64">
+            <div class="rounded-full bg-gray-100 p-3">
+                <i class="fas fa-chart-bar text-gray-400 text-xl"></i>
+            </div>
+            <p class="mt-4 text-gray-500">No conversion data available</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Query Trend Chart (existing)
+    {% if query_trend_data %}
+    new Chart(document.getElementById('queryTrendChart'), {
+        type: 'line',
+        data: {
+            labels: {{ query_trend_data.labels|safe }},
+            datasets: [{
+                label: 'New Queries',
+                data: {{ query_trend_data.values|safe }},
+                borderColor: '#3b82f6',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(59, 130, 246, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Status Distribution Chart (existing)
+    {% if status_distribution %}
+    new Chart(document.getElementById('statusDistributionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ status_distribution.labels|safe }},
+            datasets: [{
+                data: {{ status_distribution.values|safe }},
+                backgroundColor: [
+                    '#3b82f6', // New
+                    '#fbbf24', // In Progress
+                    '#8b5cf6', // Waiting
+                    '#34d399', // Resolved
+                    '#6b7280'  // Closed
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Response Time Analysis Chart
+    {% if response_time_data %}
+    new Chart(document.getElementById('responseTimeChart'), {
+        type: 'line',
+        data: {
+            labels: {{ response_time_data.labels|safe }},
+            datasets: [{
+                label: 'Average Response Time (hours)',
+                data: {{ response_time_data.values|safe }},
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Response Time (hours)'
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Query Source Analysis Chart
+    {% if source_distribution %}
+    new Chart(document.getElementById('sourceDistributionChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ source_distribution.labels|safe }},
+            datasets: [{
+                data: {{ source_distribution.values|safe }},
+                backgroundColor: [
+                    '#3b82f6', '#f59e0b', '#10b981', 
+                    '#6366f1', '#ec4899', '#8b5cf6',
+                    '#14b8a6', '#f43f5e'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Staff Performance Chart
+    {% if staff_performance %}
+    new Chart(document.getElementById('staffPerformanceChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ staff_performance.labels|safe }},
+            datasets: [{
+                label: 'Total Queries',
+                data: {{ staff_performance.total_queries|safe }},
+                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                borderColor: '#3b82f6',
+                borderWidth: 1
+            }, {
+                label: 'Resolved Queries',
+                data: {{ staff_performance.resolved_queries|safe }},
+                backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                borderColor: '#10b981',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Queries'
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Conversion Metrics Chart
+    {% if conversion_metrics %}
+    new Chart(document.getElementById('conversionRateChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Converted', 'Pending'],
+            datasets: [{
+                data: [
+                    {{ conversion_metrics.total_converted }},
+                    {{ conversion_metrics.total_pending }}
+                ],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(209, 213, 219, 0.8)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Event Listeners for Period Changes
+    document.getElementById('queryTrendPeriod')?.addEventListener('change', function() {
+        const days = this.value;
+        fetch(`/queries/trend-data/?days=${days}`)
+            .then(response => response.json())
+            .then(data => {
+                const chart = Chart.getChart('queryTrendChart');
+                if (chart) {
+                    chart.data.labels = data.labels;
+                    chart.data.datasets[0].data = data.values;
+                    chart.update();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('responseTimePeriod')?.addEventListener('change', function() {
+        const period = this.value;
+        fetch(`/queries/response-time-data/?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                const chart = Chart.getChart('responseTimeChart');
+                if (chart) {
+                    chart.data.labels = data.labels;
+                    chart.data.datasets[0].data = data.values;
+                    chart.update();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('staffPerfPeriod')?.addEventListener('change', function() {
+        const days = this.value;
+        fetch(`/queries/staff-performance-data/?days=${days}`)
+            .then(response => response.json())
+            .then(data => {
+                const chart = Chart.getChart('staffPerformanceChart');
+                if (chart) {
+                    chart.data.labels = data.labels;
+                    chart.data.datasets[0].data = data.total_queries;
+                    chart.data.datasets[1].data = data.resolved_queries;
+                    chart.update();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+</script>
+{% endblock %}

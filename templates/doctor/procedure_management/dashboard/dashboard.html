@@ -1,0 +1,415 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Procedure Management Dashboard{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Procedure Management</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-6 mt-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Procedure Management</h1>
+                <p class="mt-1 text-sm text-gray-600">Monitor and manage medical procedures</p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex space-x-3">
+                <!-- Quick Links Dropdown -->
+                <button id="quickLinksDropdown" data-dropdown-toggle="quickLinks" class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors">
+                    <i class="fas fa-bolt mr-2"></i>
+                    Quick Links
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="quickLinks" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-56">
+                    <ul class="py-2 text-sm text-gray-700">
+                        <li>
+                            <a href="{% url 'procedure_management:procedure_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-list-ul w-5"></i>
+                                View All Procedures
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'procedure_management:consent_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-file-signature w-5"></i>
+                                Manage Consents
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'procedure_management:checklist_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-tasks w-5"></i>
+                                View Checklists
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'procedure_management:media_list' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-images w-5"></i>
+                                Media Gallery
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Quick Actions Button -->
+                <button id="quickActionsDropdown" data-dropdown-toggle="quickActions" class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Quick Actions
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div id="quickActions" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-56">
+                    <ul class="py-2 text-sm text-gray-700">
+                        <li>
+                            <a href="{% url 'procedure_management:procedure_create' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-plus-circle w-5"></i>
+                                New Procedure
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-clipboard-check w-5"></i>
+                                Create Checklist
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'procedure_management:media_create' %}" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-upload w-5"></i>
+                                Upload Media
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Today's Procedures -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-calendar-check text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Today's Procedures</p>
+                        <p class="text-white text-2xl font-bold">{{ today_procedures }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'procedure_management:procedure_list' %}" 
+                       class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        View Today's Schedule <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pending Consents -->
+            <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-file-signature text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Pending Consents</p>
+                        <p class="text-white text-2xl font-bold">{{ pending_consents }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'procedure_management:consent_list' %}" 
+                       class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        Manage Consents <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Incomplete Checklists -->
+            <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-clipboard-list text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Incomplete Checklists</p>
+                        <p class="text-white text-2xl font-bold">{{ incomplete_checklists }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="#" 
+                       class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        Complete Checklists <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Total Procedures -->
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                        <i class="fas fa-procedures text-white text-2xl"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Total Procedures</p>
+                        <p class="text-white text-2xl font-bold">{{ total_procedures }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'procedure_management:procedure_list' %}" 
+                       class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                        View All Procedures <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Lists Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Procedure Status Distribution -->
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Status Distribution</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">Total: </span>
+                        <span class="text-sm font-semibold text-gray-900">{{ total_procedures }}</span>
+                    </div>
+                </div>
+                <div class="relative" style="height: 200px;">
+                    <canvas id="statusChart"></canvas>
+                    {% if not procedure_by_status %}
+                    <div class="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg">
+                        <div class="text-center">
+                            <i class="fas fa-chart-pie text-gray-400 text-3xl mb-2"></i>
+                            <p class="text-gray-500">No procedure data available</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Weekly Trends -->
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Weekly Procedure Trends</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">Last 7 Days</span>
+                    </div>
+                </div>
+                <div class="relative" style="height: 200px;">
+                    <canvas id="weeklyTrendChart"></canvas>
+                    {% if not weekly_trends.datasets.0.data %}
+                    <div class="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line text-gray-400 text-3xl mb-2"></i>
+                            <p class="text-gray-500">No trend data available</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Recent Procedures -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Recent Procedures</h3>
+                </div>
+                <div class="p-4">
+                    <div class="space-y-4">
+                        {% for procedure in recent_procedures %}
+                        <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0">
+                                <span class="inline-block p-2 rounded-full 
+                                    {% if procedure.status == 'COMPLETED' %}bg-green-100 text-green-600
+                                    {% elif procedure.status == 'IN_PROGRESS' %}bg-blue-100 text-blue-600
+                                    {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                    <i class="fas fa-heartbeat"></i>
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">
+                                    {{ procedure.procedure_type.name }}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {{ procedure.patient.get_full_name }}
+                                </p>
+                            </div>
+                            <div class="text-right text-sm">
+                                <p class="text-gray-900">{{ procedure.scheduled_date|date:"M d, Y" }}</p>
+                                <p class="text-gray-500">{{ procedure.scheduled_time|time:"H:i" }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-500 text-center py-4">No recent procedures</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Media -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-4 py-5 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Recent Media</h3>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        {% for media in recent_media %}
+                        <div class="relative group">
+                            <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-100">
+                                {% if media.file_type == 'IMAGE' and media.file %}
+                                    <img src="{{ media.file.url }}" alt="{{ media.title }}" class="object-cover">
+                                {% else %}
+                                    <div class="flex items-center justify-center h-full">
+                                        {% if media.file_type == 'DOCUMENT' %}
+                                            <i class="fas fa-file-pdf text-4xl text-gray-400"></i>
+                                        {% elif media.file_type == 'VIDEO' %}
+                                            <i class="fas fa-file-video text-4xl text-gray-400"></i>
+                                        {% else %}
+                                            <i class="fas fa-file text-4xl text-gray-400"></i>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-900 truncate">{{ media.title }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {% if media.file %}
+                                        {{ media.uploaded_at|timesince }} ago
+                                    {% else %}
+                                        No file uploaded
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-span-2 text-center text-gray-500 py-4">
+                            <i class="fas fa-images text-4xl mb-2"></i>
+                            <p>No media files uploaded yet</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize charts and graphs
+    document.addEventListener('DOMContentLoaded', function() {
+        // Status Distribution Chart
+        const statusData = {{ status_distribution|safe }};
+        if (statusData.labels.length > 0) {
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: statusData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value * 100) / total).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        // Weekly trends chart
+        const weeklyData = {{ weekly_trends|safe }};
+        if (weeklyData.datasets[0].data.length > 0) {
+            const ctx = document.getElementById('weeklyTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: weeklyData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Procedures: ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                stepSize: 1
+                            },
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

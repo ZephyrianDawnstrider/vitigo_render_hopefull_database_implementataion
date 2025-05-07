@@ -1,0 +1,88 @@
+<!-- Assignment Modal -->
+<div id="assign-modal{{ query.query_id }}" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-screen bg-black bg-opacity-50">
+    <div class="relative p-4 w-full max-w-lg">
+        <div class="relative bg-white rounded-xl shadow-2xl transform transition-all">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b">
+                <h3 class="text-xl font-semibold text-blue-600">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Assign Staff
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" data-modal-hide="assign-modal{{ query.query_id }}">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <div class="mb-6">
+                    <div class="flex items-center justify-center mb-6">
+                        <div class="rounded-full bg-blue-100 p-3">
+                            <i class="fas fa-user-plus text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+
+                    <!-- Query Info -->
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Query Details</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="space-y-2">
+                                <p class="flex items-center text-gray-600">
+                                    <i class="fas fa-hashtag w-5"></i>
+                                    <span class="font-medium ml-2">Query ID:</span>
+                                    <span class="ml-2">{{ query.query_id }}</span>
+                                </p>
+                                <p class="flex items-center text-gray-600">
+                                    <i class="fas fa-tag w-5"></i>
+                                    <span class="font-medium ml-2">Status:</span>
+                                    <span class="ml-2">{{ query.get_status_display }}</span>
+                                </p>
+                            </div>
+                            <div class="space-y-2">
+                                <p class="flex items-center text-gray-600">
+                                    <i class="fas fa-calendar-alt w-5"></i>
+                                    <span class="font-medium ml-2">Created:</span>
+                                    <span class="ml-2">{{ query.created_at|date:"M d, Y" }}</span>
+                                </p>
+                                <p class="flex items-center text-gray-600">
+                                    <i class="fas fa-flag w-5"></i>
+                                    <span class="font-medium ml-2">Priority:</span>
+                                    <span class="ml-2">{{ query.get_priority_display }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Staff Selection Form -->
+                    <form action="{% url 'query_assign' query.query_id %}" method="POST" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label for="staff{{ query.query_id }}" class="block text-sm font-medium text-gray-700 mb-2">Select Staff Member</label>
+                            <select id="staff{{ query.query_id }}" name="assigned_to" required
+                                    class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Choose a staff member...</option>
+                                {% for staff in available_staff %}
+                                <option value="{{ staff.id }}">
+                                    {{ staff.get_full_name }} ({{ staff.get_role_display }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="button" 
+                                    data-modal-hide="assign-modal{{ query.query_id }}" 
+                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit" 
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                Assign Staff
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

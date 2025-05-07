@@ -1,0 +1,227 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}New Visit Status{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'clinic_management:clinic_dashboard' %}" class="hover:text-blue-600"><i class="fas fa-clinic-medical mr-2"></i>Clinic Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'clinic_management:visit_status_config' %}" class="hover:text-blue-600">Status Configuration</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">New Status</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900">Create New Visit Status</h1>
+        <p class="mt-1 text-sm text-gray-600">Configure a new status for managing the flow of clinic visits</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md">
+                <form method="post" class="p-6 space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Name Fields Section -->
+                    <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+                        <h3 class="font-medium text-gray-900">Status Identification</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                    Internal Name <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-gray-500">Used internally, uppercase with underscores (e.g., IN_PROGRESS)</p>
+                            </div>
+
+                            <div>
+                                <label for="{{ form.display_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                    Display Name <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.display_name }}
+                                {% if form.display_name.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.display_name.errors.0 }}</p>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-gray-500">Shown to users (e.g., In Progress)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Description
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Detailed explanation of when this status should be used</p>
+                    </div>
+
+                    <!-- Visual Settings -->
+                    <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+                        <h3 class="font-medium text-gray-900">Visual Settings</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="{{ form.color_code.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                    Color Code <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex items-center space-x-2">
+                                    {{ form.color_code }}
+                                    <div id="color-preview" class="w-8 h-8 rounded-full border border-gray-300"></div>
+                                </div>
+                                {% if form.color_code.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.color_code.errors.0 }}</p>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-gray-500">Choose a distinct color for easy identification</p>
+                            </div>
+
+                            <div>
+                                <label for="{{ form.order.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                    Display Order
+                                </label>
+                                {{ form.order }}
+                                {% if form.order.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.order.errors.0 }}</p>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-gray-500">Lower numbers appear first in lists and workflows</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Behavior -->
+                    <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+                        <h3 class="font-medium text-gray-900">Status Behavior</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-2">
+                                {{ form.is_active }}
+                                <div>
+                                    <label for="{{ form.is_active.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                        Active Status
+                                    </label>
+                                    <p class="text-xs text-gray-500">When active, this status can be assigned to visits</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-2">
+                                {{ form.is_terminal_state }}
+                                <div>
+                                    <label for="{{ form.is_terminal_state.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                        Terminal State
+                                    </label>
+                                    <p class="text-xs text-gray-500">Indicates this is an end state (e.g., Completed, Cancelled)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end space-x-3 pt-6 border-t">
+                        <a href="{% url 'clinic_management:visit_status_config' %}" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-lg hover:bg-emerald-700">
+                            Create Status
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Helper Section -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Quick Guide -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Status Creation Guide</h3>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Naming Convention</h4>
+                            <p class="text-sm text-gray-500">Internal names should be uppercase with underscores. Display names should be user-friendly.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-palette text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Color Selection</h4>
+                            <p class="text-sm text-gray-500">Choose distinct colors for easy visual identification in the system.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-sort-numeric-down text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Order</h4>
+                            <p class="text-sm text-gray-500">Determines the sequence in lists and workflows.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examples -->
+            <div class="bg-blue-50 rounded-lg p-6">
+                <h3 class="text-sm font-medium text-blue-900 mb-3">Common Status Examples</h3>
+                <ul class="space-y-2 text-sm text-blue-800">
+                    <li><strong>REGISTERED</strong> - Initial state for new visits</li>
+                    <li><strong>IN_PROGRESS</strong> - Visit is currently active</li>
+                    <li><strong>WITH_DOCTOR</strong> - Patient is with the doctor</li>
+                    <li><strong>COMPLETED</strong> - Visit has ended normally</li>
+                    <li><strong>CANCELLED</strong> - Visit was cancelled</li>
+                </ul>
+            </div>
+
+            <!-- Tips -->
+            <div class="bg-amber-50 rounded-lg p-6">
+                <h3 class="text-sm font-medium text-amber-900 mb-3">Tips</h3>
+                <ul class="space-y-2 text-sm text-amber-800 list-disc list-inside">
+                    <li>Use clear, descriptive names</li>
+                    <li>Choose distinctive colors</li>
+                    <li>Consider the workflow order</li>
+                    <li>Mark terminal states appropriately</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Color picker preview
+    document.getElementById('{{ form.color_code.id_for_label }}').addEventListener('input', function(e) {
+        document.getElementById('color-preview').style.backgroundColor = e.target.value;
+    });
+
+    // Initialize color preview
+    document.addEventListener('DOMContentLoaded', function() {
+        const colorInput = document.getElementById('{{ form.color_code.id_for_label }}');
+        document.getElementById('color-preview').style.backgroundColor = colorInput.value;
+    });
+</script>
+{% endblock %}
+{% endblock %}

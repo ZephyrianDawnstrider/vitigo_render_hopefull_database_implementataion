@@ -1,0 +1,181 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if is_edit %}Edit{% else %}New{% endif %} Compliance Report{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_dashboard' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:report_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Reports
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{% if is_edit %}Edit{% else %}New{% endif %} Report</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-semibold text-gray-900">{% if is_edit %}Edit{% else %}New{% endif %} Compliance Report</h1>
+            <p class="mt-1 text-sm text-gray-600">{% if is_edit %}Update existing{% else %}Create a new{% endif %} compliance report</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white border rounded-lg shadow-sm">
+            <div class="p-6">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                            Please correct the errors below.
+                        </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <!-- Report Type -->
+                        <div>
+                            {{ form.report_type|as_crispy_field }}
+                            {% if form.report_type.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.report_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Title -->
+                        <div>
+                            {{ form.title|as_crispy_field }}
+                            {% if form.title.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Period Start -->
+                        <div>
+                            {{ form.period_start|as_crispy_field }}
+                            {% if form.period_start.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.period_start.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Period End -->
+                        <div>
+                            {{ form.period_end|as_crispy_field }}
+                            {% if form.period_end.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.period_end.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        {{ form.description|as_crispy_field }}
+                        {% if form.description.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Parameters -->
+                    <div>
+                        {{ form.parameters|as_crispy_field }}
+                        {% if form.parameters.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.parameters.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Enter parameters as a valid JSON object</p>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3">
+                        <a href="{% if is_edit %}{% url 'compliance_management:report_detail' report.pk %}{% else %}{% url 'compliance_management:report_list' %}{% endif %}" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                            {% if is_edit %}Update{% else %}Create{% endif %} Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add JSON validation for parameters field
+        const parametersField = document.querySelector('#id_parameters');
+        
+        function validateJSON(value) {
+            try {
+                if (value) {
+                    JSON.parse(value);
+                    return true;
+                }
+                return true; // Empty value is also valid
+            } catch (e) {
+                return false;
+            }
+        }
+
+        parametersField.addEventListener('blur', function() {
+            const isValid = validateJSON(this.value);
+            if (isValid) {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-gray-300');
+            } else {
+                this.classList.remove('border-gray-300');
+                this.classList.add('border-red-500');
+            }
+        });
+
+        // Format JSON on input if possible
+        parametersField.addEventListener('input', function() {
+            if (validateJSON(this.value)) {
+                try {
+                    const formatted = JSON.stringify(JSON.parse(this.value), null, 2);
+                    this.value = formatted;
+                } catch (e) {
+                    // Ignore formatting if JSON is invalid
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

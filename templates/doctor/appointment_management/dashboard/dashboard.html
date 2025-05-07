@@ -1,0 +1,311 @@
+{% extends '../../base.html' %}
+
+{% block content %}
+    <div class="p-4 mt-14 sm:ml-64">
+        <!-- Breadcrumb -->
+        <nav class="mb-6">
+            <ol class="flex items-center space-x-2 text-gray-600">
+                <li><i class="fas fa-calendar-check mr-2"></i>Appointments</li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-800">Appointment Management</h1>
+                <p class="mt-1 text-sm text-gray-600">Schedule and manage patient appointments efficiently</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{% url 'appointment_calendar' %}" class="flex items-center bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    View Calendar
+                </a>
+                <a href="{% url 'appointment_create' %}" class="flex items-center bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    New Appointment
+                </a>
+                <a href="{% url 'appointment_reminders' %}" class="flex items-center bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors">
+                    <i class="fas fa-bell mr-2"></i>
+                    Manage Reminders
+                </a>
+            </div>
+        </div>
+
+        <!-- Analytics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Total Appointments -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="rounded-full bg-blue-100 p-3">
+                        <i class="fas fa-calendar-check text-blue-500 text-xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-400">This Month</span>
+                </div>
+                <div class="flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-700">{{ total_appointments }}</h3>
+                    <span class="text-base font-medium text-gray-500">Total Appointments</span>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-green-500 flex items-center">
+                        <i class="fas fa-arrow-up mr-1"></i>12%
+                    </span>
+                    <span class="text-gray-400 ml-2">vs last month</span>
+                </div>
+            </div>
+
+            <!-- Pending Appointments -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="rounded-full bg-yellow-100 p-3">
+                        <i class="fas fa-clock text-yellow-500 text-xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-400">Active</span>
+                </div>
+                <div class="flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-700">{{ pending_appointments }}</h3>
+                    <span class="text-base font-medium text-gray-500">Pending Appointments</span>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-yellow-500">Requires Action</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </div>
+            </div>
+
+            <!-- Completed Appointments -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="rounded-full bg-green-100 p-3">
+                        <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-400">Completed</span>
+                </div>
+                <div class="flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-700">{{ completed_appointments }}</h3>
+                    <span class="text-base font-medium text-gray-500">Completed Appointments</span>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-green-500 flex items-center">
+                        <i class="fas fa-arrow-up mr-1"></i>5%
+                    </span>
+                    <span class="text-gray-400 ml-2">Completion Rate</span>
+                </div>
+            </div>
+
+            <!-- Today's Appointments -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="rounded-full bg-purple-100 p-3">
+                        <i class="fas fa-calendar-day text-purple-500 text-xl"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-400">Today</span>
+                </div>
+                <div class="flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-700">{{ today_appointments }}</h3>
+                    <span class="text-base font-medium text-gray-500">Today's Schedule</span>
+                </div>
+                <div class="mt-4 flex items-center text-sm">
+                    <span class="text-purple-500">View Schedule</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add after the analytics cards -->
+        <!-- Export Controls -->
+        <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+            <form action="{% url 'appointment_export' %}" method="GET" class="flex flex-wrap gap-4 items-center">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                    <select name="date_range" class="w-full rounded-lg border-gray-300">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                
+                <div class="flex-1 min-w-[200px] custom-date-range hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Custom Range</label>
+                    <div class="flex gap-2">
+                        <input type="date" name="start_date" class="rounded-lg border-gray-300">
+                        <input type="date" name="end_date" class="rounded-lg border-gray-300">
+                    </div>
+                </div>
+
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Export Format</label>
+                    <select name="format" class="w-full rounded-lg border-gray-300">
+                        <option value="csv">CSV</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                </div>
+
+                <div class="flex items-end">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-download mr-2"></i>Export Report
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% include './components/filter_and_search.html' %}
+
+        <!-- Rest of the template remains the same but with updated styling to match -->
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="p-4">
+                            <div class="flex items-center">
+                                <input id="checkbox-all-search" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
+                                <label for="checkbox-all-search" class="sr-only">checkbox</label>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">Patient Information</th>
+                        <th scope="col" class="px-6 py-3">Doctor Information</th>
+                        <th scope="col" class="px-6 py-3">Appointment Details</th>
+                        <th scope="col" class="px-6 py-3">Priority</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
+                        <th scope="col" class="px-6 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                        <tr class="bg-white hover:bg-gray-50">
+                            <td class="w-4 p-4">
+                                <div class="flex items-center">
+                                    <input id="checkbox-table-search-{{ forloop.counter }}" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
+                                    <label for="checkbox-table-search-{{ forloop.counter }}" class="sr-only">checkbox</label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-left font-medium text-gray-900">
+                              <div class="text-base font-semibold">
+                                <a href="#">{{ appointment.patient.first_name }} {{ appointment.patient.last_name }}</a>
+                              </div>
+                              <div class="font-normal text-gray-500">
+                                <a href="#">{{ appointment.patient.email }}</a>
+                              </div>
+                          </td>
+                          <td class="px-6 py-4 text-left font-medium text-gray-900">
+                              <div class="text-base font-semibold">
+                                <a href="#">{{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}</a>
+                              </div>
+                              <div class="font-normal text-gray-500">
+                                <a href="#">{{ appointment.doctor.email }}</a>
+                              </div>
+                          </td>
+                            <td class="px-6 py-4">
+                                <div class="space-y-2">
+                                    <!-- Date -->
+                                    <div class="flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <span class="font-medium text-gray-700">{{ appointment.date|date:"l, M d, Y" }}</span>
+                                    </div>
+                                    
+                                    <!-- Time Slot -->
+                                    <div class="flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-gray-600">
+                                            {{ appointment.time_slot.start_time|time:"g:i A" }} - {{ appointment.time_slot.end_time|time:"g:i A" }}
+                                        </span>
+                                    </div>
+                                
+                                    <!-- Appointment Type -->
+                                    <div class="flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                          {% if appointment.appointment_type == 'CONSULTATION' %}
+                                            bg-blue-100 text-blue-800
+                                          {% elif appointment.appointment_type == 'FOLLOW_UP' %}
+                                            bg-green-100 text-green-800
+                                          {% elif appointment.appointment_type == 'PROCEDURE' %}
+                                            bg-purple-100 text-purple-800
+                                          {% else %}
+                                            bg-yellow-100 text-yellow-800
+                                          {% endif %}">
+                                          {{ appointment.get_appointment_type_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full
+                                  {% if appointment.priority == 'A' %}
+                                    bg-blue-100 text-blue-800
+                                  {% elif appointment.priority == 'B' %}
+                                    bg-green-100 text-green-800
+                                  {% else %}
+                                    bg-red-100 text-red-800
+                                  {% endif %}">
+                                  {{ appointment.get_priority_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full
+                                  {% if appointment.status == 'PENDING' %}
+                                    bg-yellow-100 text-yellow-800
+                                  {% elif appointment.status == 'SCHEDULED' %}
+                                    bg-blue-100 text-blue-800
+                                  {% elif appointment.status == 'CONFIRMED' %}
+                                    bg-green-100 text-green-800
+                                  {% elif appointment.status == 'CANCELLED' %}
+                                    bg-red-100 text-red-800
+                                  {% elif appointment.status == 'COMPLETED' %}
+                                    bg-gray-100 text-gray-800
+                                  {% elif appointment.status == 'NO_SHOW' %}
+                                    bg-orange-100 text-orange-800
+                                  {% endif %}">
+                                  {{ appointment.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                              <i class="fa-duotone fa-solid fa-ellipsis-vertical" id="dropdownMenuIconButton{{ appointment.id }}" data-dropdown-toggle="dropdownDots{{ appointment.id }}"></i>
+                            </td>
+                        </tr>
+                        {% include './components/dropdown.html' with appointment=appointment %}
+                        {% include './modals/delete.html' with appointment=appointment %}
+                        {% include './modals/export.html' with appointment=appointment %}
+                        {% include './modals/reschedule.html' with appointment=appointment %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            {% with page_obj=page_obj paginator=paginator %}
+                {% if page_obj.has_other_pages %}
+                    {% include '../common/pagination.html' %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize Flowbite dropdowns
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
+        dropdownButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-dropdown-toggle');
+                const dropdownElement = document.getElementById(targetId);
+                dropdownElement.classList.toggle('hidden');
+            });
+        });
+    });
+
+    document.querySelector('[name="date_range"]').addEventListener('change', function() {
+        const customRange = document.querySelector('.custom-date-range');
+        if (this.value === 'custom') {
+            customRange.classList.remove('hidden');
+        } else {
+            customRange.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

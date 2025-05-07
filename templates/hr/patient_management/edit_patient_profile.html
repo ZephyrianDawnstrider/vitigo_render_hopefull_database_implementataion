@@ -1,0 +1,81 @@
+{% extends '../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Patient Profile{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'patient_list' %}" class="hover:text-blue-600"><i class="fas fa-users mr-2"></i>Patient Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'patient_detail' user_id=user.id %}" class="hover:text-blue-600">Patient Details</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Edit Profile</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Edit Patient Profile</h1>
+                <p class="mt-1 text-sm text-gray-600">Editing profile for {{ user.get_full_name }}</p>
+            </div>
+            <a href="{% url 'patient_detail' user_id=user.id %}" 
+               class="flex items-center px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Patient Details
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form -->
+        <div class="lg:col-span-2 space-y-6">
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Patient Profile Information -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Patient Information</h2>
+                    {{ profile_form|crispy }}
+                </div>
+
+                <!-- Medical History -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Medical History</h2>
+                    {{ medical_history_form|crispy }}
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end space-x-3 pt-4">
+                    <button type="button" 
+                            onclick="window.location.href='{% url 'patient_detail' user_id=user.id %}'"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Helper Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-blue-50 rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Editing Guidelines</h3>
+                <div class="space-y-4 text-sm text-gray-600">
+                    <p><i class="fas fa-info-circle text-blue-500 mr-2"></i>All changes will be saved to patient records</p>
+                    <p><i class="fas fa-history text-blue-500 mr-2"></i>Previous data will be updated</p>
+                    <p><i class="fas fa-exclamation-triangle text-blue-500 mr-2"></i>Verify all information before saving</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

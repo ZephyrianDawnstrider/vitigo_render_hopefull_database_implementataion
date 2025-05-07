@@ -1,0 +1,46 @@
+<!-- templates/error_handling/403.html -->
+{% extends "error_handling/base_error.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block error_code %}{{ error_code }}{% endblock %}
+
+{% block error_title %}{{ title }}{% endblock %}
+
+{% block error_message %}
+    <div class="space-y-6">
+        <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+            <p class="text-lg font-semibold text-blue-700">
+                {{ message }}
+            </p>
+        </div>
+
+        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <p class="text-gray-600 leading-relaxed">
+                {{ description }}
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-6 bg-gray-50 p-4 rounded-lg text-left">
+        <h3 class="font-semibold text-gray-700 mb-2">This might be because:</h3>
+        <ul class="list-disc list-inside space-y-2 text-gray-600">
+            <li>Your user account doesn't have the required permissions</li>
+            <li>You need to log in to access this resource</li>
+            <li>The requested resource is restricted</li>
+        </ul>
+    </div>
+
+    {% if path %}
+    <div class="mt-4 text-sm text-gray-500">
+        Requested path: {{ path }}
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block error_help %}
+    <p class="text-gray-600">
+        If you believe this is an error, please contact your system administrator or 
+        <a href="mailto:support@vitigo.com" class="text-blue-600 hover:text-blue-800 underline">reach out to our support team</a>.
+    </p>
+{% endblock %}

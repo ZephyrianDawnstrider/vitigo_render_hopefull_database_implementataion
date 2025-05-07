@@ -1,0 +1,184 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load leave_filters %}
+
+{% block title %}Leave Settings{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Leave Settings</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Settings Cards Grid -->
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for leave_type, label in leave_types %}
+                {% with setting=settings|filter_by_type:leave_type %}
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b">
+                        <h3 class="text-lg font-medium text-gray-900">{{ label }}</h3>
+                    </div>
+                    <form method="POST" action="{% url 'leave_settings' %}" class="p-6 space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="leave_type" value="{{ leave_type }}">
+
+                        <!-- Annual Allowance -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Annual Allowance</label>
+                            <div class="mt-1">
+                                <input type="number" name="annual_allowance" min="0"
+                                       value="{{ setting.annual_allowance|default:0 }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Days allowed per year</p>
+                        </div>
+
+                        <!-- Carry Forward Limit -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Carry Forward Limit</label>
+                            <div class="mt-1">
+                                <input type="number" name="carry_forward_limit" min="0"
+                                       value="{{ setting.carry_forward_limit|default:0 }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Maximum days to carry forward</p>
+                        </div>
+
+                        <!-- Minimum Service Days -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Minimum Service Period</label>
+                            <div class="mt-1">
+                                <input type="number" name="min_service_days" min="0"
+                                       value="{{ setting.min_service_days|default:0 }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Days of service required</p>
+                        </div>
+
+                        <!-- Notice Period -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Notice Period</label>
+                            <div class="mt-1">
+                                <input type="number" name="notice_period_days" min="0"
+                                       value="{{ setting.notice_period_days|default:0 }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Days of notice required</p>
+                        </div>
+
+                        <!-- Approval Requirements -->
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="requires_approval" 
+                                       {% if setting.requires_approval %}checked{% endif %}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label class="ml-2 text-sm text-gray-700">Requires Approval</label>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <input type="checkbox" name="requires_documentation"
+                                       {% if setting.requires_documentation %}checked{% endif %}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label class="ml-2 text-sm text-gray-700">Requires Documentation</label>
+                            </div>
+                        </div>
+
+                        <!-- Documentation Info -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Documentation Requirements</label>
+                            <div class="mt-1">
+                                <textarea name="documentation_info" rows="3"
+                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">{{ setting.documentation_info }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Active Status -->
+                        <div class="flex items-center">
+                            <input type="checkbox" name="is_active"
+                                   {% if setting.is_active %}checked{% endif %}
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label class="ml-2 text-sm text-gray-700">Active</label>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="pt-4">
+                            <button type="submit"
+                                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+{% if messages %}
+<div class="fixed bottom-0 right-0 m-6">
+    {% for message in messages %}
+        <div class="{% if message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %} 
+                    px-4 py-3 rounded-lg shadow-md mb-2">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- JavaScript for form handling -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide messages after 5 seconds
+    const messages = document.querySelectorAll('.messages > div');
+    messages.forEach(message => {
+        setTimeout(() => {
+            message.style.opacity = '0';
+            setTimeout(() => message.remove(), 300);
+        }, 5000);
+    });
+
+    // Form validation and handling
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const annualAllowance = form.querySelector('[name="annual_allowance"]');
+            if (parseInt(annualAllowance.value) < 0) {
+                e.preventDefault();
+                alert('Annual allowance cannot be negative');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

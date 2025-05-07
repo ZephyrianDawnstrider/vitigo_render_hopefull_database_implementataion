@@ -1,0 +1,196 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-gray-50">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'dashboard' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                    <i class="fas fa-home mr-2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-sm"></i>
+                    <span class="text-sm font-medium text-blue-600">Phototherapy Management</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Enhanced Main Header -->
+    <div class="flex items-center justify-between mb-8 bg-white p-6 rounded-xl shadow-md">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Phototherapy Management</h1>
+            <p class="mt-2 text-gray-600">Comprehensive phototherapy treatment management system</p>
+        </div>
+        
+        <!-- Enhanced Quick Actions -->
+        <div class="flex space-x-3">
+            <div class="dropdown relative">
+                <button id="quickActionDropdown" data-dropdown-toggle="quickActionDropdownItems" class="bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-600 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex items-center">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    Quick Actions
+                    <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                </button>
+                <div id="quickActionDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-10 border border-gray-100 transform transition-all duration-300">
+                    <a href="{% url 'new_treatment_plan' %}" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-medical mr-3 text-blue-500"></i>
+                        <div>
+                            <div class="text-sm font-medium text-gray-700">New Treatment Plan</div>
+                            <div class="text-xs text-gray-500">Create a new protocol</div>
+                        </div>
+                    </a>
+                    <a href="{% url 'schedule_session' %}" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-calendar-plus mr-3 text-green-500"></i>
+                        <div>
+                            <div class="text-sm font-medium text-gray-700">Schedule Session</div>
+                            <div class="text-xs text-gray-500">Book new appointment</div>
+                        </div>
+                    </a>
+                    <a href="{% url 'add_therapy_type' %}" class="flex items-center px-4 py-3 hover:bg-gray-50">
+                        <i class="fas fa-plus mr-3 text-purple-500"></i>
+                        <div>
+                            <div class="text-sm font-medium text-gray-700">Add Therapy Type</div>
+                            <div class="text-xs text-gray-500">Create new therapy type</div>
+                        </div>
+                    </a>
+                    <a href="{% url 'report_problem' %}" class="flex items-center px-4 py-3 hover:bg-gray-50">
+                        <i class="fas fa-exclamation-triangle mr-3 text-red-500"></i>
+                        <div>
+                            <div class="text-sm font-medium text-gray-700">Report Problem</div>
+                            <div class="text-xs text-gray-500">Submit issue report</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="dropdown relative">
+                <button id="exportDropdown" data-dropdown-toggle="exportDropdownItems" class="bg-green-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-green-600 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex items-center">
+                    <i class="fas fa-download mr-2"></i>
+                    Export
+                    <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                </button>
+                <div id="exportDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="{% url 'phototherapy_export' %}?format=excel" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-excel mr-3 text-green-600"></i>
+                        <span class="text-sm text-gray-700">Export to Excel</span>
+                    </a>
+                    <a href="{% url 'phototherapy_export' %}?format=pdf" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-pdf mr-3 text-red-600"></i>
+                        <span class="text-sm text-gray-700">Export to PDF</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Quick Links -->
+    {% include './phototherapy_dashboard/management_quick_links.html' %}
+
+    <!-- Dashboard Statistics -->
+    {% include './phototherapy_dashboard/statistics.html' %}
+
+    <!-- Action Cards -->
+    {% include './phototherapy_dashboard/action_cards.html' %}
+
+    <!-- Payment and Progress Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Payment Status -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                    <i class="fas fa-rupee-sign mr-2 text-green-500"></i>
+                    Payment Status
+                </h3>
+                <a href="{% url 'payment_list' %}" class="text-sm text-green-500 hover:text-green-600 font-medium">View All</a>
+            </div>
+            <div class="space-y-4">
+                {% for payment in recent_payments|slice:":4" %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <div class="rounded-full bg-green-100 p-2">
+                            <i class="fas fa-receipt text-green-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">Receipt #{{ payment.receipt_number }}</p>
+                            <p class="text-xs text-gray-500">{{ payment.payment_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-gray-800">₹{{ payment.amount }}</p>
+                        <p class="text-xs text-gray-500">{{ payment.payment_method }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-gray-500 text-sm">No recent payments</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Treatment Progress -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                    <i class="fas fa-chart-line mr-2 text-blue-500"></i>
+                    Treatment Progress
+                </h3>
+                <a href="#" class="text-sm text-blue-500 hover:text-blue-600 font-medium">View All</a>
+            </div>
+            <div class="space-y-4">
+                {% for progress in treatment_progress|slice:":4" %}
+                <div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">Patient #{{ progress.plan.patient.id }}</p>
+                            <p class="text-xs text-gray-500">{{ progress.assessment_date|date:"M d, Y" }}</p>
+                        </div>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium 
+                            {% if progress.response_level == 'EXCELLENT' %}bg-green-100 text-green-700
+                            {% elif progress.response_level == 'GOOD' %}bg-blue-100 text-blue-700
+                            {% elif progress.response_level == 'MODERATE' %}bg-yellow-100 text-yellow-700
+                            {% else %}bg-red-100 text-red-700{% endif %}">
+                            {{ progress.response_level }}
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                        <div class="bg-blue-500 h-2.5 rounded-full" style="width: {{ progress.improvement_percentage }}%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">{{ progress.improvement_percentage }}% improvement</p>
+                </div>
+                {% empty %}
+                <div class="text-center text-gray-500 text-sm">No progress records</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Section -->
+    <div class="mb-6">
+        {% if maintenance_alerts %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        {{ maintenance_alerts }} devices require maintenance
+                        <a href="#" class="font-medium underline text-yellow-700 hover:text-yellow-600">
+                            View maintenance schedule
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% include './rfid/issue_rfid_card_modal.html' %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

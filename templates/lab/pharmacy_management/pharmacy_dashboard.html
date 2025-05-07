@@ -1,0 +1,377 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64 bg-gray-50">
+    <!-- Enhanced Main Header -->
+    <div class="flex items-center justify-between mb-8 bg-white p-6 rounded-xl shadow-md">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Pharmacy Management</h1>
+            <p class="mt-2 text-gray-600">Monitor and manage medication inventory, prescriptions, and suppliers</p>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="flex space-x-3">
+            <div class="dropdown relative">
+                <button id="quickActionDropdown" data-dropdown-toggle="quickActionDropdownItems" class="bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-600 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex items-center">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    Quick Actions
+                    <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                </button>
+                <div id="quickActionDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="{% url 'add_medication' %}" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-pills mr-3 text-blue-500"></i>
+                        <div>
+                            <div class="text-sm font-medium text-gray-700">Add Medication</div>
+                            <div class="text-xs text-gray-500">New medicine entry</div>
+                        </div>
+                    </a>
+                    <a href="{% url 'new_purchase_order' %}" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-medical mr-3 text-green-500"></i>
+                        <div>
+                            <div class="text-sm font-medium text-gray-700">New Purchase Order</div>
+                            <div class="text-xs text-gray-500">Create order</div>
+                        </div>
+                    </a>
+                    <a href="{% url 'stock_adjustment' %}" class="flex items-center px-4 py-3 hover:bg-gray-50">
+                        <i class="fas fa-boxes mr-3 text-purple-500"></i>
+                        <div>
+                            <div class="text-sm font-medium text-gray-700">Stock Adjustment</div>
+                            <div class="text-xs text-gray-500">Update inventory</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="dropdown relative">
+                <button id="exportDropdown" data-dropdown-toggle="exportDropdownItems" class="bg-green-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-green-600 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex items-center">
+                    <i class="fas fa-download mr-2"></i>
+                    Export
+                    <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                </button>
+                <div id="exportDropdownItems" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-excel mr-3 text-green-600"></i>
+                        <span class="text-sm text-gray-700">Export to Excel</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-pdf mr-3 text-red-600"></i>
+                        <span class="text-sm text-gray-700">Export to PDF</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <!-- Low Stock Alert -->
+        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/80 text-sm">Low Stock Items</p>
+                    <p class="text-white text-2xl font-bold">{{ low_stock_count }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'low_stock_items' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                    View Details <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Total Stock Value -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-coins text-white text-2xl"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/80 text-sm">Stock Value</p>
+                    <p class="text-white text-2xl font-bold">₹{{ total_stock_value|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'all_medications' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                    View Inventory <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-clock text-white text-2xl"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/80 text-sm">Pending Orders</p>
+                    <p class="text-white text-2xl font-bold">{{ pending_orders }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'pending_orders' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                    Process Orders <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Active Suppliers -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex-shrink-0 bg-white/20 rounded-lg p-3">
+                    <i class="fas fa-truck text-white text-2xl"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/80 text-sm">Active Suppliers</p>
+                    <p class="text-white text-2xl font-bold">{{ active_suppliers }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'suppliers_management' %}" class="text-white/80 text-sm hover:text-white flex items-center justify-end">
+                    Manage Suppliers <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Tools -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Inventory Management -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-boxes text-blue-600 mr-2"></i>
+                    Inventory Management
+                </h2>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-4">
+                <a href="{% url 'all_medications' %}" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-pills text-blue-600 text-2xl mb-2"></i>
+                    <span class="text-blue-600 font-medium">All Medications</span>
+                </a>
+                <a href="{% url 'add_stock' %}" class="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-plus-circle text-green-600 text-2xl mb-2"></i>
+                    <span class="text-green-600 font-medium">Add Stock</span>
+                </a>
+                <a href="{% url 'stock_history' %}" class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-history text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-purple-600 font-medium">Stock History</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-chart-line text-orange-600 text-2xl mb-2"></i>
+                    <span class="text-orange-600 font-medium">Analytics</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Order Management -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-shopping-cart text-purple-600 mr-2"></i>
+                    Order Management
+                </h2>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-4">
+                <a href="#" class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-file-medical text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-purple-600 font-medium">New Order</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-list-alt text-indigo-600 text-2xl mb-2"></i>
+                    <span class="text-indigo-600 font-medium">All Orders</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-pink-50 rounded-lg hover:bg-pink-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-truck text-pink-600 text-2xl mb-2"></i>
+                    <span class="text-pink-600 font-medium">Suppliers</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-4 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition-all transform hover:scale-105">
+                    <i class="fas fa-file-invoice text-cyan-600 text-2xl mb-2"></i>
+                    <span class="text-cyan-600 font-medium">Reports</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Orders -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                    <i class="fas fa-shopping-bag mr-2 text-blue-500"></i>
+                    Recent Orders
+                </h3>
+                <a href="#" class="text-sm text-blue-500 hover:text-blue-600 font-medium">View All</a>
+            </div>
+            <div class="space-y-4">
+                {% for order in recent_orders|slice:":4" %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <div class="rounded-full bg-blue-100 p-2">
+                            <i class="fas fa-shopping-cart text-blue-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">Order #{{ order.id }}</p>
+                            <p class="text-xs text-gray-500">{{ order.supplier.name }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-gray-800">₹{{ order.total_amount }}</p>
+                        <span class="px-2 py-1 text-xs rounded-full 
+                            {% if order.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                            {% elif order.status == 'RECEIVED' %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ order.status }}
+                        </span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-gray-500 text-sm">No recent orders</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Low Stock Alerts -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
+                    Low Stock Alerts
+                </h3>
+                <a href="#" class="text-sm text-red-500 hover:text-red-600 font-medium">View All</a>
+            </div>
+            <div class="space-y-4">
+                {% for item in low_stock_items|slice:":4" %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <div class="rounded-full bg-red-100 p-2">
+                            <i class="fas fa-pills text-red-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">{{ item.name }}</p>
+                            <p class="text-xs text-gray-500">{{ item.generic_name }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-gray-800">{{ item.stock.quantity }} left</p>
+                        <p class="text-xs text-red-500">Below minimum ({{ item.stock.reorder_level }})</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-gray-500 text-sm">No low stock items</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Expiry Tracking & Supplier Management -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <!-- Upcoming Expirations -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-calendar-times text-yellow-600 mr-2"></i>
+                    Upcoming Expirations
+                </h2>
+                <a href="#" class="text-sm text-yellow-600 hover:text-yellow-700">View All</a>
+            </div>
+            <div class="p-4">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Medicine</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Batch</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Expiry Date</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for item in expiring_items|slice:":5" %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
+                                            <div class="text-sm text-gray-500">{{ item.generic_name }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center text-sm">{{ item.batch_number }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="px-2 py-1 text-xs rounded-full 
+                                        {% if item.days_until_expiry <= 30 %}bg-red-100 text-red-800
+                                        {% elif item.days_until_expiry <= 90 %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-green-100 text-green-800{% endif %}">
+                                        {{ item.expiry_date|date:"M d, Y" }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-center text-sm">{{ item.quantity }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <button class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Suppliers -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-truck text-purple-600 mr-2"></i>
+                    Top Suppliers
+                </h2>
+                <a href="#" class="text-sm text-purple-600 hover:text-purple-700">Manage Suppliers</a>
+            </div>
+            <div class="p-4">
+                <div class="space-y-4">
+                    {% for supplier in top_suppliers|slice:":5" %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="rounded-full bg-purple-100 p-2">
+                                <i class="fas fa-building text-purple-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">{{ supplier.name }}</p>
+                                <p class="text-xs text-gray-500">{{ supplier.contact_person }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-1 text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-phone"></i>
+                            </button>
+                            <button class="p-1 text-green-600 hover:text-green-800">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+                            <button class="p-1 text-purple-600 hover:text-purple-800">
+                                <i class="fas fa-file-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize any JavaScript functionality needed for the pharmacy dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any custom JavaScript here
+    });
+</script>
+{% endblock %}

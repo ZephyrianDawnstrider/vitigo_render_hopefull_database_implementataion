@@ -1,0 +1,162 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Consent Form Details{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" 
+                                       class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Procedure Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:consent_list' %}"
+                                       class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Consent Forms</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+                    Consent Form Details
+                </h2>
+            </div>
+            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                <a href="{% url 'procedure_management:consent_update' consent_form.id %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit
+                </a>
+                <button data-modal-target="deleteModal-{{ consent_form.id }}" data-modal-toggle="deleteModal-{{ consent_form.id }}"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- Procedure Information -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Procedure Information</h3>
+                <dl class="grid grid-cols-1 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Procedure Type</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.procedure.procedure_type.name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Patient</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.procedure.patient.get_full_name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Scheduled Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.procedure.scheduled_date|date:"F d, Y" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Primary Doctor</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.procedure.primary_doctor.get_full_name }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Consent Status -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Consent Status</h3>
+                <dl class="grid grid-cols-1 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Signature Status</dt>
+                        <dd class="mt-1">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if consent_form.signed_by_patient %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ consent_form.signed_by_patient|yesno:"Signed,Pending Signature" }}
+                            </span>
+                        </dd>
+                    </div>
+                    {% if consent_form.signed_datetime %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Signed Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.signed_datetime|date:"F d, Y H:i" }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if consent_form.witness_name %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Witness</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ consent_form.witness_name }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+
+            <!-- Documents -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Documents</h3>
+                {% if consent_form.scanned_document %}
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-pdf text-red-500 text-2xl mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Scanned Consent Form</p>
+                            <p class="text-xs text-gray-500">Uploaded {{ consent_form.created_at|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                    <a href="{{ consent_form.scanned_document.url }}" target="_blank"
+                       class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        <i class="fas fa-download mr-2"></i>
+                        Download
+                    </a>
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500">No documents uploaded</p>
+                {% endif %}
+            </div>
+
+            <!-- Notes -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Notes</h3>
+                {% if consent_form.notes %}
+                <div class="prose prose-sm max-w-none">
+                    {{ consent_form.notes|linebreaks }}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500">No additional notes</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include './modals/delete.html' with consent_form=consent_form %}
+
+{% endblock %}

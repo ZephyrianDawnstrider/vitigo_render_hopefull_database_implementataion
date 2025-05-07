@@ -1,0 +1,183 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load compliance_tags %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}New{% endif %} Compliance Note{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'compliance_management:compliance_notes_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Compliance Notes
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">
+                                        {% if form.instance.pk %}Edit Note{% else %}New Note{% endif %}
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-semibold text-gray-900">
+                {% if form.instance.pk %}Edit{% else %}New{% endif %} Compliance Note
+            </h1>
+            <p class="mt-1 text-sm text-gray-600">
+                {% if form.instance.pk %}
+                Update existing compliance note details
+                {% else %}
+                Create a new compliance note
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                        Please correct the errors below.
+                    </div>
+                    {% endif %}
+
+                    <!-- Schedule Selection -->
+                    <div class="mb-4">
+                        {{ form.schedule|as_crispy_field }}
+                    </div>
+
+                    <!-- Note Type -->
+                    <div class="mb-4">
+                        {{ form.note_type|as_crispy_field }}
+                        <p class="mt-1 text-sm text-gray-500">
+                            Select the appropriate type for better organization and tracking
+                        </p>
+                    </div>
+
+                    <!-- Note Content -->
+                    <div class="mb-4">
+                        {{ form.content|as_crispy_field }}
+                        <div class="mt-1 text-sm text-gray-500" id="content-counter">
+                            0 characters (minimum required: <span id="min-chars">10</span>)
+                        </div>
+                    </div>
+
+                    <!-- Privacy Setting -->
+                    <div class="mb-4">
+                        <div class="flex items-center">
+                            {{ form.is_private }}
+                            <label for="{{ form.is_private.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700">
+                                Mark as Private Note
+                            </label>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Private notes are only visible to staff members
+                        </p>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3">
+                        <a href="{% url 'compliance_management:compliance_notes_list' %}" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                            {% if form.instance.pk %}Update{% else %}Create{% endif %} Note
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contentField = document.getElementById('{{ form.content.id_for_label }}');
+        const counter = document.getElementById('content-counter');
+        const noteType = document.getElementById('{{ form.note_type.id_for_label }}');
+        const minCharsSpan = document.getElementById('min-chars');
+        const privateCheckbox = document.getElementById('{{ form.is_private.id_for_label }}');
+
+        function updateCharacterCount() {
+            const length = contentField.value.trim().length;
+            let minChars = 10;
+
+            if (noteType.value === 'CONCERN' || noteType.value === 'RESOLUTION') {
+                minChars = 20;
+            }
+
+            minCharsSpan.textContent = minChars;
+            counter.innerHTML = `${length} characters (minimum required: <span id="min-chars">${minChars}</span>)`;
+            
+            if (length < minChars) {
+                counter.classList.add('text-red-600');
+                counter.classList.remove('text-green-600');
+            } else {
+                counter.classList.add('text-green-600');
+                counter.classList.remove('text-red-600');
+            }
+        }
+
+        function updatePrivacySetting() {
+            if (noteType.value === 'CONCERN' || noteType.value === 'FOLLOW_UP') {
+                privateCheckbox.checked = true;
+                privateCheckbox.disabled = true;
+            } else {
+                privateCheckbox.disabled = false;
+            }
+        }
+
+        contentField.addEventListener('input', updateCharacterCount);
+        noteType.addEventListener('change', function() {
+            updateCharacterCount();
+            updatePrivacySetting();
+        });
+
+        // Initialize
+        updateCharacterCount();
+        updatePrivacySetting();
+
+        // Initialize Select2 for schedule selection
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
+            $('#{{ form.schedule.id_for_label }}').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Select a schedule...',
+                width: '100%'
+            });
+        }
+    });
+</script>
+{% endblock %}

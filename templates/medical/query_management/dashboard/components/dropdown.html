@@ -1,0 +1,58 @@
+<!-- Dropdown Menu -->
+<div id="dropdownDots{{ query.query_id }}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-56">
+    <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownMenuIconButton{{ query.query_id }}">
+        <!-- View Details -->
+        <li>
+            <a href="{% url 'query_detail' query.query_id %}" class="block px-4 py-2 hover:bg-gray-100">
+                <i class="fas fa-eye text-blue-500 mr-2"></i> View Details
+            </a>
+        </li>
+        
+        <!-- Edit Query -->
+        <li>
+            <a href="{% url 'query_update' query.query_id %}" class="block px-4 py-2 hover:bg-gray-100">
+                <i class="fas fa-edit text-green-500 mr-2"></i> Edit Query
+            </a>
+        </li>
+        
+        <!-- Assign Staff (only if unassigned) -->
+        {% if not query.assigned_to %}
+        <li>
+            <button data-modal-target="assign-modal{{ query.query_id }}" 
+                    data-modal-toggle="assign-modal{{ query.query_id }}"
+                    class="block w-full px-4 py-2 text-left hover:bg-gray-100">
+                <i class="fas fa-user-plus text-purple-500 mr-2"></i> Assign Staff
+            </button>
+        </li>
+        {% endif %}
+        
+        <!-- Add Update & Mark as Resolved (only if not resolved/closed) -->
+        {% if query.status != 'RESOLVED' and query.status != 'CLOSED' %}
+        <li>
+            <button data-modal-target="update-modal{{ query.query_id }}" 
+                    data-modal-toggle="update-modal{{ query.query_id }}"
+                    class="block w-full px-4 py-2 text-left hover:bg-gray-100">
+                <i class="fas fa-reply text-orange-500 mr-2"></i> Add Update
+            </button>
+        </li>
+        <li>
+            <form action="{% url 'query_resolve' query.query_id %}" method="POST" class="block w-full">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="block w-full px-4 py-2 text-left hover:bg-gray-100">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Mark as Resolved
+                </button>
+            </form>
+        </li>
+        {% endif %}
+    </ul>
+    
+    <!-- Delete Action -->
+    <div class="py-2">
+        <button data-modal-target="delete-modal{{ query.query_id }}" 
+                data-modal-toggle="delete-modal{{ query.query_id }}" 
+                class="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100">
+            <i class="fas fa-trash mr-2"></i> Delete Query
+        </button>
+    </div>
+</div>

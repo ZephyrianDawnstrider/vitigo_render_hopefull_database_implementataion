@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: vitigo-pms
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "./start.sh"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: vitigo_pms.production_settings
+      - key: DJANGO_SECRET_KEY
+        fromDatabase:
+          name: vitigo_secrets
+          key: django_secret_key
+      - key: DB_NAME
+        value: vitigo_render_database
+      - key: DB_USER
+        value: postgres
+      - key: DB_PASSWORD
+        value: root
+      - key: DB_HOST
+        value: localhost
+      - key: DB_PORT
+        value: "5432"
+
+databases:
+  - name: vitigo_render_database
+    databaseName: vitigo_render_database
+    user: postgres
+    plan: free
+
+secrets:
+  - name: vitigo_secrets

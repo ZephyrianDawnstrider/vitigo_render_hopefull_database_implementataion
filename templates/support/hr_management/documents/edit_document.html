@@ -1,0 +1,96 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Document{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex items-center h-16">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                            <i class="mr-2 fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                        <a href="{% url 'document_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Documents</a>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                        <span class="ml-1 text-gray-500 md:ml-2">Edit Document</span>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="md:grid md:grid-cols-3 md:gap-6">
+            <!-- Left sidebar -->
+            <div class="md:col-span-1">
+                <div class="px-4 sm:px-0">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Edit Document</h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                        Update document information and manage attached files
+                    </p>
+
+                    {% if document.file %}
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h4 class="text-sm font-medium text-gray-900">Current File</h4>
+                        <div class="mt-2">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-file-alt text-gray-400"></i>
+                                <span class="text-sm text-gray-600 truncate">
+                                    {{ document.file.name|slice:"20:" }}
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <a href="{% url 'document_download' document.id %}" 
+                                   class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-download mr-1"></i> Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="mt-5 md:mt-0 md:col-span-2">
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    <div class="shadow sm:rounded-md sm:overflow-hidden">
+                        <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                            {% for field in form %}
+                                <div class="mb-4">
+                                    {{ field|as_crispy_field }}
+                                    {% if field.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-3">
+                            <a href="{% url 'document_list' %}" 
+                               class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                Cancel
+                            </a>
+                            <button type="submit" 
+                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

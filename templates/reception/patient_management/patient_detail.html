@@ -1,0 +1,322 @@
+{% extends '../base.html' %}
+
+{% block title %}Patient Details{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'patient_list' %}" class="hover:text-blue-600"><i class="fas fa-users mr-2"></i>Patient Management</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Patient Details</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    {% if object.profile_picture %}
+                        <img class="w-16 h-16 rounded-full" src="{{ object.profile_picture.url }}" alt="Profile picture">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-4x text-gray-400"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <h1 class="text-2xl font-semibold text-gray-900">{{ object.get_full_name }}</h1>
+                    <p class="mt-1 text-sm text-gray-600">{{ object.email }}</p>
+                </div>
+            </div>
+            <a href="{% url 'patient_list' %}" 
+               class="flex items-center px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Patient List
+            </a>
+        </div>
+    </div>
+
+    {% if not has_profile %}
+    <!-- Profile Missing Alert -->
+    <div class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                    This user does not have a complete patient profile. Some information may be missing.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Information -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Basic Information Card -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h2>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ object.get_full_name }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Email</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ object.email }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Phone Number</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if patient_profile %}
+                                    {{ object.country_code }} {{ patient_profile.phone_number }}
+                                {% else %}
+                                    <span class="text-gray-400">Not available</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Gender</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {{ object.get_gender_display|default:"Not specified" }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Date Joined</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ object.date_joined|date:"M d, Y" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Account Status</dt>
+                            <dd class="mt-1 text-sm">
+                                {% if object.is_active %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Medical Information Card -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Medical Information</h2>
+                    {% if not has_profile %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-folder-open text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500">Medical information not available</p>
+                            <p class="text-sm text-gray-400 mt-2">Patient profile needs to be created first</p>
+                        </div>
+                    {% else %}
+                        <dl class="grid grid-cols-1 gap-6">
+                            <!-- Personal & Contact Details -->
+                            <div class="border-b pb-4">
+                                <h3 class="text-md font-medium text-gray-900 mb-3">Personal Details</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Date of Birth</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">{{ patient_profile.date_of_birth|date:"M d, Y" }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Blood Group</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">{{ patient_profile.blood_group|default:"Not specified" }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Address</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">{{ patient_profile.address }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Emergency Contact</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">
+                                            {{ patient_profile.emergency_contact_name }}<br>
+                                            <span class="text-gray-600">{{ patient_profile.emergency_contact_number }}</span>
+                                        </dd>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vitiligo Information -->
+                            <div class="border-b pb-4">
+                                <h3 class="text-md font-medium text-gray-900 mb-3">Vitiligo Details</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Onset Date</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">
+                                            {{ patient_profile.vitiligo_onset_date|date:"M d, Y"|default:"Not recorded" }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Vitiligo Type</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">
+                                            {{ patient_profile.vitiligo_type|default:"Not specified" }}
+                                        </dd>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <dt class="text-sm font-medium text-gray-500">Affected Body Areas</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">
+                                            {{ patient_profile.affected_body_areas|default:"Not specified"|linebreaksbr }}
+                                        </dd>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Medical History Section -->
+                            {% if medical_history %}
+                            <div class="space-y-4">
+                                <h3 class="text-md font-medium text-gray-900 mb-3">Medical History</h3>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Allergies</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded">
+                                            {{ medical_history.allergies|default:"None reported"|linebreaksbr }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Chronic Conditions</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded">
+                                            {{ medical_history.chronic_conditions|default:"None reported"|linebreaksbr }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Past Surgeries</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded">
+                                            {{ medical_history.past_surgeries|default:"None reported"|linebreaksbr }}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Family History</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded">
+                                            {{ medical_history.family_history|default:"None reported"|linebreaksbr }}
+                                        </dd>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </dl>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if has_profile and current_medications %}
+            <!-- Current Medications Card -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Current Medications</h2>
+                    <div class="space-y-4">
+                        {% for medication in current_medications %}
+                        <div class="border-b pb-4 last:border-b-0">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Medication</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ medication.name }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Dosage</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ medication.dosage }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Frequency</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ medication.frequency }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Started On</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ medication.start_date|date:"M d, Y" }}</dd>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Information -->
+        <div class="space-y-6">
+            <!-- Quick Actions Card -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    {% if not has_profile %}
+                    <a href="{% url 'create_patient_profile' user_id=object.id %}" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Create Patient Profile
+                    </a>
+                    {% else %}
+                    <a href="{% url 'edit_patient_profile' user_id=object.id %}" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Profile
+                    </a>
+                    {% endif %}
+                    <div class="dropdown relative">
+                        <button id="exportDropdown" 
+                                data-dropdown-toggle="exportDropdownMenu" 
+                                class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-full">
+                            <i class="fas fa-file-export mr-2"></i>
+                            Export Data
+                        </button>
+                        <div id="exportDropdownMenu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                            <div class="py-1">
+                                <a href="{% url 'export_patient_data' user_id=object.id %}?format=excel" 
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-file-excel mr-2 text-green-600"></i>
+                                    Excel Format
+                                </a>
+                                <a href="{% url 'export_patient_data' user_id=object.id %}?format=pdf" 
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-file-pdf mr-2 text-red-600"></i>
+                                    PDF Format
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Summary Card -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Status Summary</h3>
+                {% if has_profile %}
+                    <div class="space-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Latest Assessment</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if latest_assessment %}
+                                    {{ latest_assessment.assessment_date|date:"M d, Y" }}
+                                {% else %}
+                                    No assessments recorded
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Active Treatment Plan</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if active_treatment %}
+                                    Created on {{ active_treatment.created_date|date:"M d, Y" }}
+                                {% else %}
+                                    No active treatment plan
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-sm text-gray-500">Status information will be available after creating patient profile</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

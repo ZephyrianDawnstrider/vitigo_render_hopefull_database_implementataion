@@ -1,0 +1,152 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Grievance Details{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'grievance_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Grievances</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Grievance Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Grievance Details Card -->
+        <div class="bg-white shadow rounded-lg">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-900">Grievance Details</h2>
+                    {% if grievance.status != 'CLOSED' %}
+                    <div class="flex space-x-3">
+                        <a href="{% url 'grievance_edit' grievance.pk %}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                            Edit Grievance
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="px-6 py-4">
+                <!-- Employee Information -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Employee Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Employee Name</p>
+                            <p class="mt-1">{{ grievance.employee.user.get_full_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Department</p>
+                            <p class="mt-1">{{ grievance.employee.department.name }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grievance Information -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Grievance Information</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Subject</p>
+                            <p class="mt-1">{{ grievance.subject }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Description</p>
+                            <p class="mt-1 whitespace-pre-line">{{ grievance.description }}</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Priority</p>
+                                <span class="mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if grievance.priority == 'HIGH' %}bg-red-100 text-red-800
+                                    {% elif grievance.priority == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ grievance.get_priority_display }}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Status</p>
+                                <span class="mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if grievance.status == 'OPEN' %}bg-red-100 text-red-800
+                                    {% elif grievance.status == 'IN_PROGRESS' %}bg-yellow-100 text-yellow-800
+                                    {% elif grievance.status == 'RESOLVED' %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ grievance.get_status_display }}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Filed Date</p>
+                                <p class="mt-1">{{ grievance.filed_date|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resolution Information -->
+                {% if grievance.status == 'RESOLVED' or grievance.status == 'CLOSED' %}
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Resolution Information</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Resolution Details</p>
+                            <p class="mt-1 whitespace-pre-line">{{ grievance.resolution }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Resolved Date</p>
+                            <p class="mt-1">{{ grievance.resolved_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Assignment Information -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Assignment Information</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Assigned To</p>
+                            <p class="mt-1">{{ grievance.assigned_to.get_full_name|default:"Not Assigned" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Query Resolved</h2>
+    <p>Query #{{ query.query_id }} has been resolved.</p>
+    <p><strong>Subject:</strong> {{ query.subject }}</p>
+    <p><strong>Resolution Time:</strong> {{ query.resolved_at|date:"F j, Y, P" }}</p>
+    {% if resolver %}
+    <p><strong>Resolved By:</strong> {{ resolver }}</p>
+    {% endif %}
+    <p><strong>Final Status:</strong> {{ query.get_status_display }}</p>
+</body>
+</html>

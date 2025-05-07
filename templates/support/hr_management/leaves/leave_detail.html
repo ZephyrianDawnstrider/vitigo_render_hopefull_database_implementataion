@@ -1,0 +1,258 @@
+{% extends '../../base.html' %}
+{% load static %}
+
+{% block title %}Leave Request Details{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Top Navigation Bar -->
+    <nav class="mb-6 bg-white shadow-sm">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Breadcrumb -->
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'hr_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">HR Management</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'leave_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">Leave Requests</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">Leave Details</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <!-- Leave Details Card -->
+        <div class="bg-white shadow rounded-lg">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">Leave Request Details</h2>
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full 
+                        {% if leave.status == 'APPROVED' %}bg-green-100 text-green-800
+                        {% elif leave.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                        {% elif leave.status == 'REJECTED' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ leave.get_status_display }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="px-6 py-4">
+                <!-- Employee Information -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Employee Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Name</p>
+                            <p class="text-base">{{ leave.employee.user.get_full_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Department</p>
+                            <p class="text-base">{{ department.name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Employee ID</p>
+                            <p class="text-base">{{ employee.employee_id }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Position</p>
+                            <p class="text-base">{{ employee.position.title }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Details -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Leave Details</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Leave Type</p>
+                            <p class="text-base">{{ leave.get_leave_type_display }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Duration</p>
+                            <p class="text-base">{{ leave_duration }} days</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Start Date</p>
+                            <p class="text-base">{{ leave.start_date|date:"M d, Y" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">End Date</p>
+                            <p class="text-base">{{ leave.end_date|date:"M d, Y" }}</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-sm text-gray-500">Reason</p>
+                            <p class="text-base">{{ leave.reason }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Information -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Status Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Submitted On</p>
+                            <p class="text-base">{{ leave.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        {% if leave.approved_by %}
+                        <div>
+                            <p class="text-sm text-gray-500">Processed By</p>
+                            <p class="text-base">{{ leave.approved_by.get_full_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Processed On</p>
+                            <p class="text-base">{{ leave.approved_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Leave History -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Leave History</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for history in leave_history %}
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ history.get_leave_type_display }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ history.start_date|date:"M d" }} - {{ history.end_date|date:"M d, Y" }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            {% if history.status == 'APPROVED' %}bg-green-100 text-green-800
+                                            {% elif history.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                            {% elif history.status == 'REJECTED' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ history.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ history.created_at|date:"M d, Y" }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                                        No previous leave history
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            {% if leave.status == 'PENDING' %}
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <div class="flex justify-end space-x-3">
+                    <button type="button"
+                            data-modal-target="reject-modal-{{ leave.id }}" 
+                            data-modal-toggle="reject-modal-{{ leave.id }}"
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Reject
+                    </button>
+                    <button type="button"
+                            data-modal-target="approve-modal-{{ leave.id }}" 
+                            data-modal-toggle="approve-modal-{{ leave.id }}"
+                            class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Approve
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for leave actions -->
+<script>
+    function approveLeave(leaveId) {
+        if (confirm('Are you sure you want to approve this leave request?')) {
+            fetch(`/hr/leaves/${leaveId}/approve/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    function rejectLeave(leaveId) {
+        if (confirm('Are you sure you want to reject this leave request?')) {
+            fetch(`/hr/leaves/${leaveId}/reject/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+<!-- Include Modal at the end of the file -->
+{% include 'administrator/hr_management/leaves/modals/leave_actions.html' %}
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends '../../base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if is_edit %}Edit{% else %}New{% endif %} Category{% endblock %}
+
+{% block content %}
+<div class="mt-14 sm:ml-64">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <nav class="flex" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                            <li class="inline-flex items-center">
+                                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                                    <i class="mr-2 fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:procedure_management' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Procedure Management
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <a href="{% url 'procedure_management:category_list' %}" class="ml-1 text-gray-700 hover:text-blue-600 md:ml-2">
+                                        Categories
+                                    </a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex items-center">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                    <span class="ml-1 text-gray-500 md:ml-2">{% if is_edit %}Edit{% else %}New{% endif %} Category</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+                    {% if is_edit %}Edit{% else %}Create New{% endif %} Category
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    {% if is_edit %}
+                    Update the details of an existing procedure category.
+                    {% else %}
+                    Create a new category for organizing procedures.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="rounded-md bg-red-50 p-4 mb-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">
+                                    Please correct the following errors:
+                                </h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    {{ form.errors }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Category Name -->
+                    <div class="space-y-1">
+                        {{ form.name|as_crispy_field }}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="space-y-1">
+                        {{ form.description|as_crispy_field }}
+                    </div>
+
+                    <!-- Active Status -->
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            {{ form.is_active }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.is_active.id_for_label }}" class="font-medium text-gray-700">Active Status</label>
+                            <p class="text-gray-500">Inactive categories won't be available for new procedures</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t">
+                        <a href="{% url 'procedure_management:category_list' %}"
+                           class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                            {% if is_edit %}Update{% else %}Create{% endif %} Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if is_edit %}
+        <!-- Category Usage Info -->
+        <div class="mt-6 bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Category Usage Information</h3>
+                <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div class="px-4 py-5 bg-gray-50 rounded-lg overflow-hidden">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Associated Procedure Types</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">{{ category.procedure_types.count }}</dd>
+                    </div>
+                    <div class="px-4 py-5 bg-gray-50 rounded-lg overflow-hidden">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Last Updated</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ category.updated_at|date:"F d, Y H:i" }}</dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.getElementById('id_name');
+        if (nameInput) {
+            nameInput.addEventListener('input', function() {
+                if (this.value.length < 3) {
+                    this.classList.add('border-red-300');
+                } else {
+                    this.classList.remove('border-red-300');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

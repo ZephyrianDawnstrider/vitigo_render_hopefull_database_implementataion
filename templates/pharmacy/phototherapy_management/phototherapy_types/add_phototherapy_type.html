@@ -1,0 +1,84 @@
+{% extends "../../base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li><a href="{% url 'therapy_types_dashboard' %}" class="hover:text-blue-600">Phototherapy Types</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">Add New Therapy Type</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900">Add New Therapy Type</h1>
+            <a href="{% url 'phototherapy_management' %}" 
+               class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+        <p class="mt-2 text-gray-600">Create a new phototherapy type for treatment protocols</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Name Field -->
+            <div>
+                {{ form.name|as_crispy_field }}
+                {% if form.name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Therapy Type Field -->
+            <div>
+                {{ form.therapy_type|as_crispy_field }}
+                {% if form.therapy_type.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.therapy_type.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Description Field -->
+            <div>
+                {{ form.description|as_crispy_field }}
+                {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Priority Field -->
+            <div>
+                {{ form.priority|as_crispy_field }}
+                {% if form.priority.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.priority.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- RFID Requirement Field -->
+            <div>
+                {{ form.requires_rfid|as_crispy_field }}
+                {% if form.requires_rfid.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.requires_rfid.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end">
+                <button type="submit" 
+                        class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Save Therapy Type
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

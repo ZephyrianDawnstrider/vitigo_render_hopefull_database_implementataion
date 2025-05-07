@@ -1,0 +1,95 @@
+<!-- Start Consultation Modal -->
+<div id="startConsultationModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="startConsultationModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="p-6 text-center">
+                <div class="mb-5">
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="rounded-full bg-blue-100 p-3">
+                            <i class="fas fa-play-circle text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold text-gray-900">Start Consultation</h3>
+                    <p class="text-gray-600">Are you ready to begin the consultation? This will mark the consultation as in progress.</p>
+                </div>
+                <form action="{% url 'consultation_status_update' consultation.id %}" method="POST" class="inline-flex space-x-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="IN_PROGRESS">
+                    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                        Start
+                    </button>
+                    <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg text-sm font-medium px-5 py-2.5" data-modal-hide="startConsultationModal">
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Consultation Modal -->
+<div id="completeConsultationModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="completeConsultationModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="p-6 text-center">
+                <div class="mb-5">
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="rounded-full bg-green-100 p-3">
+                            <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                        </div>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold text-gray-900">Complete Consultation</h3>
+                    <p class="text-gray-600">Are you sure you want to mark this consultation as completed?</p>
+                </div>
+                <form action="{% url 'consultation_status_update' consultation.id %}" method="POST" class="inline-flex space-x-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="COMPLETED">
+                    <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                        Complete
+                    </button>
+                    <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg text-sm font-medium px-5 py-2.5" data-modal-hide="completeConsultationModal">
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Consultation Modal -->
+<div id="cancelConsultationModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="cancelConsultationModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="p-6 text-center">
+                <div class="mb-5">
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="rounded-full bg-red-100 p-3">
+                            <i class="fas fa-times-circle text-2xl text-red-600"></i>
+                        </div>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold text-gray-900">Cancel Consultation</h3>
+                    <p class="text-gray-600">Are you sure you want to cancel this consultation? This action cannot be undone.</p>
+                </div>
+                <form action="{% url 'consultation_status_update' consultation.id %}" method="POST" class="inline-flex space-x-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="CANCELLED">
+                    <button type="submit" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                        Yes, Cancel
+                    </button>
+                    <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg text-sm font-medium px-5 py-2.5" data-modal-hide="cancelConsultationModal">
+                        No, Keep
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

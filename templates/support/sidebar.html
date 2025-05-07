@@ -1,0 +1,247 @@
+{% load permission_tags %}
+
+<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
+       <!-- Main Navigation -->
+       <ul class="space-y-2 font-medium">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Main Navigation</div>
+          {% if request.user|has_module_access:'dashboard' %}
+          <li>
+             <a href="{% url 'dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-gauge-high w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Dashboard</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'notification_management' %}
+          <li>
+             <a href="{% url 'notification_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-bell w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Notifications</span>
+                
+             </a>
+          </li>
+          {% endif %}
+       </ul>
+
+       <!-- Patient Care Section -->
+       <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2 mb-2">Patient Management</div>
+          {% if request.user|has_module_access:'patient_management' %}
+          <li>
+             <a href="{% url 'patient_list' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-hospital-user w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Patients</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'appointment_management' %}
+          <li>
+             <a href="{% url 'appointment_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-calendar-check w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Appointments</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'consultation_management' %}
+          <li>
+             <a href="{% url 'consultation_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-stethoscope w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Consultations</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'query_management' %}
+          <li>
+             <a href="{% url 'query_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-message w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Queries</span>
+             </a>
+          </li>
+          {% endif %}
+       </ul>
+
+       <!-- Medical Services -->
+       <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2 mb-2">Medical Services</div>
+          {% if request.user|has_module_access:'procedure_management' %}
+          <li>
+             <a href="{% url 'procedure_management:procedure_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-kit-medical w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Procedures</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'clinic_management' %}
+          <li>
+             <a href="{% url 'clinic_management:clinic_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-hospital w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Clinic</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'phototherapy_management' %}
+          <li>
+             <a href="{% url 'phototherapy_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-sun w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Phototherapy</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'pharmacy_management' %}
+          <li>
+             <a href="{% url 'pharmacy_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-pills w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Pharmacy</span>
+             </a>
+          </li>
+          {% endif %}
+       </ul>
+
+       <!-- Diagnostics -->
+       <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2 mb-2">Diagnostics</div>
+          {% if request.user|has_module_access:'lab_management' %}
+          <li>
+             <a href="{% url 'lab_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <i class="fa-solid fa-flask w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Lab Tests</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'image_management' %}
+          <li>
+             <a href="{% url 'image_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-x-ray w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Images</span>
+             </a>
+          </li>
+          {% endif %}
+       </ul>
+
+       <!-- Administration -->
+       <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2 mb-2">Administration</div>
+          {% if request.user|has_module_access:'user_management' %}
+          <li>
+             <a href="{% url 'user_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-users w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Users</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'stock_management' %}
+          <li>
+             <a href="{% url 'stock_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-boxes-stacked w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Stock</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'financial_management' %}
+          <li>
+             <a href="{% url 'finance_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <i class="fa-solid fa-money-bill-wave w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Finance</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'hr_management' %}
+          <li>
+             <a href="{% url 'hr_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+               <i class="fa-solid fa-user-tie w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">HR</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'access_control' %}
+          <li>
+             <a href="{% url 'access_control_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fas fa-shield w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Access Control</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'asset_management' %}
+          <li>
+             <a href="{% url 'asset_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-box-archive w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Assets</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'compliance_management' %}
+          <li>
+             <a href="{% url 'compliance_management:compliance_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-clipboard-check w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Compliance</span>
+             </a>
+          </li>
+          {% endif %}
+       </ul>
+
+       <!-- Additional Services -->
+       <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2 mb-2">Additional Services</div>
+          {% if request.user|has_module_access:'telemedicine_management' %}
+          <li>
+             <a href="{% url 'telemedicine_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-video w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Telemedicine</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'research_management' %}
+          <li>
+             <a href="{% url 'research_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-microscope w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Research</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'reporting_and_analytics' %}
+          <li>
+             <a href="{% url 'reporting_and_analytics:reports_analytics_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-chart-line w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Reports</span>
+             </a>
+          </li>
+          {% endif %}
+       </ul>
+
+       <!-- User Section -->
+       <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2 mb-2">User Settings</div>
+          {% if request.user|has_module_access:'profile' %}
+          <li>
+             <a href="{% url 'profile' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-user-circle w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Profile</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'help_support' %}
+          <li>
+             <a href="{% url 'help_support_management' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-headset w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Help & Support</span>
+             </a>
+          </li>
+          {% endif %}
+          {% if request.user|has_module_access:'settings' %}
+          <li>
+             <a href="{% url 'settings:settings_dashboard' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-gear w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Settings</span>
+             </a>
+          </li>
+          {% endif %}
+          <li>
+             <a href="{% url 'logout' %}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <i class="fa-solid fa-right-from-bracket w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"></i>
+                <span class="ms-3">Logout</span>
+             </a>
+          </li>
+       </ul>
+    </div>
+</aside>

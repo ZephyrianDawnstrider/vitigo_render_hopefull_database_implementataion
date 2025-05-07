@@ -1,0 +1,849 @@
+<!-- templates/phototherapy_management/new_treatment_plan_create.html -->
+{% extends "../base.html" %}
+{% load crispy_forms_tags %}
+{% load phototherapy_filters %}
+
+{% block content %}
+<div class="p-4 mt-14 sm:ml-64">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'phototherapy_management' %}" class="hover:text-blue-600"><i class="fas fa-laptop-medical mr-2"></i>Phototherapy</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400 text-sm"></i></li>
+            <li class="text-gray-400">New Treatment Plan</li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="flex justify-between items-center">
+        <div class="flex items-center">
+            <h1 class="text-2xl font-bold text-gray-800">New Treatment Plan</h1>
+            <div class="relative ml-2 group">
+                <i class="fas fa-info-circle text-gray-400 hover:text-blue-500 cursor-help text-lg"></i>
+                <div class="hidden group-hover:block absolute left-0 top-6 w-96 p-4 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div class="text-sm text-gray-600 space-y-2">
+                        <p class="font-medium text-gray-700 mb-2">About Treatment Plan Creation</p>
+                        <p>Create a new phototherapy treatment plan by:</p>
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li>Selecting a patient who needs phototherapy treatment</li>
+                            <li>Choosing an appropriate protocol based on diagnosis</li>
+                            <li>Setting start date and total number of sessions</li>
+                            <li>Configuring initial dose and cost details</li>
+                            <li>Adding any special instructions or precautions</li>
+                        </ul>
+                        <p class="mt-2 text-blue-600">Note: All fields marked with * are required</p>
+                    </div>
+                    <div class="absolute -top-2 left-2 w-4 h-4 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'phototherapy_management' %}" 
+               class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="post" class="space-y-6" novalidate>
+            {% csrf_token %}
+
+            <!-- Error Messages -->
+            {% if form.errors %}
+            <!-- Non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc list-inside">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Field-specific errors -->
+            {% if form.errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Form Field Errors:</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc list-inside">
+                            {% for field, errors in form.errors.items %}
+                                {% if field != '__all__' %}
+                                <li class="mb-1">
+                                    <strong>{{ field|title }}:</strong> 
+                                    {% for error in errors %}
+                                        {{ error }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <!-- Form Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Patient Section -->
+                <div class="space-y-4">
+                    <!-- Patient Selection -->
+                    <div>
+                        <label for="{{ form.patient.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Patient*
+                        </label>
+                        <div class="relative">
+                            <input type="text" 
+                                id="patient-search" 
+                                placeholder="Search patient by name, email, or phone..." 
+                                class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                            <select name="{{ form.patient.html_name }}" 
+                                    id="{{ form.patient.auto_id }}"
+                                    size="5"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base"
+                                    required>
+                                {% for choice in form.patient %}
+                                    {{ choice }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if form.patient.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.patient.help_text }}</p>
+                        {% endif %}
+                        {% if form.patient.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.patient.errors.0 }}</p>
+                        {% endif %}
+                        
+                        <!-- Add Patient Instructions -->
+                        <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p class="text-sm text-blue-700">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Can't find the patient? 
+                                <a href="{% url 'patient_registration' %}" 
+                                   class="font-medium text-blue-600 hover:text-blue-800 underline">
+                                    Register new patient
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Patient Details Box -->
+                    <div id="patient-details" class="hidden mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <img id="patient-image" src="" alt="Patient photo" 
+                                     class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-sm font-medium text-gray-800 mb-2">Patient Details</h3>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-600">Name:</p>
+                                        <p class="font-medium" id="patient-name">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Gender:</p>
+                                        <p class="font-medium" id="patient-gender">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Contact:</p>
+                                        <p class="font-medium" id="patient-contact">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">Email:</p>
+                                        <p class="font-medium" id="patient-email">-</p>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <p class="text-gray-600">Previous Plans:</p>
+                                        <p class="font-medium" id="patient-history">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Protocol Section -->
+                <div class="space-y-4">
+                    <!-- Protocol Selection -->
+                    <div>
+                        <label for="{{ form.protocol.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Protocol*
+                        </label>
+                        <div class="relative">
+                            <input type="text" 
+                                id="protocol-search" 
+                                placeholder="Search protocols by name or type..." 
+                                class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                            <select name="{{ form.protocol.html_name }}" 
+                                    id="{{ form.protocol.auto_id }}"
+                                    size="5"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base"
+                                    required>
+                                {% if form.protocol.field.choices %}
+                                    {% for value, label in form.protocol.field.choices %}
+                                        {% if value and label %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="" disabled>No protocols available</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        {% if form.protocol.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.protocol.help_text }}</p>
+                        {% endif %}
+                        {% if form.protocol.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.protocol.errors.0 }}</p>
+                        {% endif %}
+                        
+                        <!-- Add Protocol Instructions -->
+                        <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p class="text-sm text-blue-700">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Need a different protocol? 
+                                <a href="{% url 'add_protocol' %}" 
+                                   class="font-medium text-blue-600 hover:text-blue-800 underline">
+                                    Create new protocol
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Protocol Details Box -->
+                    <div id="protocol-details" class="hidden p-4 mb-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <h3 class="text-sm font-medium text-blue-800 mb-2">Protocol Details</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-600">Initial Dose:</p>
+                                <p class="font-medium" id="protocol-initial-dose">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Max Dose:</p>
+                                <p class="font-medium" id="protocol-max-dose">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Increment:</p>
+                                <p class="font-medium" id="protocol-increment">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Frequency:</p>
+                                <p class="font-medium" id="protocol-frequency">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Section - Add after Protocol Section -->
+                <div class="space-y-4">
+                    <!-- Center Selection -->
+                    <div>
+                        <label for="{{ form.center.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Treatment Center*
+                        </label>
+                        <div class="relative">
+                            <input type="text" 
+                                id="center-search" 
+                                placeholder="Search centers by name or location..." 
+                                class="mt-1 mb-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base">
+                            <select name="{{ form.center.html_name }}" 
+                                    id="{{ form.center.auto_id }}"
+                                    size="5"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-base"
+                                    required>
+                                {% for choice in form.center %}
+                                    {{ choice }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if form.center.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.center.help_text }}</p>
+                        {% endif %}
+                        {% if form.center.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.center.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Center Details Box -->
+                    <div id="center-details" class="hidden p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h3 class="text-sm font-medium text-gray-800 mb-2">Center Details</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-600">Address:</p>
+                                <p class="font-medium" id="center-address">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Contact:</p>
+                                <p class="font-medium" id="center-contact">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Hours:</p>
+                                <p class="font-medium" id="center-hours">-</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Available Devices:</p>
+                                <p class="font-medium" id="center-devices">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Treatment Packages -->
+                <div class="col-span-2">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center">
+                                <h3 class="text-sm font-medium text-gray-800">Quick Select Package</h3>
+                                <div class="relative ml-2 group">
+                                    <i class="fas fa-info-circle text-gray-400 hover:text-blue-500 cursor-help text-lg"></i>
+                                    <div class="hidden group-hover:block absolute left-0 top-6 w-96 p-4 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                        <div class="text-sm text-gray-600 space-y-2">
+                                            <p class="font-medium text-gray-700 mb-2">About Treatment Packages</p>
+                                            <p>Treatment packages are pre-configured plans that include:</p>
+                                            <ul class="list-disc pl-4 space-y-1">
+                                                <li>Pre-set number of treatment sessions</li>
+                                                <li>Fixed total cost with potential savings</li>
+                                                <li>Specific therapy type recommendations</li>
+                                            </ul>
+                                            <p class="mt-2">How to use:</p>
+                                            <ol class="list-decimal pl-4 space-y-1">
+                                                <li>Select a package that matches patient needs</li>
+                                                <li>Review the session count and cost details</li>
+                                                <li>Package will auto-fill relevant form fields</li>
+                                                <li>Modify values if needed before saving</li>
+                                            </ol>
+                                            <div class="mt-2 p-2 bg-blue-50 rounded">
+                                                <p class="text-blue-700 text-xs">
+                                                    <i class="fas fa-lightbulb mr-1"></i>
+                                                    Featured packages are recommended based on common treatment patterns
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="absolute -top-2 left-2 w-4 h-4 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm text-gray-500">
+                                    Can't find the package you're looking for? 
+                                </span>
+                                <a href="{% url 'create_package' %}" 
+                                   class="text-sm text-blue-600 hover:text-blue-800 focus:outline-none">
+                                    <i class="fas fa-plus-circle mr-1"></i>Create New Package
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if packages %}
+                            <!-- Package Categories -->
+                            <div class="mb-4">
+                                <div class="border-b border-gray-200">
+                                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="package-tabs" data-tabs-toggle="#package-tabs-content" role="tablist">
+                                        <li class="mr-2" role="presentation">
+                                            <button class="inline-block p-4 border-b-2 rounded-t-lg" 
+                                                    id="all-tab" 
+                                                    data-tabs-target="#all" 
+                                                    type="button" 
+                                                    role="tab" 
+                                                    aria-controls="all" 
+                                                    aria-selected="true">
+                                                All Packages
+                                            </button>
+                                        </li>
+                                        <li class="mr-2" role="presentation">
+                                            <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                                                    id="featured-tab" 
+                                                    data-tabs-target="#featured" 
+                                                    type="button" 
+                                                    role="tab" 
+                                                    aria-controls="featured" 
+                                                    aria-selected="false">
+                                                Featured
+                                            </button>
+                                        </li>
+                                        {% regroup packages by therapy_type as therapy_types %}
+                                        {% for type in therapy_types %}
+                                            {% if type.grouper %}
+                                                <li class="mr-2" role="presentation">
+                                                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                                                            id="type-{{ type.grouper.therapy_type }}-tab" 
+                                                            data-tabs-target="#type-{{ type.grouper.therapy_type }}" 
+                                                            type="button" 
+                                                            role="tab" 
+                                                            aria-controls="type-{{ type.grouper.therapy_type }}" 
+                                                            aria-selected="false">
+                                                        {{ type.grouper.get_therapy_type_display }}
+                                                    </button>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+
+                                <!-- Tab Content -->
+                                <div id="package-tabs-content">
+                                    <!-- All Packages Tab -->
+                                    <div class="hidden p-4" id="all" role="tabpanel" aria-labelledby="all-tab">
+                                        <div class="max-h-96 overflow-y-auto">
+                                            {% include "./packages/package_table.html" with packages=packages %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Featured Packages Tab -->
+                                    <div class="hidden p-4" id="featured" role="tabpanel" aria-labelledby="featured-tab">
+                                        <div class="max-h-96 overflow-y-auto">
+                                            {% include "./packages/package_table.html" with packages=packages|featured_packages %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Therapy Type Tabs -->
+                                    {% for type in therapy_types %}
+                                        {% if type.grouper %}
+                                            <div class="hidden p-4" 
+                                                 id="type-{{ type.grouper.therapy_type }}" 
+                                                 role="tabpanel" 
+                                                 aria-labelledby="type-{{ type.grouper.therapy_type }}-tab">
+                                                <div class="max-h-96 overflow-y-auto">
+                                                    {% include "./packages/package_table.html" with packages=type.list %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Selected Package Preview -->
+                            <div id="selected-package-preview" class="hidden mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-medium text-blue-800" id="selected-package-name"></h4>
+                                        <p class="text-sm text-blue-600" id="selected-package-details"></p>
+                                    </div>
+                                    <button type="button" onclick="clearPackageSelection()" class="text-gray-400 hover:text-gray-500">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-6">
+                                <p class="text-gray-500 mb-2">No packages available</p>
+                                <a href="{% url 'create_package' %}" 
+                                   class="inline-flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>Create First Package
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Rest of the form fields -->
+                <div>{{ form.start_date|as_crispy_field }}</div>
+                <div>{{ form.total_sessions_planned|as_crispy_field }}</div>
+                <div>{{ form.current_dose|as_crispy_field }}</div>
+                <div>{{ form.total_cost|as_crispy_field }}</div>
+                <div>{{ form.reminder_frequency|as_crispy_field }}</div>
+                <div>{{ form.rfid_card|as_crispy_field }}</div>
+            </div>
+
+            <div class="col-span-full">
+                {{ form.special_instructions|as_crispy_field }}
+            </div>
+
+            <!-- Add this after the existing form fields but before the submit button -->
+            <div class="col-span-full mt-6">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-4">Payment Configuration</h3>
+                    
+                    <!-- Payment Type -->
+                    <div class="space-y-4 mb-6">
+                        <label class="block text-sm font-medium text-gray-700">Payment Type*</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {% for value, label in form.payment_type.field.choices %}
+                            <div class="relative">
+                                <input type="radio" 
+                                       name="payment_type" 
+                                       id="payment_type_{{ value }}" 
+                                       value="{{ value }}"
+                                       {% if form.payment_type.value == value %}checked{% endif %}
+                                       class="hidden peer"
+                                       onchange="toggleInstallmentFields(this.value)">
+                                <label for="payment_type_{{ value }}" 
+                                       class="block p-4 bg-white border rounded-lg cursor-pointer 
+                                              peer-checked:border-blue-500 peer-checked:ring-2 peer-checked:ring-blue-500
+                                              hover:bg-gray-50">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <span class="text-sm font-medium text-gray-900">{{ label }}</span>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                {% if value == 'FULL' %}
+                                                Pay complete amount upfront
+                                                {% elif value == 'PARTIAL' %}
+                                                Pay in installments
+                                                {% else %}
+                                                Pay per session
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <i class="fas fa-check text-blue-500 hidden peer-checked:block"></i>
+                                    </div>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method*</label>
+                        <select name="payment_method" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                            {% for value, label in form.payment_method.field.choices %}
+                            <option value="{{ value }}" {% if form.payment_method.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.payment_method.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.payment_method.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Installment Fields (shown only for partial payment) -->
+                    <div id="installment-fields" class="{% if form.payment_type.value != 'PARTIAL' %}hidden{% endif %} space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Number of Installments*</label>
+                            <input type="number" 
+                                   name="number_of_installments" 
+                                   value="{{ form.number_of_installments.value|default:'' }}"
+                                   min="2" 
+                                   class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                            <p class="mt-1 text-sm text-gray-500">Minimum 2 installments required</p>
+                        </div>
+
+                        <!-- Installment Preview -->
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Payment Breakdown</h4>
+                            <div id="installment-preview" class="space-y-2">
+                                <!-- Dynamically populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Immediate Payment Checkbox -->
+                    <div class="mt-6">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" 
+                                   name="immediate_payment" 
+                                   {% if form.immediate_payment.value %}checked{% endif %}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">Collect first payment now</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end mt-6">
+                <button type="submit" 
+                        class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Create Treatment Plan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('patient-search');
+        const selectElement = document.getElementById('{{ form.patient.auto_id }}');
+        const originalOptions = Array.from(selectElement.options);
+    
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            // Reset options
+            selectElement.innerHTML = '';
+            
+            // Filter and add matching options
+            originalOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    selectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            // Add placeholder if no options found
+            if (selectElement.options.length === 0) {
+                const noResults = new Option('No patients found', '');
+                noResults.disabled = true;
+                selectElement.appendChild(noResults);
+            }
+        });
+
+        // Protocol search functionality
+        const protocolSearchInput = document.getElementById('protocol-search');
+        const protocolSelectElement = document.getElementById('{{ form.protocol.auto_id }}');
+        const originalProtocolOptions = Array.from(protocolSelectElement.options);
+        
+        protocolSearchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            protocolSelectElement.innerHTML = '';
+            
+            originalProtocolOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    protocolSelectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            if (protocolSelectElement.options.length === 0) {
+                const noResults = new Option('No protocols found', '');
+                noResults.disabled = true;
+                protocolSelectElement.appendChild(noResults);
+            }
+        });
+
+        // Protocol details fetch
+        protocolSelectElement.addEventListener('change', function() {
+            const protocolId = this.value;
+            if (protocolId) {
+                fetch(`/phototherapy/protocol/${protocolId}/details/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('protocol-details').classList.remove('hidden');
+                        document.getElementById('protocol-initial-dose').textContent = `${data.initial_dose} joules/cm²`;
+                        document.getElementById('protocol-max-dose').textContent = `${data.max_dose} joules/cm²`;
+                        document.getElementById('protocol-increment').textContent = `${data.increment_percentage}%`;
+                        document.getElementById('protocol-frequency').textContent = `${data.frequency_per_week}x per week`;
+                        
+                        // Automatically set initial dose
+                        document.getElementById('id_current_dose').value = data.initial_dose;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching protocol details:', error);
+                        document.getElementById('protocol-details').classList.add('hidden');
+                    });
+            } else {
+                document.getElementById('protocol-details').classList.add('hidden');
+            }
+        });
+
+        // Add patient details fetch
+        document.getElementById('{{ form.patient.auto_id }}').addEventListener('change', function() {
+            const patientId = this.value;
+            if (patientId) {
+                fetch(`/phototherapy/patient/${patientId}/details/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('patient-details').classList.remove('hidden');
+                        document.getElementById('patient-name').textContent = data.full_name;
+                        document.getElementById('patient-gender').textContent = data.gender || 'Not specified';
+                        document.getElementById('patient-contact').textContent = data.phone_number || 'No contact';
+                        document.getElementById('patient-email').textContent = data.email || 'No email';
+                        document.getElementById('patient-history').textContent = 
+                            `${data.completed_plans} completed, ${data.active_plans} active plans`;
+                        
+                        // Set patient image
+                        const imgElement = document.getElementById('patient-image');
+                        if (data.profile_picture) {
+                            imgElement.src = data.profile_picture;
+                        } else {
+                            imgElement.src = '/static/images/default-patient.png';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching patient details:', error);
+                        document.getElementById('patient-details').classList.add('hidden');
+                    });
+            } else {
+                document.getElementById('patient-details').classList.add('hidden');
+            }
+        });
+
+        // Add center search functionality
+        const centerSearchInput = document.getElementById('center-search');
+        const centerSelectElement = document.getElementById('{{ form.center.auto_id }}');
+        const originalCenterOptions = Array.from(centerSelectElement.options);
+
+        centerSearchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            centerSelectElement.innerHTML = '';
+            
+            originalCenterOptions.forEach(option => {
+                if (option.text.toLowerCase().includes(searchTerm)) {
+                    centerSelectElement.appendChild(option.cloneNode(true));
+                }
+            });
+            
+            if (centerSelectElement.options.length === 0) {
+                const noResults = new Option('No centers found', '');
+                noResults.disabled = true;
+                centerSelectElement.appendChild(noResults);
+            }
+        });
+
+        // Add center details fetch
+        document.getElementById('{{ form.center.auto_id }}').addEventListener('change', function() {
+            const centerId = this.value;
+            if (centerId) {
+                fetch(`/phototherapy/center/${centerId}/details/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('center-details').classList.remove('hidden');
+                        document.getElementById('center-address').textContent = data.address;
+                        document.getElementById('center-contact').textContent = `${data.contact_number} | ${data.email}`;
+                        document.getElementById('center-hours').textContent = data.operating_hours;
+                        document.getElementById('center-devices').textContent = `${data.available_devices} active devices`;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching center details:', error);
+                        document.getElementById('center-details').classList.add('hidden');
+                    });
+            } else {
+                document.getElementById('center-details').classList.add('hidden');
+            }
+        });
+    });
+
+    function toggleInstallmentFields(paymentType) {
+        const installmentFields = document.getElementById('installment-fields');
+        if (paymentType === 'PARTIAL') {
+            installmentFields.classList.remove('hidden');
+            updateInstallmentPreview();
+        } else {
+            installmentFields.classList.add('hidden');
+        }
+    }
+
+    function updateInstallmentPreview() {
+        const totalCost = parseFloat(document.getElementById('id_total_cost').value) || 0;
+        const installments = parseInt(document.querySelector('input[name="number_of_installments"]').value) || 0;
+        const preview = document.getElementById('installment-preview');
+        
+        if (installments >= 2 && totalCost > 0) {
+            const amountPerInstallment = (totalCost / installments).toFixed(2);
+            let html = '';
+            
+            for (let i = 1; i <= installments; i++) {
+                html += `
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">Installment ${i}</span>
+                        <span class="font-medium">₹${amountPerInstallment}</span>
+                    </div>
+                `;
+            }
+            
+            preview.innerHTML = html;
+        } else {
+            preview.innerHTML = '<p class="text-sm text-gray-500">Please enter valid total cost and number of installments</p>';
+        }
+    }
+
+    // Add event listeners
+    document.querySelector('input[name="number_of_installments"]').addEventListener('input', updateInstallmentPreview);
+    document.getElementById('id_total_cost').addEventListener('input', updateInstallmentPreview);
+
+    // Initial setup
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectedPaymentType = document.querySelector('input[name="payment_type"]:checked');
+        if (selectedPaymentType) {
+            toggleInstallmentFields(selectedPaymentType.value);
+        }
+    });
+
+    // Add these new functions after the existing code
+    function selectPackage(sessions, cost, packageName) {
+        // Set the sessions and cost fields
+        document.getElementById('id_total_sessions_planned').value = sessions;
+        document.getElementById('id_total_cost').value = cost;
+        
+        // Highlight the selected package
+        document.querySelectorAll('[onclick^="selectPackage"]').forEach(el => {
+            el.classList.remove('border-blue-500', 'ring-2', 'ring-blue-500');
+        });
+        event.currentTarget.classList.add('border-blue-500', 'ring-2', 'ring-blue-500');
+        
+        // Update the installment preview if needed
+        if (typeof updateInstallmentPreview === 'function') {
+            updateInstallmentPreview();
+        }
+        
+        // Show a confirmation message
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'fixed bottom-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+        messageDiv.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${packageName} package selected`;
+        document.body.appendChild(messageDiv);
+        
+        // Remove the message after 3 seconds
+        setTimeout(() => messageDiv.remove(), 3000);
+    }
+
+    // Toggle additional packages
+    document.getElementById('show-more-packages').addEventListener('click', function() {
+        const additionalPackages = document.getElementById('additional-packages');
+        const isHidden = additionalPackages.classList.contains('hidden');
+        
+        if (isHidden) {
+            additionalPackages.classList.remove('hidden');
+            this.innerHTML = '<i class="fas fa-minus-circle mr-1"></i>Show less packages';
+        } else {
+            additionalPackages.classList.add('hidden');
+            this.innerHTML = '<i class="fas fa-plus-circle mr-1"></i>Show more packages';
+        }
+    });
+
+    // Update package selection function
+    function selectPackage(sessions, cost, packageName) {
+        // Set form values
+        document.getElementById('id_total_sessions_planned').value = sessions;
+        document.getElementById('id_total_cost').value = cost;
+        
+        // Update preview
+        const preview = document.getElementById('selected-package-preview');
+        const nameElement = document.getElementById('selected-package-name');
+        const detailsElement = document.getElementById('selected-package-details');
+        
+        preview.classList.remove('hidden');
+        nameElement.textContent = packageName;
+        detailsElement.textContent = `${sessions} sessions - ₹${cost} (₹${(cost/sessions).toFixed(0)} per session)`;
+        
+        // Highlight selected row
+        document.querySelectorAll('.package-row').forEach(row => {
+            row.classList.remove('bg-blue-50', 'border-blue-500');
+        });
+        event.currentTarget.classList.add('bg-blue-50', 'border-blue-500');
+        
+        // Update installment preview if needed
+        if (typeof updateInstallmentPreview === 'function') {
+            updateInstallmentPreview();
+        }
+    }
+
+    function clearPackageSelection() {
+        document.getElementById('id_total_sessions_planned').value = '';
+        document.getElementById('id_total_cost').value = '';
+        document.getElementById('selected-package-preview').classList.add('hidden');
+        document.querySelectorAll('.package-row').forEach(row => {
+            row.classList.remove('bg-blue-50', 'border-blue-500');
+        });
+    }
+</script>
+{% endblock %}
