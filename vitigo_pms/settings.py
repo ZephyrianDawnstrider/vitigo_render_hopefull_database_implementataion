@@ -125,35 +125,35 @@ WSGI_APPLICATION = 'vitigo_pms.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 #used for local development
-DATABASES = {
-    'default': {
-        'ENGINE': 'mssql',
-        'NAME': 'vitigo_render_database',
-        'HOST': 'localhost',
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server',
-            'trusted_connection': 'yes',
-            'TrustServerCertificate': 'yes',
-            'encrypt': 'no',
-        },
-    }
-}
-
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'mssql',
 #         'NAME': 'vitigo_render_database',
-#         'HOST': 'your_server_ip_or_hostname',
-#         'USER': 'your_sql_username',
-#         'PASSWORD': 'your_sql_password',
+#         'HOST': 'localhost',
 #         'OPTIONS': {
 #             'driver': 'ODBC Driver 17 for SQL Server',
+#             'trusted_connection': 'yes',
 #             'TrustServerCertificate': 'yes',
 #             'encrypt': 'no',
 #         },
 #     }
 # }
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'mssql',
+        'NAME': 'vitigodatabase',
+        'HOST': '103.205.64.106,2499',
+        'USER': 'vindigouser',
+        'PASSWORD': 'vindigo@2345#',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'TrustServerCertificate': 'yes',
+            'encrypt': 'no',
+        },
+    }
+}
 
 # database ={
 #     'default': {
