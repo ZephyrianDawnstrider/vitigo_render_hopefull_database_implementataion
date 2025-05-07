@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     gnupg2 \
     apt-transport-https \
     unixodbc-dev \
+    && apt-get remove -y libodbc2 libodbcinst2 unixodbc-common \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
