@@ -12181,3 +12181,14 @@ smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepte
 2025-05-07 15:36:21 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
 2025-05-07 15:36:21 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 25121
 2025-05-07 16:04:27 [WARNING] django.server: "GET /favicon.ico HTTP/1.1" 404 6072
+2025-05-07 17:33:15 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 17:33:19 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 17:33:40 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 17:33:42 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 17:33:50 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 17:33:54 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 17:34:20 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 17:34:23 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 17:38:32 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
+2025-05-07 17:38:35 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-07 17:39:06 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
