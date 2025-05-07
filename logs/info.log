@@ -12180,3 +12180,4 @@ smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepte
 2025-05-07 15:36:15 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 6691
 2025-05-07 15:36:21 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
 2025-05-07 15:36:21 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 25121
+2025-05-07 16:04:27 [WARNING] django.server: "GET /favicon.ico HTTP/1.1" 404 6072
