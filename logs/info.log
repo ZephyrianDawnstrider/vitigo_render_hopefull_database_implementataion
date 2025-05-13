@@ -12472,3 +12472,7 @@ smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepte
 2025-05-13 10:39:46 [INFO] django.server: "GET /consultations/ HTTP/1.1" 200 91919
 2025-05-13 10:39:48 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 220256
 2025-05-13 10:39:51 [INFO] django.server: "GET /patients/ HTTP/1.1" 200 84192
+2025-05-13 11:42:55 [INFO] django.server: "GET /patients/ HTTP/1.1" 200 84192
+2025-05-13 11:42:59 [INFO] django.server: "GET /finance/ HTTP/1.1" 200 26659
+2025-05-13 11:43:01 [INFO] django.server: "GET /finance/ HTTP/1.1" 200 26659
+2025-05-13 11:44:44 [INFO] django.server: "GET /procedures/ HTTP/1.1" 200 34383
