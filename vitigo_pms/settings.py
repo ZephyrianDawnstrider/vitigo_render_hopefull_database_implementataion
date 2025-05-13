@@ -13,7 +13,8 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from cryptography.fernet import Fernet
-
+import logging
+from logging.handlers import TimedRotatingFileHandler
 load_dotenv()
 
 DJANGO_ENV = os.getenv('DJANGO_ENV', 'development')
@@ -291,34 +292,31 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
         'file_debug': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join(LOGS_DIR, 'debug.log'),
-            'maxBytes': LOG_FILE_SIZE,
-            'backupCount': LOG_FILE_BACKUP_COUNT,
             'formatter': 'verbose',
+            'encoding': 'utf8',
         },
         'file_info': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join(LOGS_DIR, 'info.log'),
-            'maxBytes': LOG_FILE_SIZE,
-            'backupCount': LOG_FILE_BACKUP_COUNT,
             'formatter': 'verbose',
+            'encoding': 'utf8',
         },
         'file_error': {
             'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.join(LOGS_DIR, 'error.log'),
-            'maxBytes': LOG_FILE_SIZE,
-            'backupCount': LOG_FILE_BACKUP_COUNT,
             'formatter': 'verbose',
+            'encoding': 'utf8',
         },
         'mail_admins': {
             'level': 'ERROR',

@@ -173,8 +173,12 @@ class UserProfileView(LoginRequiredMixin, UserPassesTestMixin, View):
         return PermissionManager.check_module_access(self.request.user, 'user_management')
         
     def dispatch(self, request, *args, **kwargs):
-        if not PermissionManager.check_module_access(self.request.user, 'user_management'):
+        user_role_name = getattr(request.user.role, 'name', 'No Role')
+        has_access = PermissionManager.check_module_access(request.user, 'user_management')
+        logger.debug(f"UserProfileView dispatch: user={request.user.email}, role={user_role_name}, has_access={has_access}")
+        if not has_access:
             messages.error(request, "You don't have permission to access profile management")
+            logger.warning(f"Permission denied for user {request.user.email} with role {user_role_name} in UserProfileView")
             return handler403(request, exception="Insufficient Permissions")
         return super().dispatch(request, *args, **kwargs)
 
