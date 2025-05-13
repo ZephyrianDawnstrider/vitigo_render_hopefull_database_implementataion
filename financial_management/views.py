@@ -79,7 +79,7 @@ class FinanceManagementView(LoginRequiredMixin, View):
     def get_context_data(self):
         try:
             invoices = Invoice.objects.select_related(
-                'patient__user',
+                'patient',
                 'created_by'
             ).prefetch_related(
                 'items',

@@ -16408,3 +16408,7 @@ django.core.exceptions.ImproperlyConfigured: settings.DATABASES is improperly co
 2025-05-07 13:19:16 [ERROR] lab_management.views: Error in lab management view: Invalid field name(s) given in select_related: 'user'. Choices are: role, auth_token, patient_profile, virtual_waiting_room, employee_profile, subscription, doctor_profile
 2025-05-07 13:19:16 [ERROR] django.request: Internal Server Error: /lab/
 2025-05-07 13:19:16 [ERROR] django.server: "GET /lab/ HTTP/1.1" 500 7223
+2025-05-13 10:27:30 [ERROR] financial_management.views: Error in finance management view: Invalid field name(s) given in select_related: 'user'. Choices are: role, auth_token, patient_profile, virtual_waiting_room, employee_profile, subscription, doctor_profile
+2025-05-13 10:27:30 [ERROR] django.request: Internal Server Error: /finance/
+2025-05-13 10:27:30 [ERROR] django.server: "GET /finance/ HTTP/1.1" 500 7233
+2025-05-13 10:38:27 [ERROR] hr_management.views.dashboard: Error calculating key metrics: ('42000', '[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Operand data type date is invalid for subtract operator. (8117) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
