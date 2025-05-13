@@ -12192,3 +12192,137 @@ smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepte
 2025-05-07 17:38:32 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\vitigo_pms\settings.py changed, reloading.
 2025-05-07 17:38:35 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
 2025-05-07 17:39:06 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-08 10:53:00 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-08 10:53:10 [INFO] django.server: "GET / HTTP/1.1" 200 25439
+2025-05-08 10:53:12 [WARNING] django.server: "GET /favicon.ico HTTP/1.1" 404 6072
+2025-05-08 10:53:35 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 302 0
+2025-05-08 10:53:36 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 25121
+2025-05-08 10:54:25 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 302 0
+2025-05-08 10:54:26 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 25121
+2025-05-08 10:54:30 [INFO] user_management.authentication_views: User logged out: ayushchaturvedi405@gmail.com (Role: Patient)
+2025-05-08 10:54:30 [INFO] django.server: "GET /accounts/logout/ HTTP/1.1" 302 0
+2025-05-08 10:54:30 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 7262
+2025-05-08 10:54:38 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
+2025-05-08 10:54:39 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24767
+2025-05-08 10:55:00 [INFO] django.server: "GET /lab/ HTTP/1.1" 200 27076
+2025-05-08 10:55:16 [INFO] django.server: "GET /patients/ HTTP/1.1" 200 84192
+2025-05-08 10:55:18 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 220256
+2025-05-08 10:55:21 [INFO] django.server: "GET /consultations/ HTTP/1.1" 200 91922
+2025-05-08 10:55:23 [INFO] django.server: "GET /queries/ HTTP/1.1" 200 318930
+2025-05-08 10:58:42 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24641
+2025-05-08 10:58:45 [INFO] user_management.authentication_views: User logged out: softtech@google.com (Role: Administrator)
+2025-05-08 10:58:45 [INFO] django.server: "GET /accounts/logout/ HTTP/1.1" 302 0
+2025-05-08 10:58:45 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 6691
+2025-05-08 10:58:56 [INFO] django.server: "GET / HTTP/1.1" 200 25439
+2025-05-08 11:00:04 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 6398
+2025-05-08 11:00:14 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
+2025-05-08 11:00:15 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24767
+2025-05-08 11:00:28 [INFO] django.server: "GET /patients/ HTTP/1.1" 200 84192
+2025-05-08 11:00:33 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 220256
+2025-05-08 11:00:43 [INFO] user_management.authentication_views: User logged out: softtech@google.com (Role: Administrator)
+2025-05-08 11:00:43 [INFO] django.server: "GET /accounts/logout/ HTTP/1.1" 302 0
+2025-05-08 11:00:43 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 6691
+2025-05-08 11:00:56 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
+2025-05-08 11:00:58 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 21944
+2025-05-08 11:01:08 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 217413
+2025-05-08 11:01:18 [INFO] user_management.authentication_views: User logged out: Doctor@123.com (Role: Doctor)
+2025-05-08 11:01:18 [INFO] django.server: "GET /accounts/logout/ HTTP/1.1" 302 0
+2025-05-08 11:01:18 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 6701
+2025-05-08 11:01:32 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 200 6710
+2025-05-08 11:01:38 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
+2025-05-08 11:01:39 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 25121
+2025-05-08 11:01:52 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 10736
+2025-05-08 11:01:54 [INFO] django.server: "GET /consultations/patient/ HTTP/1.1" 200 9762
+2025-05-08 11:02:02 [INFO] user_management.authentication_views: User logged out: ayushchaturvedi405@gmail.com (Role: Patient)
+2025-05-08 11:02:02 [INFO] django.server: "GET /accounts/logout/ HTTP/1.1" 302 0
+2025-05-08 11:02:02 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 200 6991
+2025-05-08 11:05:08 [INFO] django.server: "POST /accounts/login/ HTTP/1.1" 302 0
+2025-05-08 11:05:09 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24767
+2025-05-08 11:27:54 [INFO] django.server: "GET /procedures/ HTTP/1.1" 200 34383
+2025-05-08 11:45:52 [INFO] django.server: - Broken pipe from ('127.0.0.1', 61195)
+2025-05-08 11:45:52 [INFO] django.server: "GET /clinic/ HTTP/1.1" 200 39903
+2025-05-09 09:32:13 [INFO] django.server: "GET /procedures/ HTTP/1.1" 200 34383
+2025-05-12 09:53:34 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-12 09:56:16 [INFO] django.server: "GET / HTTP/1.1" 200 25439
+2025-05-12 09:56:18 [WARNING] django.server: "GET /favicon.ico HTTP/1.1" 404 6072
+2025-05-12 09:56:20 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 302 0
+2025-05-12 09:56:21 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24762
+2025-05-12 09:56:27 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193735
+2025-05-12 09:56:34 [INFO] django.server: "GET /access-control/dashboard/ HTTP/1.1" 200 125127
+2025-05-12 09:56:36 [INFO] django.server: "GET /access-control/roles/manage/ HTTP/1.1" 200 26779
+2025-05-12 09:56:38 [INFO] django.server: "GET /access-control/roles/6/permissions/ HTTP/1.1" 200 2734
+2025-05-12 09:56:43 [INFO] django.server: "POST /access-control/roles/6/permissions/ HTTP/1.1" 200 64
+2025-05-12 09:56:48 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193735
+2025-05-12 09:56:53 [INFO] django.server: "GET /accounts/create/ HTTP/1.1" 200 39240
+2025-05-12 09:56:53 [WARNING] django.server: "GET /api/placeholder/128/128 HTTP/1.1" 404 12168
+2025-05-12 09:57:33 [INFO] django.server: "POST /accounts/create/ HTTP/1.1" 302 0
+2025-05-12 09:57:34 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193810
+2025-05-12 09:59:42 [INFO] django.server: "GET /access-control/dashboard/ HTTP/1.1" 200 125127
+2025-05-12 09:59:44 [INFO] django.server: "GET /access-control/roles/manage/ HTTP/1.1" 200 26779
+2025-05-12 09:59:49 [INFO] django.server: "GET /access-control/roles/9/permissions/ HTTP/1.1" 200 2750
+2025-05-12 10:00:45 [INFO] django.server: "POST /access-control/roles/9/permissions/ HTTP/1.1" 200 64
+2025-05-12 10:00:51 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193691
+2025-05-12 10:00:56 [INFO] django.server: "GET /accounts/create/ HTTP/1.1" 200 39240
+2025-05-12 10:00:56 [WARNING] django.server: "GET /api/placeholder/128/128 HTTP/1.1" 404 12168
+2025-05-12 10:01:44 [INFO] django.server: "POST /accounts/create/ HTTP/1.1" 302 0
+2025-05-12 10:01:45 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193742
+2025-05-12 10:03:29 [INFO] django.server: "GET /access-control/dashboard/ HTTP/1.1" 200 125128
+2025-05-12 10:03:32 [INFO] django.server: "GET /access-control/roles/manage/ HTTP/1.1" 200 26779
+2025-05-12 10:03:35 [INFO] django.server: "GET /access-control/roles/12/permissions/ HTTP/1.1" 200 2750
+2025-05-12 10:04:21 [INFO] django.server: "POST /access-control/roles/12/permissions/ HTTP/1.1" 200 64
+2025-05-12 10:04:28 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193628
+2025-05-12 10:04:43 [INFO] user_management.views: Password reset for user admin@test.com by softtech@google.com
+2025-05-12 10:04:43 [INFO] django.server: "POST /accounts/reset-password/101/ HTTP/1.1" 302 0
+2025-05-12 10:04:43 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193762
+2025-05-12 10:04:59 [INFO] user_management.views: Password reset for user admin@test.com by softtech@google.com
+2025-05-12 10:04:59 [INFO] django.server: "POST /accounts/reset-password/101/ HTTP/1.1" 302 0
+2025-05-12 10:05:04 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193762
+2025-05-12 10:06:39 [INFO] user_management.views: Password reset for user contrerasmonique@example.net by softtech@google.com
+2025-05-12 10:06:39 [INFO] django.server: "POST /accounts/reset-password/100/ HTTP/1.1" 302 0
+2025-05-12 10:06:42 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193774
+2025-05-12 10:07:37 [INFO] django.server: "GET /accounts/?page=2 HTTP/1.1" 200 194129
+2025-05-12 10:07:44 [INFO] django.server: "GET /accounts/?page=1 HTTP/1.1" 200 193628
+2025-05-12 10:07:53 [INFO] django.server: "GET /accounts/101/edit/ HTTP/1.1" 200 35437
+2025-05-12 10:07:53 [WARNING] django.server: "GET /static/images/default-profile.png HTTP/1.1" 404 1938
+2025-05-12 10:08:01 [INFO] django.server: "GET /accounts/101/ HTTP/1.1" 200 25512
+2025-05-12 10:08:09 [INFO] django.server: "GET /accounts/101/edit/ HTTP/1.1" 200 35437
+2025-05-12 10:08:09 [WARNING] django.server: "GET /static/images/default-profile.png HTTP/1.1" 404 1938
+2025-05-12 10:08:30 [INFO] django.server: "GET /accounts/112/ HTTP/1.1" 200 25520
+2025-05-12 10:08:41 [INFO] django.server: "GET /accounts/112/edit/ HTTP/1.1" 200 35447
+2025-05-12 10:08:41 [WARNING] django.server: "GET /static/images/default-profile.png HTTP/1.1" 404 1938
+2025-05-12 10:08:47 [INFO] user_management.views: User softtech@google.com updated by softtech@google.com
+2025-05-12 10:08:47 [INFO] django.server: "POST /accounts/112/edit/ HTTP/1.1" 302 0
+2025-05-12 10:08:49 [INFO] django.server: "GET /accounts/112/ HTTP/1.1" 200 25624
+2025-05-12 10:12:10 [INFO] django.server: - Broken pipe from ('127.0.0.1', 58950)
+2025-05-12 10:12:16 [INFO] django.server: "GET /accounts/?page=2 HTTP/1.1" 200 194129
+2025-05-12 10:12:31 [INFO] django.server: "GET /access-control/dashboard/ HTTP/1.1" 200 125129
+2025-05-12 10:12:45 [INFO] django.server: "GET /access-control/roles/manage/ HTTP/1.1" 200 26779
+2025-05-12 10:12:48 [INFO] django.server: "GET /access-control/roles/6/permissions/ HTTP/1.1" 200 2734
+2025-05-12 10:13:03 [INFO] django.server: "GET /access-control/roles/14/permissions/ HTTP/1.1" 200 2750
+2025-05-12 10:13:55 [INFO] django.server: "POST /access-control/roles/14/permissions/ HTTP/1.1" 200 64
+2025-05-12 10:13:57 [INFO] django.server: "POST /access-control/roles/14/permissions/ HTTP/1.1" 200 64
+2025-05-12 10:14:14 [INFO] django.server: "GET /access-control/roles/9/permissions/ HTTP/1.1" 200 2736
+2025-05-12 10:14:22 [INFO] django.server: "GET /access-control/roles/12/permissions/ HTTP/1.1" 200 2723
+2025-05-12 10:14:44 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193628
+2025-05-12 10:14:50 [INFO] django.server: "GET /accounts/?page=2 HTTP/1.1" 200 194129
+2025-05-12 10:14:55 [INFO] django.server: "GET /accounts/?page=11 HTTP/1.1" 200 177682
+2025-05-12 10:15:17 [INFO] django.server: "GET /accounts/?page=10 HTTP/1.1" 200 193994
+2025-05-12 10:15:24 [INFO] django.server: "GET /accounts/?page=9 HTTP/1.1" 200 193979
+2025-05-12 10:15:31 [INFO] django.server: "GET /accounts/?page=8 HTTP/1.1" 200 193964
+2025-05-12 10:15:35 [INFO] django.server: "GET /accounts/?page=1 HTTP/1.1" 200 193628
+2025-05-12 10:15:47 [INFO] django.server: "GET /accounts/119/ HTTP/1.1" 200 25478
+2025-05-12 10:15:52 [INFO] django.server: "GET /accounts/119/edit/ HTTP/1.1" 200 35429
+2025-05-12 10:15:52 [WARNING] django.server: "GET /static/images/default-profile.png HTTP/1.1" 404 1938
+2025-05-12 10:15:57 [INFO] user_management.views: User Hr@123.com updated by softtech@google.com
+2025-05-12 10:15:57 [INFO] django.server: "POST /accounts/119/edit/ HTTP/1.1" 302 0
+2025-05-12 10:15:59 [INFO] django.server: "GET /accounts/119/ HTTP/1.1" 200 25573
+2025-05-12 10:16:08 [INFO] django.server: "GET /accounts/?page=1 HTTP/1.1" 200 193601
+2025-05-12 11:24:21 [INFO] django.server: "GET /access-control/dashboard/ HTTP/1.1" 200 125130
+2025-05-12 11:24:23 [INFO] django.server: "GET /access-control/roles/manage/ HTTP/1.1" 200 26779
+2025-05-12 11:24:25 [INFO] django.server: "GET /access-control/roles/4/permissions/ HTTP/1.1" 200 2725
+2025-05-12 11:26:07 [INFO] django.server: "GET /access-control/roles/2/permissions/ HTTP/1.1" 200 2678
+2025-05-12 12:31:55 [INFO] django.utils.autoreload: C:\Users\Ayush\AppData\Local\Programs\Python\Python313\Lib\site-packages\urllib3\poolmanager.py changed, reloading.
+2025-05-12 12:32:02 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-12 14:15:41 [INFO] django.server: - Broken pipe from ('127.0.0.1', 50926)
+2025-05-12 14:15:42 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 220256
+2025-05-13 10:02:11 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
