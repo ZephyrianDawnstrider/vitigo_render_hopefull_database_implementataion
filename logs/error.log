@@ -16412,3 +16412,34 @@ django.core.exceptions.ImproperlyConfigured: settings.DATABASES is improperly co
 2025-05-13 10:27:30 [ERROR] django.request: Internal Server Error: /finance/
 2025-05-13 10:27:30 [ERROR] django.server: "GET /finance/ HTTP/1.1" 500 7233
 2025-05-13 10:38:27 [ERROR] hr_management.views.dashboard: Error calculating key metrics: ('42000', '[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Operand data type date is invalid for subtract operator. (8117) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
+2025-05-13 16:10:31 [ERROR] financial_management.views: Error getting finance context data: name 'cache' is not defined
+2025-05-14 13:37:39 [ERROR] user_management.views: Error in UserManagementView: name 'cache' is not defined
+2025-05-14 13:37:39 [ERROR] django.request: Internal Server Error: /accounts/
+2025-05-14 13:37:39 [ERROR] django.server: "GET /accounts/ HTTP/1.1" 500 6969
+2025-05-14 13:37:46 [ERROR] financial_management.views: Error getting finance context data: name 'cache' is not defined
+2025-05-14 13:37:49 [ERROR] lab_management.views: Error getting lab context data: name 'cache' is not defined
+2025-05-14 13:38:17 [ERROR] lab_management.views: Error getting lab context data: name 'cache' is not defined
+2025-05-14 13:38:22 [ERROR] user_management.views: Error in UserManagementView: name 'cache' is not defined
+2025-05-14 13:38:22 [ERROR] django.request: Internal Server Error: /accounts/
+2025-05-14 13:38:22 [ERROR] django.server: "GET /accounts/ HTTP/1.1" 500 6969
+2025-05-14 13:38:27 [ERROR] user_management.views: Error in UserManagementView: name 'cache' is not defined
+2025-05-14 13:38:27 [ERROR] django.request: Internal Server Error: /accounts/
+2025-05-14 13:38:27 [ERROR] django.server: "GET /accounts/ HTTP/1.1" 500 6969
+2025-05-14 13:40:23 [ERROR] user_management.views: Error in UserManagementView: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2025-05-14 13:40:24 [ERROR] django.request: Internal Server Error: /accounts/
+2025-05-14 13:40:24 [ERROR] django.server: "GET /accounts/ HTTP/1.1" 500 7049
+2025-05-14 13:40:53 [ERROR] user_management.views: Error in UserManagementView: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2025-05-14 13:40:53 [ERROR] django.request: Internal Server Error: /accounts/
+2025-05-14 13:40:53 [ERROR] django.server: "GET /accounts/ HTTP/1.1" 500 7049
+2025-05-14 14:09:11 [ERROR] user_management.views: Error in UserManagementView: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2025-05-14 14:09:12 [ERROR] django.request: Internal Server Error: /accounts/
+2025-05-14 14:09:12 [ERROR] django.server: "GET /accounts/ HTTP/1.1" 500 7049
+2025-05-14 14:09:34 [ERROR] user_management.views: Error in UserManagementView: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2025-05-14 14:09:34 [ERROR] django.request: Internal Server Error: /accounts/
+2025-05-14 14:09:34 [ERROR] django.server: "GET /accounts/ HTTP/1.1" 500 7049
+2025-05-14 14:10:27 [ERROR] user_management.views: Error in UserManagementView: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2025-05-14 14:10:27 [ERROR] django.request: Internal Server Error: /accounts/
+2025-05-14 14:10:27 [ERROR] django.server: "GET /accounts/ HTTP/1.1" 500 7049
+2025-05-14 14:13:17 [ERROR] financial_management.views: Error getting finance context data: name 'cache' is not defined
+2025-05-14 14:13:21 [ERROR] hr_management.views.dashboard: Error calculating key metrics: ('42000', '[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Operand data type date is invalid for subtract operator. (8117) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)')
+2025-05-14 16:14:46 [ERROR] lab_management.views: Error getting lab context data: name 'cache' is not defined

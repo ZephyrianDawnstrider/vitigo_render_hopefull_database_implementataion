@@ -25,6 +25,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 import csv
 
 # Local application imports
+from django.core.cache import cache
 from access_control.models import Role
 from access_control.permissions import PermissionManager
 from appointment_management.models import Appointment
@@ -121,46 +122,50 @@ class UserManagementView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request):
         try:
-            # Get filtered queryset
-            users = self.get_queryset()
-            
-            # Get role-based counts from the filtered queryset
-            total_users = users.filter(is_active=True).count()
-            doctor_count = users.filter(role__name='DOCTOR', is_active=True).count()
-            available_doctors = doctor_count  # You might want to modify this based on your availability logic
-            new_users = users.filter(date_joined__gte=timezone.now().replace(day=1)).count()
-            new_patients = users.filter(
-                role__name='PATIENT',
-                date_joined__gte=timezone.now().replace(day=1)
-            ).count()
+            cache_key = f"user_management_context_{request.get_full_path()}"
+            context = cache.get(cache_key)
+            if context is None:
+                # Get filtered queryset
+                users = self.get_queryset()
+                
+                # Get role-based counts from the filtered queryset
+                total_users = users.filter(is_active=True).count()
+                doctor_count = users.filter(role__name='DOCTOR', is_active=True).count()
+                available_doctors = doctor_count  # You might want to modify this based on your availability logic
+                new_users = users.filter(date_joined__gte=timezone.now().replace(day=1)).count()
+                new_patients = users.filter(
+                    role__name='PATIENT',
+                    date_joined__gte=timezone.now().replace(day=1)
+                ).count()
 
-            # Pagination
-            paginator = Paginator(users, 10)
-            page = request.GET.get('page')
-            try:
-                users = paginator.page(page)
-            except PageNotAnInteger:
-                users = paginator.page(1)
-            except EmptyPage:
-                users = paginator.page(paginator.num_pages)
+                # Pagination
+                paginator = Paginator(users, 10)
+                page = request.GET.get('page')
+                try:
+                    users = paginator.page(page)
+                except PageNotAnInteger:
+                    users = paginator.page(1)
+                except EmptyPage:
+                    users = paginator.page(paginator.num_pages)
 
-            context = {
-                'users': users,
-                'roles': Role.objects.all(),
-                'total_users': total_users,
-                'doctor_count': doctor_count,
-                'available_doctors': available_doctors,
-                'new_users': new_users,
-                'new_patients': new_patients,
-                'paginator': paginator,
-                'page_obj': users,
-                'current_filters': {
-                    'role': request.GET.get('role', ''),
-                    'status': request.GET.get('status', ''),
-                    'date_range': request.GET.get('date_range', ''),
-                    'search': request.GET.get('search', ''),
+                context = {
+                    'users': users,
+                    'roles': Role.objects.all(),
+                    'total_users': total_users,
+                    'doctor_count': doctor_count,
+                    'available_doctors': available_doctors,
+                    'new_users': new_users,
+                    'new_patients': new_patients,
+                    'paginator': paginator,
+                    'page_obj': users,
+                    'current_filters': {
+                        'role': request.GET.get('role', ''),
+                        'status': request.GET.get('status', ''),
+                        'date_range': request.GET.get('date_range', ''),
+                        'search': request.GET.get('search', ''),
+                    }
                 }
-            }
+                cache.set(cache_key, context, timeout=1800)  # Cache for 30 minutes
 
             return render(request, self.get_template_name(), context)
 
@@ -624,6 +629,10 @@ class UserEditView(LoginRequiredMixin, UserPassesTestMixin, View):
             logger.error(f"Error in UserEditView POST: {str(e)}")
             return handler500(request, exception=str(e))
 
+from reporting_and_analytics.tasks import generate_report
+from reporting_and_analytics.models import ReportExport
+from django.http import JsonResponse
+
 class UserExportView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return PermissionManager.check_module_access(self.request.user, 'user_management')
@@ -662,7 +671,7 @@ class UserExportView(LoginRequiredMixin, UserPassesTestMixin, View):
                 raise ValueError("Invalid date range value")
 
         return queryset
-
+    
     def export_csv(self, queryset):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="users_report.csv"'
@@ -771,20 +780,24 @@ class UserExportView(LoginRequiredMixin, UserPassesTestMixin, View):
             start_date = request.GET.get('start_date')
             end_date = request.GET.get('end_date')
 
-            # Get filtered queryset
-            try:
-                queryset = self.get_filtered_queryset(date_range, start_date, end_date)
-            except ValueError as e:
-                messages.error(request, str(e))
-                return redirect('user_management')
+            # Create ReportExport instance
+            export = ReportExport.objects.create(
+                report_name='User Management Export',
+                export_format=export_format,
+                start_date=start_date,
+                end_date=end_date,
+                requested_by=request.user,
+                status='PENDING'
+            )
 
-            if export_format == 'csv':
-                return self.export_csv(queryset)
-            elif export_format == 'pdf':
-                return self.export_pdf(queryset)
-            else:
-                messages.error(request, "Invalid export format")
-                return redirect('user_management')
+            # Trigger Celery task
+            generate_report.delay(export.id)
+
+            # Return JSON response indicating export started
+            return JsonResponse({
+                'message': 'Export started. You will be notified when it is ready.',
+                'export_id': export.id
+            })
 
         except Exception as e:
             messages.error(request, f"Export failed: {str(e)}")
