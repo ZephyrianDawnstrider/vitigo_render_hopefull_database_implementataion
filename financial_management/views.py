@@ -76,37 +76,44 @@ class FinanceManagementView(LoginRequiredMixin, View):
             messages.error(request, "An error occurred while loading financial data")
             return handler500(request, exception=str(e))
 
+    from django.core.cache import cache
+
     def get_context_data(self):
         try:
-            invoices = Invoice.objects.select_related(
-                'patient',
-                'created_by'
-            ).prefetch_related(
-                'items',
-                'payments'
-            )
+            cache_key = 'financial_management_context_data'
+            context = cache.get(cache_key)
+            if context is None:
+                invoices = Invoice.objects.select_related(
+                    'patient',
+                    'created_by'
+                ).prefetch_related(
+                    'items',
+                    'payments'
+                )
 
-            now = timezone.now()
-            context = {
-                'invoices': invoices,
-                'payments': Payment.objects.select_related('invoice', 'received_by'),
-                'expenses': Expense.objects.select_related('created_by', 'approved_by'),
-                'tds_entries': TDSEntry.objects.select_related('expense'),
-                'financial_years': FinancialYear.objects.all(),
-                'financial_reports': FinancialReport.objects.select_related('financial_year', 'generated_by'),
-                'total_invoices': invoices.count(),
-                'total_payments': Payment.objects.aggregate(total_amount=Sum('amount'))['total_amount'] or 0,
-                'total_expenses': Expense.objects.aggregate(total_amount=Sum('total_amount'))['total_amount'] or 0,
-                'total_tds': TDSEntry.objects.aggregate(total_amount=Sum('tds_amount'))['total_amount'] or 0,
-                'total_gst_collected': invoices.aggregate(total_gst=Sum('total_gst_amount'))['total_gst'] or 0,
-            }
+                now = timezone.now()
+                context = {
+                    'invoices': invoices,
+                    'payments': Payment.objects.select_related('invoice', 'received_by'),
+                    'expenses': Expense.objects.select_related('created_by', 'approved_by'),
+                    'tds_entries': TDSEntry.objects.select_related('expense'),
+                    'financial_years': FinancialYear.objects.all(),
+                    'financial_reports': FinancialReport.objects.select_related('financial_year', 'generated_by'),
+                    'total_invoices': invoices.count(),
+                    'total_payments': Payment.objects.aggregate(total_amount=Sum('amount'))['total_amount'] or 0,
+                    'total_expenses': Expense.objects.aggregate(total_amount=Sum('total_amount'))['total_amount'] or 0,
+                    'total_tds': TDSEntry.objects.aggregate(total_amount=Sum('tds_amount'))['total_amount'] or 0,
+                    'total_gst_collected': invoices.aggregate(total_gst=Sum('total_gst_amount'))['total_gst'] or 0,
+                }
 
-            # Calculate net profit
-            context['net_profit'] = context['total_payments'] - context['total_expenses']
+                # Calculate net profit
+                context['net_profit'] = context['total_payments'] - context['total_expenses']
 
-            # Round monetary values
-            for key in ['total_payments', 'total_expenses', 'total_tds', 'total_gst_collected', 'net_profit']:
-                context[key] = round(context[key], 2)
+                # Round monetary values
+                for key in ['total_payments', 'total_expenses', 'total_tds', 'total_gst_collected', 'net_profit']:
+                    context[key] = round(context[key], 2)
+
+                cache.set(cache_key, context, timeout=1800)  # Cache for 30 minutes
 
             return context
         except Exception as e:

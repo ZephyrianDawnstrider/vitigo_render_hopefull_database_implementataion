@@ -78,28 +78,34 @@ class LabManagementView(LoginRequiredMixin, View):
             messages.error(request, "An error occurred while loading lab data")
             return handler500(request, exception=str(e))
 
+    from django.core.cache import cache
+
     def get_context_data(self):
         try:
-            lab_orders = LabOrder.objects.select_related(
-                'patient',
-                'ordered_by'
-            ).prefetch_related(
-                'items__lab_test',
-                'items__result'
-            )
+            cache_key = 'lab_management_context_data'
+            context = cache.get(cache_key)
+            if context is None:
+                lab_orders = LabOrder.objects.select_related(
+                    'patient',
+                    'ordered_by'
+                ).prefetch_related(
+                    'items__lab_test',
+                    'items__result'
+                )
 
-            now = timezone.now()
-            context = {
-                'lab_orders': lab_orders,
-                'pending_tests': lab_orders.filter(status='ORDERED').count(),
-                'critical_results': LabResult.objects.filter(status='CRITICAL').count(),
-                'completed_tests': lab_orders.filter(status='COMPLETED').count(),
-                'monthly_revenue': LabOrderItem.objects.filter(
-                    lab_order__status='COMPLETED',
-                    lab_order__order_date__month=now.month,
-                    lab_order__order_date__year=now.year
-                ).aggregate(total=Sum('price'))['total'] or 0
-            }
+                now = timezone.now()
+                context = {
+                    'lab_orders': lab_orders,
+                    'pending_tests': lab_orders.filter(status='ORDERED').count(),
+                    'critical_results': LabResult.objects.filter(status='CRITICAL').count(),
+                    'completed_tests': lab_orders.filter(status='COMPLETED').count(),
+                    'monthly_revenue': LabOrderItem.objects.filter(
+                        lab_order__status='COMPLETED',
+                        lab_order__order_date__month=now.month,
+                        lab_order__order_date__year=now.year
+                    ).aggregate(total=Sum('price'))['total'] or 0
+                }
+                cache.set(cache_key, context, timeout=1800)  # Cache for 30 minutes
 
             return context
         except Exception as e:
