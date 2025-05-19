@@ -12601,3 +12601,46 @@ smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepte
 2025-05-15 09:30:56 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 302 0
 2025-05-15 09:30:59 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24764
 2025-05-15 09:31:09 [INFO] django.server: "GET /accounts/ HTTP/1.1" 200 193601
+2025-05-15 10:20:40 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\user_management\views.py changed, reloading.
+2025-05-15 10:20:51 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-15 11:40:10 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\user_management\views.py changed, reloading.
+2025-05-15 11:40:13 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-15 12:43:40 [INFO] django.server: "GET /procedures/ HTTP/1.1" 200 34383
+2025-05-16 09:24:45 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-16 09:33:43 [INFO] django.server: "GET / HTTP/1.1" 200 25439
+2025-05-16 09:33:46 [WARNING] django.server: "GET /favicon.ico HTTP/1.1" 404 6072
+2025-05-16 09:33:54 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 302 0
+2025-05-16 09:33:59 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24762
+2025-05-16 09:34:12 [INFO] django.server: "GET /access-control/dashboard/ HTTP/1.1" 200 125130
+2025-05-16 09:35:52 [INFO] django.server: "GET /access-control/roles/manage/ HTTP/1.1" 200 26779
+2025-05-16 09:36:44 [ERROR] django.server: "GET /access-control/roles/1/permissions/ HTTP/1.1" 500 180794
+2025-05-16 09:37:02 [INFO] django.server: "GET /access-control/roles/1/permissions/ HTTP/1.1" 200 2678
+2025-05-16 10:13:19 [INFO] django.server: "GET /consultations/ HTTP/1.1" 200 91919
+2025-05-16 10:17:12 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\consultation_management\views.py changed, reloading.
+2025-05-16 10:17:22 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-16 11:25:02 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\appointment_management\views\timeslots.py changed, reloading.
+2025-05-16 11:25:06 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-16 11:26:08 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\appointment_management\views\timeslots.py changed, reloading.
+2025-05-16 11:26:11 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-16 11:26:25 [INFO] django.server: "GET /appointments/ HTTP/1.1" 200 220256
+2025-05-16 11:26:33 [INFO] django.server: "GET /appointments/create/ HTTP/1.1" 200 43761
+2025-05-16 11:26:38 [INFO] django.server: "GET /appointments/calendar/ HTTP/1.1" 200 387664
+2025-05-16 11:26:38 [WARNING] django.server: "GET /static/images/default-doctor.png HTTP/1.1" 404 1935
+2025-05-16 11:49:50 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24640
+2025-05-16 12:29:00 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\consultation_management\views.py changed, reloading.
+2025-05-16 12:29:03 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-16 12:32:39 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\consultation_management\views.py changed, reloading.
+2025-05-16 12:32:42 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-16 15:07:57 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\consultation_management\views.py changed, reloading.
+2025-05-16 15:08:00 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-16 16:37:10 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\consultation_management\views.py changed, reloading.
+2025-05-16 16:37:13 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-16 17:32:30 [INFO] django.utils.autoreload: C:\Users\Ayush\OneDrive - Crystal Hues Ltd\Desktop\vitigo_render_hopefull_database_implementataion\consultation_management\views.py changed, reloading.
+2025-05-16 17:32:32 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-19 10:19:19 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2025-05-19 10:19:48 [INFO] django.server: "GET / HTTP/1.1" 200 25439
+2025-05-19 10:19:53 [INFO] django.server: "GET / HTTP/1.1" 200 25439
+2025-05-19 10:19:53 [INFO] django.server: "GET / HTTP/1.1" 200 25439
+2025-05-19 10:20:02 [WARNING] django.server: "GET /favicon.ico HTTP/1.1" 404 6072
+2025-05-19 10:20:06 [INFO] django.server: "GET /accounts/login/ HTTP/1.1" 302 0
+2025-05-19 10:20:07 [INFO] django.server: "GET /dashboard/ HTTP/1.1" 200 24762
