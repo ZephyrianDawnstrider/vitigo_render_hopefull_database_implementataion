@@ -408,7 +408,7 @@ class PatientsConsultationCreateView(LoginRequiredMixin, CreateView):
         logger.info(f"form_valid called by user {self.request.user.id} with role {self.request.user.role.name}")
         try:
             consultation = form.save(commit=False)
-            logger.info(f"Consultation patient before assignment: {consultation.patient}")
+            logger.info(f"Consultation patient before assignment: {consultation.patient}")  
             logger.info(f"Logged-in user: {self.request.user} with id {self.request.user.id} and role {self.request.user.role.name}")
             
             # Validate scheduled_datetime is in the future
@@ -681,8 +681,6 @@ class ConsultationDashboardView(LoginRequiredMixin, ListView):
             context['consultation_growth'] = 0
             
         return context
-    
-
 
 class ConsultationCreateView(LoginRequiredMixin, CreateView):
     model = Consultation
@@ -790,7 +788,7 @@ class ConsultationCreateView(LoginRequiredMixin, CreateView):
                     messages.error(self.request, f"{field}: {error}")
             logger.warning(
                 f"Invalid consultation form submission by user {self.request.user.id}: {form.errors}"
-            )
+            )   
             return super().form_invalid(form)
         except Exception as e:
             logger.error(f"Error handling invalid form: {str(e)}")
@@ -1027,7 +1025,7 @@ class ConsultationDetailView(LoginRequiredMixin, DetailView):
                 })
             
             # Sort by timestamp
-            history.sort(key=lambda x: x['timestamp'], reverse=True)
+            history.sort(key=lambda x: x['timestamp'], reverse=True)    
             
             return history
         except Exception as e:
@@ -1045,7 +1043,7 @@ class ConsultationDeleteView(LoginRequiredMixin, View):
             consultation = get_object_or_404(Consultation, id=consultation_id)
             
             # Check if consultation is in the past
-            if consultation.scheduled_datetime <= timezone.now():
+            if consultation.scheduled_datetime <= timezone.now(): 
                 messages.error(request, "Cannot delete past consultations")
                 return redirect('consultation_dashboard')
                 
